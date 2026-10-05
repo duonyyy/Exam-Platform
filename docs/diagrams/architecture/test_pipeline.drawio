@@ -1,0 +1,51 @@
+<mxfile host="app.diagrams.net" modified="2026-10-05T23:20:00.000Z" agent="Antigravity draw.io MCP" version="24.0.0" type="device">
+  <diagram id="test-pipeline" name="Test Architecture Pipeline">
+    <mxGraphModel dx="1000" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Boundary Box -->
+        <mxCell id="boundary-system" value="Exam Platform — Core Request Flow" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=12;fontColor=#64748b;fontStyle=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="240" y="40" width="320" height="500" as="geometry" />
+        </mxCell>
+
+        <!-- Node 1: User -->
+        <mxCell id="node-user" value="User&#xa;(Thí sinh / Giảng viên)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#ffffff;strokeColor=#64748b;strokeWidth=2;fontColor=#0f172a;fontStyle=1;fontSize=13;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="80" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Node 2: Next.js Client -->
+        <mxCell id="node-client" value="Next.js 15+ Web Client&#xa;(App Router / React 19 / Tailwind)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=14;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;fontColor=#1e3a8a;fontStyle=1;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="190" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Node 3: Laravel API Backend -->
+        <mxCell id="node-backend" value="Laravel 13 RESTful API&#xa;(PHP 8.3-FPM / Core Backend)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=14;fillColor=#fef2f2;strokeColor=#ef4444;strokeWidth=2;fontColor=#991b1b;fontStyle=1;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="310" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Node 4: PostgreSQL Database -->
+        <mxCell id="node-db" value="PostgreSQL 16 Database&#xa;(ACID / 13 Tables / Migrations)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;fontStyle=1;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="430" width="200" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 1: User -> Next.js -->
+        <mxCell id="edge-user-client" value="HTTPS / UI Interaction" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#475569;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#475569;fontSize=11;" edge="1" parent="1" source="node-user" target="node-client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 2: Next.js -> Laravel API -->
+        <mxCell id="edge-client-backend" value="RESTful API /api/v1 (JSON)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#475569;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#475569;fontSize=11;" edge="1" parent="1" source="node-client" target="node-backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 3: Laravel API -> PostgreSQL -->
+        <mxCell id="edge-backend-db" value="PDO / Eloquent Queries (Port 5432)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#475569;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#475569;fontSize=11;" edge="1" parent="1" source="node-backend" target="node-db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
