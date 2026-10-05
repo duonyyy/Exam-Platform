@@ -1,0 +1,44 @@
+# <type>(<scope>): <short imperative subject (max 72 chars, recommended <= 50)>
+# |<----  Dòng tiêu đề: Câu mệnh lệnh, chữ thường, không dấu chấm cuối câu ---->|
+
+# [Body: Bối cảnh, lý do (Tại sao) và giải pháp kỹ thuật (Như thế nào)]
+# |<----  Phần thân giải thích: Mỗi dòng không quá 72 ký tự  ------------------->|
+
+# [Footer(s): BREAKING CHANGE, Liên kết Issue, Phase, Ký duyệt An ninh]
+# BREAKING CHANGE: <mô tả chi tiết và hướng dẫn di chuyển / migration guide>
+# Phase: Phase <N> (<Tên Phase>)
+# Use-Case: UC-<ID>
+# Closes #<IssueNumber>
+# Security-Impact: none | low | medium | critical
+
+# ------------------------------------------------------------------------------
+# DANH MỤC TYPE HỢP LỆ:
+#   feat     : Tính năng mới hoặc endpoint mới (SemVer MINOR)
+#   fix      : Sửa lỗi logic, sửa bug crash, xử lý race condition (SemVer PATCH)
+#   security : Vá lỗ hổng bảo mật, phòng chống IDOR, ngăn rò rỉ đề (SemVer PATCH)
+#   perf     : Tối ưu hiệu năng, giảm N+1 query, thêm index CSDL (SemVer PATCH)
+#   refactor : Tái cấu trúc mã nguồn không đổi hành vi/API
+#   test     : Thêm hoặc sửa Feature Tests, Unit Tests
+#   docs     : Cập nhật tài liệu, specs, ADRs, diagrams
+#   style    : Định dạng mã nguồn (Pint, ESLint), không đổi logic
+#   build    : Cập nhật thư viện Composer, pnpm, Dockerfile
+#   ci       : Cấu hình GitHub Actions, Vercel, Quality Gates
+#   chore    : Tác vụ phụ trợ, bảo trì, git template
+#   revert   : Hoàn tác commit trước đó
+#
+# DANH MỤC MONOREPO SCOPES:
+#   Backend (core-api)  : auth, rbac, subject, topic, question, exam, session,
+#                         assignment, invigilation, attempt, answer, scoring,
+#                         proctoring, stats, db, policy, api, queue
+#   Frontend (web-client): client, web-auth, exam-room, timer, autosave,
+#                         proctoring-collector, teacher-portal, admin-portal, ui
+#   AI Layer (agentic)   : agent, langgraph, tools, prompt
+#   Hạ tầng / Toàn cục  : repo, docker, ci, deps, docs
+#
+# 5 NGUYÊN TẮC VÀNG PRODUCTION:
+#   1. Atomic Commits: 1 commit = 1 ý nghĩa logic trọn vẹn, test pass 100%.
+#   2. Zero-Secret: Cấm commit .env, API keys, password, đáp án câu hỏi, PII.
+#   3. Migration: CSDL có up() và down(), có index, test rollback thành công.
+#   4. Co-located Test: feat và fix BẮT BUỘC có Feature Tests đi kèm.
+#   5. Security: Endpoint mới phải có Form Request + Policy, không lộ đáp án.
+# ------------------------------------------------------------------------------

@@ -1,0 +1,83 @@
+# ==============================================================================
+# Monorepo .gitignore — Exam Platform
+# ==============================================================================
+
+# Secrets & Environment Files (QUY TẮC BẢO MẬT TUYỆT ĐỐI - ZERO SECRET LEAKAGE)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.cert
+*.crt
+
+# macOS & Windows system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# ------------------------------------------------------------------------------
+# Backend: Laravel 13 (core-api/)
+# ------------------------------------------------------------------------------
+/core-api/vendor/
+/core-api/bootstrap/cache/*
+!/core-api/bootstrap/cache/.gitignore
+/core-api/storage/*.key
+/core-api/storage/app/*
+!/core-api/storage/app/.gitignore
+!/core-api/storage/app/public/
+/core-api/storage/framework/cache/*
+!/core-api/storage/framework/cache/.gitignore
+/core-api/storage/framework/sessions/*
+!/core-api/storage/framework/sessions/.gitignore
+/core-api/storage/framework/testing/*
+!/core-api/storage/framework/testing/.gitignore
+/core-api/storage/framework/views/*
+!/core-api/storage/framework/views/.gitignore
+/core-api/storage/logs/*
+!/core-api/storage/logs/.gitignore
+/core-api/.phpunit.result.cache
+/core-api/.pest/
+/core-api/coverage/
+
+# ------------------------------------------------------------------------------
+# Frontend: Next.js 15+ (web-client/)
+# ------------------------------------------------------------------------------
+/web-client/node_modules/
+/web-client/.next/
+/web-client/out/
+/web-client/build/
+/web-client/dist/
+/web-client/.pnpm-store/
+/web-client/npm-debug.log*
+/web-client/yarn-debug.log*
+/web-client/yarn-error.log*
+/web-client/pnpm-debug.log*
+/web-client/.turbo/
+
+# ------------------------------------------------------------------------------
+# AI Agent: Python & FastAPI (agentic-system/)
+# ------------------------------------------------------------------------------
+/agentic-system/__pycache__/
+/agentic-system/*.py[cod]
+/agentic-system/*$py.class
+/agentic-system/.pytest_cache/
+/agentic-system/.mypy_cache/
+/agentic-system/.ruff_cache/
+/agentic-system/venv/
+/agentic-system/.venv/
+/agentic-system/env/
+/agentic-system/.env
+
+# Local temporary and scratch files
+scratch/
+tmp/
+temp/

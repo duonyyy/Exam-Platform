@@ -1,0 +1,91 @@
+name: Deploy Frontend to Vercel (CD)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web-client/**'
+      - '.github/workflows/deploy-frontend-vercel.yml'
+  pull_request:
+    paths:
+      - 'web-client/**'
+      - '.github/workflows/deploy-frontend-vercel.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Vercel Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm 9
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Verify package.json exists
+        id: check_pkg
+        run: |
+          if [ -f "web-client/package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::notice::web-client/package.json not yet created. Skipping Vercel deploy until Next.js is initialized."
+          fi
+
+      - name: Check Vercel Token Secret
+        id: check_token
+        run: |
+          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "has_token=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_token=false" >> $GITHUB_OUTPUT
+            echo "::notice::VERCEL_TOKEN secret is not set. If using Native Vercel GitHub App, deployment is handled directly by Vercel."
+          fi
+
+      # -------------------------------------------------------------
+      # Preview Deployment (khi mở Pull Request)
+      # -------------------------------------------------------------
+      - name: Deploy to Vercel Preview (Pull Request)
+        if: steps.check_pkg.outputs.exists == 'true' && steps.check_token.outputs.has_token == 'true' && github.event_name == 'pull_request'
+        working-directory: ./web-client
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          pnpm install --frozen-lockfile
+          npx vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+          npx vercel build --token=$VERCEL_TOKEN
+          PREVIEW_URL=$(npx vercel deploy --prebuilt --token=$VERCEL_TOKEN)
+          echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
+          echo "Preview deployment available at: $PREVIEW_URL"
+
+      # -------------------------------------------------------------
+      # Production Deployment (khi merge vào nhánh main)
+      # -------------------------------------------------------------
+      - name: Deploy to Vercel Production (Push to Main)
+        if: steps.check_pkg.outputs.exists == 'true' && steps.check_token.outputs.has_token == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ./web-client
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          pnpm install --frozen-lockfile
+          npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          npx vercel build --prod --token=$VERCEL_TOKEN
+          PROD_URL=$(npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
+          echo "PROD_URL=$PROD_URL" >> $GITHUB_ENV
+          echo "Production deployment live at: $PROD_URL"

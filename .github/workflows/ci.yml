@@ -1,0 +1,207 @@
+name: Monorepo Quality Gates (CI)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # -------------------------------------------------------------
+  # Job 0: Commit Message Lint (Conventional Commits 1.0.0)
+  # -------------------------------------------------------------
+  commitlint:
+    name: Commit Message Quality Gate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Commitlint
+        run: npm install --no-save @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate PR Commits
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  # -------------------------------------------------------------
+  # Job 1: Path Filtering (Xác định phạm vi thay đổi trong Monorepo)
+  # -------------------------------------------------------------
+  changes:
+    name: Detect Changed Subprojects
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Path Filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'core-api/**'
+              - 'docker/**'
+              - '.github/workflows/ci.yml'
+            frontend:
+              - 'web-client/**'
+              - '.github/workflows/ci.yml'
+
+  # -------------------------------------------------------------
+  # Job 2: Frontend Quality Gates (Next.js 15+ & TypeScript)
+  # -------------------------------------------------------------
+  frontend-ci:
+    name: Frontend Quality Gates (web-client)
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm 9
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Verify package.json exists
+        id: check_pkg
+        run: |
+          if [ -f "web-client/package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::notice::web-client/package.json not yet created. Frontend gates will run once Phase 1 initializes Next.js."
+          fi
+
+      - name: Restore pnpm store cache
+        if: steps.check_pkg.outputs.exists == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('web-client/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Dependencies
+        if: steps.check_pkg.outputs.exists == 'true'
+        working-directory: ./web-client
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Check (ESLint)
+        if: steps.check_pkg.outputs.exists == 'true'
+        working-directory: ./web-client
+        run: pnpm lint
+
+      - name: Type Check (TypeScript strict)
+        if: steps.check_pkg.outputs.exists == 'true'
+        working-directory: ./web-client
+        run: pnpm typecheck
+
+      - name: Build Verification
+        if: steps.check_pkg.outputs.exists == 'true'
+        working-directory: ./web-client
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+        run: pnpm build
+
+  # -------------------------------------------------------------
+  # Job 3: Backend Quality Gates (Laravel 13 & PostgreSQL 16)
+  # -------------------------------------------------------------
+  backend-ci:
+    name: Backend Quality Gates (core-api)
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: exam_platform_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: mbstring, pdo, pdo_pgsql, bcmath, redis, zip
+          coverage: none
+
+      - name: Verify composer.json exists
+        id: check_composer
+        run: |
+          if [ -f "core-api/composer.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::notice::core-api/composer.json not yet created. Backend gates will run once Phase 1 initializes Laravel."
+          fi
+
+      - name: Cache Composer packages
+        if: steps.check_composer.outputs.exists == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('core-api/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        if: steps.check_composer.outputs.exists == 'true'
+        working-directory: ./core-api
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Code Style Check (Laravel Pint)
+        if: steps.check_composer.outputs.exists == 'true'
+        working-directory: ./core-api
+        run: ./vendor/bin/pint --test
+
+      - name: Static Analysis (Larastan Level 8)
+        if: steps.check_composer.outputs.exists == 'true'
+        working-directory: ./core-api
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G
+
+      - name: Run Migrations & Feature Tests (PostgreSQL)
+        if: steps.check_composer.outputs.exists == 'true'
+        working-directory: ./core-api
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: exam_platform_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: secret
+        run: php artisan test --parallel

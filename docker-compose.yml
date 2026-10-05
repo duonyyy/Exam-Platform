@@ -1,0 +1,92 @@
+services:
+  # -------------------------------------------------------------
+  # 1. CORE API BACKEND (Laravel 13 / PHP 8.3-FPM)
+  # -------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: exam_platform_api
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./core-api:/var/www/html
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: exam_platform
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - exam_network
+
+  # -------------------------------------------------------------
+  # 2. REVERSE PROXY / NGINX (HTTP Gateway)
+  # -------------------------------------------------------------
+  web:
+    image: nginx:alpine
+    container_name: exam_platform_web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./core-api:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - exam_network
+
+  # -------------------------------------------------------------
+  # 3. WEB CLIENT FRONTEND (Next.js / React)
+  # -------------------------------------------------------------
+  client:
+    image: node:20-alpine
+    container_name: exam_platform_client
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./web-client:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    command: sh -c "if [ -f package.json ]; then npm run dev; else sleep infinity; fi"
+    networks:
+      - exam_network
+
+  # -------------------------------------------------------------
+  # 4. DATABASE (PostgreSQL 16)
+  # -------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: exam_platform_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: exam_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d exam_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - exam_network
+
+networks:
+  exam_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

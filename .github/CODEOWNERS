@@ -1,0 +1,26 @@
+# ==============================================================================
+# Monorepo Code Ownership Specification — Exam Platform
+# Lines starting with '#' are comments.
+# Each line defines a pattern and one or more owners (usernames or teams).
+# ==============================================================================
+
+# Global fallback owners (toàn bộ kho mã nguồn)
+*                       @admin-tech-lead
+
+# Backend RESTful API (Laravel 13, PHP 8.3, PostgreSQL 16)
+/core-api/              @backend-leads @backend-engineers
+
+# Frontend Web Client (Next.js 15+ App Router, TypeScript, Tailwind)
+/web-client/            @frontend-leads @frontend-engineers
+
+# AI Orchestration Layer (ExamOps Agent, Python, FastAPI, LangGraph)
+/agentic-system/        @ai-agent-leads @ai-engineers
+
+# Infrastructure, Containers, Deployment & CI/CD
+/docker/                @devops-leads
+/docker-compose.yml     @devops-leads
+/.github/               @devops-leads @admin-tech-lead
+
+# Architecture, Security Models & Specifications
+/docs/                  @software-architects @security-engineers
+/AGENTS.md              @software-architects @admin-tech-lead

@@ -1,0 +1,12 @@
+.git
+.github
+core-api/vendor
+core-api/node_modules
+core-api/storage/framework/cache/*
+core-api/storage/framework/sessions/*
+core-api/storage/framework/views/*
+core-api/.env
+web-client/node_modules
+web-client/.next
+web-client/out
+web-client/.env.local
