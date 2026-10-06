@@ -1,0 +1,87 @@
+<mxfile host="app.diagrams.net" modified="2026-10-06T21:43:00.000Z" agent="ExamOps Drawio MCP" version="24.0.0">
+  <diagram id="exam_platform_containers" name="C4 Container Architecture">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;Exam Platform — Kiến Trúc Hệ Thống (C4 Container Diagram)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 12px; color: #64748b;&quot;&gt;Monorepo: Laravel 13 Core API, Next.js 15 Web Client, PostgreSQL 16 &amp;amp; Swagger OpenAPI 3.1&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="670" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor_student" value="&lt;b&gt;Thí sinh (Student)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px; color: #475569;&quot;&gt;Làm bài thi, Autosave 500ms&lt;br&gt;Proctoring Events&lt;/span&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;strokeWidth=2;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="100" y="90" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor_teacher" value="&lt;b&gt;Giảng viên (Teacher)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px; color: #475569;&quot;&gt;Soạn câu hỏi, Đề thi, Lập ca thi&lt;br&gt;Giám sát ca thi trực tiếp&lt;/span&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;strokeWidth=2;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="480" y="90" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor_admin" value="&lt;b&gt;Quản trị viên (Admin)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px; color: #475569;&quot;&gt;Quản lý tài khoản, Phân quyền RBAC&lt;br&gt;Audit log, Cấu hình hệ thống&lt;/span&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;strokeWidth=2;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="860" y="90" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container_boundary" value="Vùng Hạ Tầng Docker Monorepo (exam_network)" style="swimlane;startSize=30;dashed=1;dashPattern=5 5;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=2;html=1;fontStyle=2;fontColor=#475569;arcSize=8;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="190" width="1080" height="520" as="geometry" />
+        </mxCell>
+
+        <mxCell id="client_nextjs" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Web Client Frontend&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;Next.js 15+ App Router, React 19, TypeScript&lt;br&gt;Focus Room Layout, TanStack Query, Tailwind&lt;br&gt;&lt;b&gt;Port: 3000&lt;/b&gt;&lt;/span&gt;" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;fontColor=#1e3a8a;" vertex="1" parent="container_boundary">
+          <mxGeometry x="60" y="60" width="280" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="proxy_nginx" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Nginx Reverse Proxy&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;HTTP Gateway, SSL, Gzip, Security Headers&lt;br&gt;Routing /api/v1 -&amp;gt; app:9000&lt;br&gt;&lt;b&gt;Port: 8000 (HTTP)&lt;/b&gt;&lt;/span&gt;" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#f0fdfa;strokeColor=#0d9488;strokeWidth=2;fontColor=#134e4a;" vertex="1" parent="container_boundary">
+          <mxGeometry x="420" y="60" width="260" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="swagger_ui" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;OpenAPI 3.1 &amp;amp; Swagger UI&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;dedoc/scramble (Zero-Annotation)&lt;br&gt;Interactive API Docs &amp;amp; Typegen&lt;br&gt;&lt;b&gt;Route: /docs/api&lt;/b&gt;&lt;/span&gt;" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#f59e0b;strokeWidth=2;fontColor=#78350f;" vertex="1" parent="container_boundary">
+          <mxGeometry x="760" y="60" width="260" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="core_api" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Core API Backend&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;Laravel 13, PHP 8.3-FPM (Stateless REST /api/v1)&lt;br&gt;Sanctum Bearer Token, Policy IDOR Defense&lt;br&gt;Single-Responsibility Actions, Form Requests&lt;br&gt;Scoring Engine (AttemptScorer)&lt;br&gt;&lt;b&gt;Port: 9000 (FastCGI)&lt;/b&gt;&lt;/span&gt;" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;strokeWidth=2;fontColor=#991b1b;" vertex="1" parent="container_boundary">
+          <mxGeometry x="360" y="230" width="380" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="db_postgres" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;PostgreSQL 16 Database&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;13 Bảng CSDL ACID, JSONB Questions&lt;br&gt;Pessimistic Locking (lockForUpdate)&lt;br&gt;Composite Indexes, Foreign Key Constraints&lt;br&gt;&lt;b&gt;Port: 5432&lt;/b&gt;&lt;/span&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;" vertex="1" parent="container_boundary">
+          <mxGeometry x="220" y="380" width="300" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cache_redis" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Redis 7 Engine&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;Cache Store, Atomic Locks&lt;br&gt;Rate Limiting, Async Queues&lt;br&gt;&lt;b&gt;Port: 6379&lt;/b&gt;&lt;/span&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#faf5ff;strokeColor=#a855f7;strokeWidth=2;fontColor=#581c87;" vertex="1" parent="container_boundary">
+          <mxGeometry x="620" y="380" width="260" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_student_client" value="Truy cập phòng thi" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;fontColor=#1e3a8a;fontSize=11;" edge="1" source="actor_student" target="client_nextjs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_teacher_client" value="Quản lý đề &amp;amp; ca thi" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=1;fontColor=#1e3a8a;fontSize=11;" edge="1" source="actor_teacher" target="client_nextjs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_admin_docs" value="Kiểm tra Swagger" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=1;fontColor=#78350f;fontSize=11;" edge="1" source="actor_admin" target="swagger_ui" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_client_proxy" value="Fetch API JSON (/api/v1)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0d9488;strokeWidth=2;fontColor=#134e4a;fontSize=11;" edge="1" source="client_nextjs" target="proxy_nginx" parent="container_boundary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_proxy_api" value="FastCGI Pass" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ef4444;strokeWidth=2;fontColor=#991b1b;fontSize=11;" edge="1" source="proxy_nginx" target="core_api" parent="container_boundary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_api_swagger" value="Quét Doc Scramble" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=1;dashed=1;fontColor=#78350f;fontSize=11;" edge="1" source="core_api" target="swagger_ui" parent="container_boundary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_api_db" value="PostgreSQL PDO (lockForUpdate, CRUD)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;fontSize=11;" edge="1" source="core_api" target="db_postgres" parent="container_boundary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_api_redis" value="Cache &amp;amp; Queues" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#a855f7;strokeWidth=2;fontColor=#581c87;fontSize=11;" edge="1" source="core_api" target="cache_redis" parent="container_boundary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
