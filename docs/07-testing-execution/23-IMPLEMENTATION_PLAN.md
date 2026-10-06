@@ -37,16 +37,16 @@
 ### Phase 2 — Xác thực & Phân quyền Vai trò (Auth & RBAC)
 - **Mục tiêu**: Hoàn thiện đăng ký, đăng nhập, đăng xuất, lấy thông tin cá nhân và phân quyền Role Middleware.
 - **Phụ thuộc**: Phase 1.
-- **Tệp tin ảnh hưởng**: `app/Http/Controllers/Api/V1/AuthController.php`, `app/Http/Middleware/RoleMiddleware.php`, `routes/api.php`.
-- **Thay đổi CSDL**: Bổ sung cột `role` (`admin, teacher, student`), `is_active` vào bảng `users`.
+- **Tệp tin ảnh hưởng**: `app/Http/Controllers/Api/V1/AuthController.php`, `app/Http/Requests/Auth/RegisterRequest.php`, `app/Http/Requests/Auth/LoginRequest.php`, `app/Http/Resources/UserResource.php`, `app/Http/Middleware/RoleMiddleware.php`, `routes/api.php`.
+- **Thay đổi CSDL**: Sử dụng bảng `users` (`role`, `is_active`, `code`) và `personal_access_tokens`.
 - **Endpoints**:
-  - `POST /api/v1/auth/register`
-  - `POST /api/v1/auth/login`
-  - `POST /api/v1/auth/logout`
-  - `GET /api/v1/auth/me`
-- **Kiểm soát An ninh**: Băm mật khẩu bằng Bcrypt, Rate Limiting 5 lần/phút cho login, thu hồi token khi logout.
-- **Tests**: `tests/Feature/Auth/LoginTest.php`, `tests/Feature/Authorization/RoleMiddlewareTest.php`.
-- **DoD**: Đăng nhập/đăng xuất hoạt động; phân quyền chặn đúng mã `403` khi thí sinh gọi route quản trị.
+  - `POST /api/v1/auth/register` (Tạo tài khoản thí sinh)
+  - `POST /api/v1/auth/login` (Xác thực & cấp Bearer token)
+  - `POST /api/v1/auth/logout` (Thu hồi token hiện tại)
+  - `GET /api/v1/auth/me` (Lấy thông tin cá nhân & role)
+- **Kiểm soát An ninh**: Băm mật khẩu bằng Bcrypt/Hash, Rate Limiting 5 lần/phút cho login (`throttle:5,1`), thu hồi token khi logout, chặn tài khoản bị vô hiệu hóa (`is_active = false`).
+- **Tests**: `tests/Feature/Auth/RegisterTest.php`, `tests/Feature/Auth/LoginTest.php`, `tests/Feature/Auth/LogoutTest.php`, `tests/Feature/Auth/MeTest.php`, `tests/Feature/RoleMiddlewareTest.php`.
+- **DoD**: Đăng nhập/đăng xuất hoạt động; cấp Sanctum token; phân quyền chặn đúng mã `403` khi thí sinh gọi route quản trị; 100% Feature Tests pass.
 
 ---
 
