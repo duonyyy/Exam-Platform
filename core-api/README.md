@@ -80,21 +80,30 @@ core-api/
 
 ---
 
-## 🚀 4. Lệnh Vận hành qua Docker Compose
+## 📖 4. Tài liệu API Tương tác (Swagger / OpenAPI UI)
+
+Hệ thống tích hợp **OpenAPI 3.1 & Swagger Documentation** tự động qua `dedoc/scramble` (Zero-Annotation):
+- **Giao diện Swagger / Stoplight UI**: `http://localhost:8000/docs/api`
+- **Tệp đặc tả OpenAPI Schema JSON**: `http://localhost:8000/docs/api.json`
+- **Bảo mật truy cập**: Kiểm soát qua Gate `viewApiDocs` (mặc định chỉ mở trên môi trường `local` và `testing`, chặn rò rỉ thông tin trên `production`).
+- **Xác thực tương tác**: Hỗ trợ Bearer Token (`Authorization: Bearer <token>`) ngay trên giao diện để test các endpoint yêu cầu phân quyền.
+
+---
+
+## 🚀 5. Lệnh Vận hành qua Docker Compose
 
 ```bash
-# 1. Khởi tạo project (chỉ chạy lần đầu nếu chưa có skeleton)
-docker compose exec app composer create-project laravel/laravel .
+# 1. Khởi động môi trường container
+docker compose up -d
 
-# 2. Cài đặt các gói phụ thuộc (Sanctum, Pint, Larastan)
-docker compose exec app composer require laravel/sanctum
-docker compose exec app composer require --dev laravel/pint nunomaduro/larastan pestphp/pest
+# 2. Cài đặt các gói phụ thuộc (Sanctum, Scramble, Pint, Larastan)
+docker compose exec app composer install
 
-# 3. Chạy migrations CSDL
-docker compose exec app php artisan migrate
+# 3. Tạo APP_KEY nếu chưa có
+docker compose exec app php artisan key:generate
 
-# 4. Chạy Seeder dữ liệu mẫu
-docker compose exec app php artisan db:seed
+# 4. Chạy migrations CSDL và seed dữ liệu mẫu
+docker compose exec app php artisan migrate --seed
 
 # 5. Chạy bộ Feature Tests tự động
 docker compose exec app php artisan test

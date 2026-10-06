@@ -35,7 +35,9 @@ class RoleMiddleware
             }
         }
 
-        if (! in_array($user->role, $allowedRoles, true)) {
+        $userRole = $user->role instanceof \BackedEnum ? $user->role->value : (string) $user->role;
+
+        if (! in_array($userRole, $allowedRoles, true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. You do not have the required role permissions.',

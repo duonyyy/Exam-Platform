@@ -117,3 +117,37 @@
 | **`422 Unprocessable`** | Lỗi dữ liệu nhập | Email trùng, điểm âm, câu trả lời không khớp với các lựa chọn phương án. |
 | **`429 Too Many Req`** | Giới hạn tần suất | Gửi tín hiệu proctoring quá 30 lần/phút, thử mật khẩu sai quá 5 lần. |
 | **`500 Server Error`** | Lỗi máy chủ nội bộ | Lỗi mất kết nối CSDL, crash ứng dụng (được che giấu và log chi tiết). |
+
+---
+
+## 5. Đặc tả OpenAPI 3.1 & Swagger Documentation (dedoc/scramble)
+
+Hệ thống tích hợp công cụ tự động sinh tài liệu chuẩn hóa **OpenAPI 3.1** qua gói `dedoc/scramble` (Zero-Annotation architecture):
+
+### 5.1. Endpoints Tài liệu
+- **Interactive UI**: `GET /docs/api` (Giao diện Stoplight Elements / Swagger trực quan).
+- **OpenAPI Schema JSON**: `GET /docs/api.json` (Xuất file OpenAPI 3.1 spec phục vụ code generation và automation tests).
+
+### 5.2. Chính sách Bảo mật Tài liệu (Documentation Security Gate)
+- Được bảo vệ bởi Gate `viewApiDocs` trong `AppServiceProvider`:
+  ```php
+  Gate::define('viewApiDocs', function ($user = null): bool {
+      return app()->environment('local', 'testing');
+  });
+  ```
+- **Môi trường `local` & `testing`**: Cho phép truy cập tự do phục vụ phát triển frontend và testing nội bộ.
+- **Môi trường `production`**: Tự động từ chối (`403 Forbidden`) đối với người dùng thông thường nhằm ngăn ngừa rò rỉ bề mặt tấn công (OWASP API Security Top 10 - API8:2023 Security Misconfiguration).
+
+### 5.3. Xác thực Trực tiếp trên UI (Try-It-Out)
+- Cấu hình Security Scheme kiểu HTTP Bearer:
+  ```http
+  Authorization: Bearer <sanctum_token>
+  ```
+- Lập trình viên có thể copy token nhận được từ `POST /api/v1/auth/login`, paste vào nút **Authorize** trên giao diện để test toàn bộ các endpoint được bảo vệ bởi middleware `auth:sanctum` và `role:*`.
+
+### 5.4. Tự động sinh TypeScript Types cho Frontend (Next.js)
+Frontend (`web-client`) có thể trích xuất schema tự động mà không cần định nghĩa type thủ công:
+```bash
+npx openapi-typescript http://localhost:8000/docs/api.json -o src/types/api-schema.d.ts
+```
+

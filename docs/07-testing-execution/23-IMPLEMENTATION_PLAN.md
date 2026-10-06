@@ -22,14 +22,15 @@
 ---
 
 ### Phase 1 — Nền tảng Dự án (Foundation & Scaffolding)
-- **Mục tiêu**: Khởi tạo khung dự án Laravel 13 trong `core-api/` và Next.js 15+ trong `web-client/`, tích hợp hạ tầng Docker Compose.
+- **Mục tiêu**: Khởi tạo khung dự án Laravel 13 trong `core-api/` và Next.js 15+ trong `web-client/`, tích hợp hạ tầng Docker Compose, thiết lập tự động hóa tài liệu OpenAPI 3.1 / Swagger UI qua `dedoc/scramble`.
 - **Phụ thuộc**: Docker Desktop sẵn sàng.
 - **Tệp tin ảnh hưởng**: `core-api/*`, `web-client/*`, `docker-compose.yml`.
 - **Thay đổi CSDL**: Kết nối PostgreSQL 16 và chạy migration bảng `users`, `personal_access_tokens`.
-- **Endpoints**: `GET /api/v1/health`
-- **Kiểm soát An ninh**: Cấu hình CORS chặt chẽ, kiểm tra kết nối DB an toàn.
-- **Tests**: `tests/Feature/HealthCheckTest.php`.
-- **DoD**: Containers `app`, `web`, `postgres`, `client` khởi động bình thường; `php artisan test` chạy thành công.
+- **Endpoints**: `GET /api/v1/health`, `GET /docs/api` (Swagger UI), `GET /docs/api.json` (OpenAPI Spec).
+- **Kiểm soát An ninh**: Cấu hình CORS chặt chẽ, kiểm tra kết nối DB an toàn, bảo vệ Swagger UI qua Gate `viewApiDocs` (chỉ mở trên `local`/`testing`).
+- **Tests**: `tests/Feature/HealthCheckTest.php`, `tests/Feature/RoleMiddlewareTest.php`, `tests/Feature/SwaggerDocumentationTest.php`, `tests/Unit/RoleEnumTest.php`, `tests/Unit/UserTest.php`.
+- **DoD**: Containers `app`, `web`, `postgres`, `client` khởi động bình thường; `php artisan test` chạy thành công 100%; Swagger UI truy cập được tại `/docs/api`.
+
 
 ---
 

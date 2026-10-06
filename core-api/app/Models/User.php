@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -46,6 +47,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'role' => UserRole::class,
         ];
     }
 
@@ -54,7 +56,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === UserRole::ADMIN;
     }
 
     /**
@@ -62,7 +64,7 @@ class User extends Authenticatable
      */
     public function isTeacher(): bool
     {
-        return $this->role === 'teacher';
+        return $this->role === UserRole::TEACHER;
     }
 
     /**
@@ -70,6 +72,6 @@ class User extends Authenticatable
      */
     public function isStudent(): bool
     {
-        return $this->role === 'student';
+        return $this->role === UserRole::STUDENT;
     }
 }
