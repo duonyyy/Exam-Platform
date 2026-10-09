@@ -56,7 +56,9 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-    command: sh -c "if [ -f package.json ]; then npm run dev; else sleep infinity; fi"
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+    command: sh -c "if [ -f package.json ]; then npm run dev -- -H 0.0.0.0; else sleep infinity; fi"
     networks:
       - exam_network
 
