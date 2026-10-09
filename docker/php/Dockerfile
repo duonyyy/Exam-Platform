@@ -1,29 +1,24 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.3-fpm
 
-# Install system dependencies
-RUN apk add --no-cache \
-    postgresql-dev \
-    libzip-dev \
-    zip \
-    unzip \
+# Install git, zip, unzip, curl for Composer and runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
+    unzip \
+    zip \
     curl \
-    linux-headers \
-    $PHPIZE_DEPS
+    && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions required by Laravel & PostgreSQL
-RUN docker-php-ext-install \
-    pdo \
+# Copy and install PHP extensions via official docker-php-extension-installer
+COPY docker/php/install-php-extensions /usr/local/bin/install-php-extensions
+RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions \
     pdo_pgsql \
     pgsql \
     zip \
     bcmath \
     pcntl \
-    opcache
-
-# Install Redis extension
-RUN pecl install redis \
-    && docker-php-ext-enable redis
+    opcache \
+    redis
 
 # Get Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

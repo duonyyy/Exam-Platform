@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             [
                 'code' => 'AD0001',
                 'name' => 'System Administrator',
-                'password' => Hash::make('Admin@123456'),
+                'password' => 'Admin@123456',
                 'role' => UserRole::ADMIN,
                 'is_active' => true,
                 'email_verified_at' => now(),
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
             [
                 'code' => 'GV0001',
                 'name' => 'Demo Teacher',
-                'password' => Hash::make('Teacher@123456'),
+                'password' => 'Teacher@123456',
                 'role' => UserRole::TEACHER,
                 'is_active' => true,
                 'email_verified_at' => now(),
@@ -46,7 +46,7 @@ class UserSeeder extends Seeder
             [
                 'code' => 'SV20260001',
                 'name' => 'Demo Student',
-                'password' => Hash::make('Student@123456'),
+                'password' => 'Student@123456',
                 'role' => UserRole::STUDENT,
                 'is_active' => true,
                 'email_verified_at' => now(),

@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\Enums\UserRole;
 use App\Models\User;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class UserTest extends TestCase
 {
