@@ -1,5 +1,7 @@
 <?php
 
+use Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess;
+
 return [
     /*
      * Your API path. By default, all routes starting with this path will be included
@@ -35,7 +37,7 @@ return [
      */
     'middleware' => [
         'web',
-        \Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess::class,
+        RestrictedDocsAccess::class,
     ],
 
     'servers' => [

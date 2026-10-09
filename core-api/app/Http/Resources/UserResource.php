@@ -2,12 +2,12 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\User
+ * @mixin User
  */
 class UserResource extends JsonResource
 {
@@ -23,8 +23,8 @@ class UserResource extends JsonResource
             'code' => $this->code,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->role instanceof UserRole ? $this->role->value : (string) $this->role,
-            'role_label' => $this->role instanceof UserRole ? $this->role->label() : null,
+            'role' => $this->role->value,
+            'role_label' => $this->role->label(),
             'is_active' => (bool) $this->is_active,
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),

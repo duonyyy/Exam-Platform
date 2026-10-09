@@ -22,7 +22,7 @@ class MeTest extends TestCase
 
         $token = $admin->createToken('admin_session')->plainTextToken;
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/v1/auth/me');
 
         $response->assertStatus(200);

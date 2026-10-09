@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,10 +29,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Configure Bearer Authentication Security Scheme for Scramble OpenAPI specification
-        if (class_exists(\Dedoc\Scramble\Scramble::class)) {
-            \Dedoc\Scramble\Scramble::afterOpenApiGenerated(function (\Dedoc\Scramble\Support\Generator\OpenApi $openApi): void {
+        if (class_exists(Scramble::class)) {
+            Scramble::afterOpenApiGenerated(function (OpenApi $openApi): void {
                 $openApi->secure(
-                    \Dedoc\Scramble\Support\Generator\SecurityScheme::http('bearer')
+                    SecurityScheme::http('bearer')
                 );
             });
         }

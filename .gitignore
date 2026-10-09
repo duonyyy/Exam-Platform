@@ -62,6 +62,7 @@ desktop.ini
 /web-client/yarn-error.log*
 /web-client/pnpm-debug.log*
 /web-client/.turbo/
+*.tsbuildinfo
 
 # ------------------------------------------------------------------------------
 # AI Agent: Python & FastAPI (agentic-system/)
