@@ -19,6 +19,7 @@ Hệ thống yêu cầu chức năng được phân loại theo các module nghi
 - **`FR-AUTH-003`**: Hệ thống phải từ chối truy cập và trả về mã lỗi `401 Unauthorized` nếu thông tin đăng nhập không khớp hoặc token đã bị thu hồi/hết hạn.
 - **`FR-AUTH-004`**: Hệ thống phải cho phép người dùng đăng xuất, ngay lập tức thu hồi và xóa Token truy cập hiện tại khỏi cơ sở dữ liệu.
 - **`FR-AUTH-005`**: Hệ thống phải cung cấp endpoint `/auth/me` để trả về thông tin cá nhân và vai trò hiện tại của người dùng đang được xác thực.
+- **`FR-AUTH-006`**: Mọi request tới API được bảo vệ phải kiểm tra trạng thái `is_active` sau khi xác thực Sanctum. Tài khoản đã bị vô hiệu hóa nhận `403 Forbidden` với `error_code=ACCOUNT_INACTIVE` kể cả khi token được cấp trước đó vẫn còn trong CSDL.
 - **`FR-USER-001`**: Chỉ người dùng có vai trò `admin` mới được quyền xem danh sách người dùng toàn hệ thống có hỗ trợ phân trang (`page`, `per_page`), lọc theo vai trò (`role`) và tìm kiếm theo tên hoặc email.
 - **`FR-USER-002`**: Chỉ người dùng có vai trò `admin` mới được tạo mới, cập nhật thông tin (tên, vai trò, trạng thái kích hoạt) hoặc vô hiệu hóa tài khoản người dùng khác.
 - **`FR-USER-003`**: Giảng viên (`teacher`) chỉ được phép xem danh sách thu gọn của các thí sinh (`student`) phục vụ mục đích phân công vào ca thi.
@@ -27,10 +28,10 @@ Hệ thống yêu cầu chức năng được phân loại theo các module nghi
 
 ### 1.2. Module Môn học & Chủ đề (SUBJECT & TOPIC)
 
-- **`FR-SUBJECT-001`**: Người dùng có vai trò `admin` hoặc `teacher` được phép tạo môn học mới với mã môn học (`code`) là duy nhất trên toàn hệ thống và tên môn học (`name`).
+- **`FR-SUBJECT-001`**: `admin` hoặc `teacher` được tạo môn học mới với `code` duy nhất và `name`. Môn do teacher tạo tự gán teacher đó vào `owner_teacher_id`; admin có thể chỉ định một teacher đang hoạt động hoặc để chưa phân công. `created_by` do máy chủ ghi và không thay đổi.
 - **`FR-SUBJECT-002`**: Hệ thống phải cho phép xem danh sách môn học có phân trang và tìm kiếm theo tên/mã môn học. Mọi vai trò đã đăng nhập đều có quyền đọc.
-- **`FR-SUBJECT-003`**: Chỉ `admin` hoặc `teacher` mới được sửa thông tin môn học hoặc xóa môn học rỗng (chưa chứa chủ đề nào). Nếu môn học đã có chủ đề, hành động xóa phải bị chặn (`RESTRICT`).
-- **`FR-TOPIC-001`**: `admin` hoặc `teacher` được phép tạo các chủ đề (`topic`) trực thuộc một môn học cụ thể.
+- **`FR-SUBJECT-003`**: Admin sửa/xóa mọi môn học và được phân công lại `owner_teacher_id`. Teacher chỉ sửa/xóa môn mà mình đang phụ trách; không được tự đổi người phụ trách. Chỉ xóa môn học rỗng; nếu đã có chủ đề thì trả `409 Conflict` và khóa ngoại `RESTRICT` bảo vệ dữ liệu.
+- **`FR-TOPIC-001`**: Admin được tạo chủ đề (`topic`) trong mọi môn học; teacher chỉ được tạo chủ đề trong môn mình đang phụ trách.
 - **`FR-TOPIC-002`**: Hệ thống phải cung cấp danh sách chủ đề theo từng môn học (`GET /subjects/{id}/topics`) kèm số lượng câu hỏi hiện có trong từng chủ đề.
 
 ---

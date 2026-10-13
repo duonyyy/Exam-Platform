@@ -11,6 +11,7 @@
 ```mermaid
 erDiagram
     users ||--o{ subjects : "creates"
+    users |o--o{ subjects : "currently owns as teacher"
     users ||--o{ questions : "creates"
     users ||--o{ exams : "creates"
     users ||--o{ exam_sessions : "creates"
@@ -18,7 +19,7 @@ erDiagram
     users ||--o{ session_teachers : "is assigned as teacher"
     users ||--o{ exam_attempts : "takes"
 
-    subjects ||--|{ topics : "contains"
+    subjects ||--o{ topics : "contains"
     subjects ||--o{ exams : "categorizes"
 
     topics ||--o{ questions : "contains"
@@ -54,6 +55,7 @@ erDiagram
         varchar name
         text description
         bigint created_by FK
+        bigint owner_teacher_id FK "nullable"
         timestamp created_at
         timestamp updated_at
     }

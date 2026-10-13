@@ -36,6 +36,9 @@
 | `/api/v1/users/{id}` | `PATCH` | Admin | Bearer (admin) | Cập nhật thông tin/vai trò người dùng | `200 OK` |
 | `/api/v1/subjects` | `GET` | All | Bearer | Danh sách môn học có phân trang | `200 OK` |
 | `/api/v1/subjects` | `POST` | Teacher, Admin | Bearer | Tạo môn học mới | `201 Created` |
+| `/api/v1/subjects/{id}` | `GET` | All | Bearer | Xem chi tiết môn học | `200 OK` |
+| `/api/v1/subjects/{id}` | `PATCH` | Admin, teacher phụ trách | Bearer | Cập nhật môn học; chỉ admin được đổi người phụ trách | `200 OK` |
+| `/api/v1/subjects/{id}` | `DELETE` | Admin, teacher phụ trách | Bearer | Xóa môn rỗng; `409` nếu đã có chủ đề | `204 No Content` |
 | `/api/v1/subjects/{id}/topics` | `GET` | All | Bearer | Xem các chủ đề của một môn học | `200 OK` |
 | `/api/v1/questions` | `GET` | Teacher, Admin | Bearer | Tra cứu ngân hàng câu hỏi | `200 OK` |
 | `/api/v1/questions` | `POST` | Teacher, Admin | Bearer | Tạo câu hỏi mới vào ngân hàng đề | `201 Created` |
@@ -55,6 +58,15 @@
 | `/api/v1/exam-attempts/{id}/submit` | `POST` | Student (owner) | Bearer (student)| Nộp bài thi và kích hoạt tính điểm | `200 OK` |
 | `/api/v1/exam-attempts/{id}/proctoring-events` | `POST` | Student (owner) | Bearer (student)| Gửi tín hiệu vi phạm từ trình duyệt | `201 Created` |
 | `/api/v1/exam-sessions/{id}/results` | `GET` | Teacher, Admin | Bearer | Xem bảng điểm và thống kê ca thi | `200 OK` |
+
+---
+
+### Quyền và dữ liệu Subject
+
+- `POST /subjects`: body bắt buộc `code` (chuỗi tối đa 50, duy nhất), `name` (chuỗi tối đa 255); `description` tùy chọn. Admin có thể gửi `owner_teacher_id` là ID của teacher đang hoạt động hoặc `null`. Teacher luôn tự nhận phụ trách; không thể tự chỉ định người khác.
+- `PATCH /subjects/{id}`: các trường `code`, `name`, `description` là tùy chọn; chỉ admin có thể gửi `owner_teacher_id` để phân công lại hoặc bỏ phân công. `created_by` luôn do máy chủ ghi, không nhận từ client.
+- `GET /subjects`: `search` (tên/mã), `page`, `per_page` (1–100, mặc định 20); mọi vai trò đã đăng nhập được đọc. Response chứa `data`, `meta`, `links` và `topics_count`.
+- Môn chưa phân công chỉ admin được sửa/xóa. Khi admin chuyển quyền phụ trách, teacher cũ mất quyền ngay từ giao dịch tiếp theo. Quyền ghi được kiểm tra lại trên bản ghi khóa bằng `SELECT ... FOR UPDATE`.
 
 ---
 

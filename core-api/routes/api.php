@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\SubjectController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,15 +20,20 @@ Route::get('/health', [HealthController::class, 'check'])->name('api.v1.health')
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('api.v1.auth.register');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('api.v1.auth.login');
+});
 
-    Route::middleware(['auth:sanctum'])->group(function () {
+// Every protected route checks current account status after Sanctum authentication.
+Route::middleware(['auth:sanctum', 'active'])->group(function () {
+    Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('api.v1.auth.logout');
         Route::get('/me', [AuthController::class, 'me'])->name('api.v1.auth.me');
     });
-});
 
-// Protected routes (Sanctum)
-Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['role:admin,teacher,student'])->group(function () {
+        Route::get('/subjects', [SubjectController::class, 'index'])->name('api.v1.subjects.index');
+        Route::get('/subjects/{subject}', [SubjectController::class, 'show'])->name('api.v1.subjects.show');
+    });
+
     // Admin routes
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         // Users & System Settings
@@ -35,7 +41,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Teacher & Admin routes
     Route::middleware(['role:teacher,admin'])->group(function () {
-        // Subjects & Topics (Phase 3)
+        Route::post('/subjects', [SubjectController::class, 'store'])->name('api.v1.subjects.store');
+        Route::patch('/subjects/{subject}', [SubjectController::class, 'update'])->name('api.v1.subjects.update');
+        Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])->name('api.v1.subjects.destroy');
+        // Topics (Phase 3)
         // Question Bank & Review (Phase 4)
         // Exam Templates & Assembly (Phase 5)
         // Exam Sessions Lifecycle (Phase 6)

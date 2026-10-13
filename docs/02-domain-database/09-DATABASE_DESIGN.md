@@ -13,7 +13,7 @@ Hệ thống được chuẩn hóa trên cơ sở dữ liệu quan hệ **Postgr
 | Tên bảng (Table) | Mục đích nghiệp vụ (Purpose) | Khóa chính (PK) | Khóa ngoại (FK) | Ràng buộc duy nhất (Unique) | Chỉ mục quan trọng (Indexes) | Cột dữ liệu cốt lõi (Core Columns) |
 | :--- | :--- | :---: | :--- | :--- | :--- | :--- |
 | **`users`** | Quản lý định danh, tài khoản và vai trò người dùng | `id` | Không | `email` | `email`, `role` | `name`, `email`, `password`, `role`, `is_active` |
-| **`subjects`** | Danh mục môn học đào tạo | `id` | `created_by` | `code` | `code`, `created_by` | `code`, `name`, `description` |
+| **`subjects`** | Danh mục môn học đào tạo | `id` | `created_by`, `owner_teacher_id` (nullable) | `code` | `code`, `created_by`, `owner_teacher_id` | `code`, `name`, `description`, `created_by`, `owner_teacher_id` |
 | **`topics`** | Các chủ đề kiến thức thuộc môn học | `id` | `subject_id` | Không | `subject_id` | `subject_id`, `name`, `description` |
 | **`questions`** | Ngân hàng câu hỏi trắc nghiệm/tự luận | `id` | `topic_id`, `created_by` | Không | `topic_id`, `status`, `difficulty`, `type` | `question_text`, `question_type`, `options (JSONB)`, `correct_answer (JSONB)`, `status` |
 | **`exams`** | Mẫu đề thi (Blueprint/Template) | `id` | `subject_id`, `created_by` | Không | `subject_id`, `created_by` | `title`, `duration_minutes`, `total_points`, `pass_score`, `shuffle_questions` |
@@ -35,6 +35,8 @@ Việc lựa chọn hành động tham chiếu khóa ngoại (`ON DELETE`) quy�
 | Khóa ngoại (Foreign Key) | Bảng nguồn $\rightarrow$ Bảng đích | Hành vi `ON DELETE` | Lý do kỹ thuật & Rủi ro nếu chọn sai |
 | :--- | :--- | :---: | :--- |
 | `topics.subject_id` | `topics` $\rightarrow$ `subjects` | **`RESTRICT`** | Không cho phép xóa Môn học nếu môn học đó đang chứa các Chủ đề kiến thức. Phải dọn sạch các chủ đề trước. |
+| `subjects.created_by` | `subjects` $\rightarrow$ `users` | **`RESTRICT`** | Giữ danh tính người tạo để truy vết; không thể xóa tài khoản khi còn môn học đã tạo. |
+| `subjects.owner_teacher_id` | `subjects` $\rightarrow$ `users` | **`RESTRICT`** | Cho phép môn chưa phân công (`NULL`); khi đã phân công, không thể xóa giảng viên còn phụ trách. Vai trò teacher và trạng thái hoạt động được kiểm tra ở tầng ứng dụng. |
 | `questions.topic_id` | `questions` $\rightarrow$ `topics` | **`RESTRICT`** | Ngăn chặn xóa Chủ đề nếu chủ đề đang có câu hỏi trong ngân hàng đề. |
 | `exam_questions.question_id` | `exam_questions` $\rightarrow$ `questions` | **`RESTRICT`** | **CỰC KỲ QUAN TRỌNG**: Tuyệt đối không cho phép xóa câu hỏi khỏi CSDL nếu câu hỏi đó đã được dùng trong bất kỳ Đề thi nào. Phải dùng Soft Delete (`deleted_at`). |
 | `exam_sessions.exam_id` | `exam_sessions` $\rightarrow$ `exams` | **`RESTRICT`** | Không được xóa Đề thi mẫu nếu đã có Ca thi được tổ chức dựa trên đề thi đó. |

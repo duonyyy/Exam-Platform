@@ -16,6 +16,12 @@
   - Next.js lưu token này vào **HTTP-Only, Secure, SameSite=Lax Cookie** gửi về trình duyệt của người dùng.
   - **Lợi ích an ninh vượt trội**: Mã JavaScript phía client (kể cả mã độc XSS) không thể đọc được cookie này. Khi trình duyệt gọi API, Edge Middleware của Next.js tự động đọc Cookie, gắn header `Authorization: Bearer <token>` và chuyển tiếp tới Laravel Core API.
 
+### 1.2. Token đã cấp khi tài khoản bị vô hiệu hóa
+
+Mọi route được bảo vệ nằm trong nhóm `auth:sanctum` → `active`. `EnsureActiveUser` đọc trạng thái `users.is_active` hiện hành qua khóa chính trên mỗi request; middleware được ưu tiên trước route model binding để tài khoản đã bị khóa luôn nhận `403 ACCOUNT_INACTIVE` trước khi tra tài nguyên. Request không có token hoặc token không hợp lệ vẫn nhận `401` từ Sanctum. Route công khai không chịu kiểm tra này.
+
+Lựa chọn hiện tại là **chặn request**, không xóa token khi đổi `is_active`, vì API admin vô hiệu hóa tài khoản chưa được triển khai. Do đó token lưu trong CSDL có thể dùng lại nếu tài khoản được kích hoạt trở lại trước khi token hết hạn. Khi xây dựng `FR-USER-002`, thao tác vô hiệu hóa phải thu hồi toàn bộ Sanctum token trong cùng transaction với cập nhật trạng thái. Cho đến lúc đó, kiểm tra trên mỗi request là lớp bảo vệ có hiệu lực ngay sau khi thay đổi được commit.
+
 ---
 
 ## 2. Ma trận Phân quyền Toàn diện (Permission Matrix)
@@ -24,8 +30,9 @@
 | :--- | :---: | :---: | :---: | :--- |
 | **User.list (Xem danh sách tài khoản)** | ✅ | ⚠️ *(Chỉ đọc danh sách Student để gán)* | ❌ | Middleware (`role:admin,teacher`) |
 | **User.create / update / delete** | ✅ | ❌ | ❌ | Middleware (`role:admin`) |
-| **Subject.create / update / delete** | ✅ | ✅ | ❌ | Middleware (`role:admin,teacher`) |
-| **Topic.create / update / delete** | ✅ | ✅ | ❌ | Middleware (`role:admin,teacher`) |
+| **Subject.create** | ✅ *(có thể phân công)* | ✅ *(tự nhận phụ trách)* | ❌ | Middleware + `SubjectPolicy@create`; chủ sở hữu do máy chủ gán |
+| **Subject.update / delete** | ✅ | ✅ *(chỉ `owner_teacher_id` của mình)* | ❌ | Middleware + `SubjectPolicy`; khóa dòng và kiểm tra lại trước khi ghi |
+| **Topic.create / update / delete** | ✅ | ✅ *(chỉ thuộc môn phụ trách)* | ❌ | Middleware + Policy theo môn học (API Topic chưa triển khai) |
 | **Question.read** | ✅ | ✅ | ❌ | Middleware (`role:admin,teacher`) |
 | **Question.create / update / delete** | ✅ | ✅ | ❌ | Policy (`QuestionPolicy@manage`) |
 | **Question.approve / reject** | ✅ | ✅ | ❌ | Policy (`QuestionPolicy@review`) |

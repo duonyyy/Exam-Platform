@@ -37,26 +37,27 @@
 ### Phase 2 — Xác thực & Phân quyền Vai trò (Auth & RBAC)
 - **Mục tiêu**: Hoàn thiện đăng ký, đăng nhập, đăng xuất, lấy thông tin cá nhân và phân quyền Role Middleware.
 - **Phụ thuộc**: Phase 1.
-- **Tệp tin ảnh hưởng**: `app/Http/Controllers/Api/V1/AuthController.php`, `app/Http/Requests/Auth/RegisterRequest.php`, `app/Http/Requests/Auth/LoginRequest.php`, `app/Http/Resources/UserResource.php`, `app/Http/Middleware/RoleMiddleware.php`, `routes/api.php`.
+- **Tệp tin ảnh hưởng**: `app/Http/Controllers/Api/V1/AuthController.php`, `app/Http/Requests/Auth/RegisterRequest.php`, `app/Http/Requests/Auth/LoginRequest.php`, `app/Http/Resources/UserResource.php`, `app/Http/Middleware/RoleMiddleware.php`, `app/Http/Middleware/EnsureActiveUser.php`, `config/sanctum.php`, `routes/api.php`.
 - **Thay đổi CSDL**: Sử dụng bảng `users` (`role`, `is_active`, `code`) và `personal_access_tokens`.
 - **Endpoints**:
   - `POST /api/v1/auth/register` (Tạo tài khoản thí sinh)
   - `POST /api/v1/auth/login` (Xác thực & cấp Bearer token)
   - `POST /api/v1/auth/logout` (Thu hồi token hiện tại)
   - `GET /api/v1/auth/me` (Lấy thông tin cá nhân & role)
-- **Kiểm soát An ninh**: Băm mật khẩu bằng Bcrypt/Hash, Rate Limiting 5 lần/phút cho login (`throttle:5,1`), thu hồi token khi logout, chặn tài khoản bị vô hiệu hóa (`is_active = false`).
-- **Tests**: `tests/Feature/Auth/RegisterTest.php`, `tests/Feature/Auth/LoginTest.php`, `tests/Feature/Auth/LogoutTest.php`, `tests/Feature/Auth/MeTest.php`, `tests/Feature/RoleMiddlewareTest.php`.
+- **Kiểm soát An ninh**: Băm mật khẩu bằng Bcrypt/Hash, Rate Limiting 5 lần/phút cho login (`throttle:5,1`), thời hạn Bearer token 480 phút, thu hồi token khi logout; middleware `active` chặn cả token đã cấp nếu tài khoản bị vô hiệu hóa (`is_active = false`).
+- **Tests**: `tests/Feature/Auth/RegisterTest.php`, `tests/Feature/Auth/LoginTest.php`, `tests/Feature/Auth/LogoutTest.php`, `tests/Feature/Auth/MeTest.php`, `tests/Feature/Auth/InactiveTokenTest.php`, `tests/Feature/RoleMiddlewareTest.php`.
 - **DoD**: Đăng nhập/đăng xuất hoạt động; cấp Sanctum token; phân quyền chặn đúng mã `403` khi thí sinh gọi route quản trị; 100% Feature Tests pass.
 
 ---
 
 ### Phase 3 — Quản lý Môn học & Chủ đề (Subjects & Topics)
+- **Tiến độ**: Đã triển khai phần Subject và quan hệ dữ liệu Topic phục vụ ràng buộc xóa; Topic API và kiểm thử của Topic còn ở bước tiếp theo.
 - **Mục tiêu**: Quản lý danh mục Môn học và Chủ đề kiến thức.
 - **Phụ thuộc**: Phase 2.
 - **Tệp tin ảnh hưởng**: `app/Models/Subject.php`, `app/Models/Topic.php`, `app/Http/Controllers/Api/V1/SubjectController.php`.
-- **Thay đổi CSDL**: Tạo bảng `subjects` (Unique `code`), `topics` (FK `subject_id` với `ON DELETE RESTRICT`).
+- **Thay đổi CSDL**: Tạo bảng `subjects` (Unique `code`, `created_by` truy vết, `owner_teacher_id` chỉ giảng viên phụ trách hiện tại), `topics` (FK `subject_id` với `ON DELETE RESTRICT`).
 - **Endpoints**: `GET/POST/PATCH/DELETE /api/v1/subjects`, `GET /api/v1/subjects/{id}/topics`.
-- **Kiểm soát An ninh**: Chỉ `admin` và `teacher` mới có quyền tạo/sửa/xóa; sinh viên chỉ có quyền đọc.
+- **Kiểm soát An ninh**: Admin quản lý mọi môn và phân công lại; teacher tạo môn tự phụ trách và chỉ sửa/xóa môn được phân công; sinh viên chỉ đọc. Topic API phải kế thừa cùng phạm vi quyền.
 - **Tests**: `tests/Feature/Subjects/SubjectCrudTest.php`.
 - **DoD**: CRUD môn học/chủ đề hoạt động kèm phân trang và tìm kiếm.
 

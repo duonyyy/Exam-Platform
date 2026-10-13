@@ -59,7 +59,7 @@ Mọi thảo luận, đặt tên biến, tên hàm, bảng CSDL và endpoints ph
 | Thuật ngữ | Khái niệm & Ranh giới trách nhiệm |
 | :--- | :--- |
 | **`User`** | Người dùng hệ thống, gồm 3 roles: `admin`, `teacher`, `student`. |
-| **`Subject` & `Topic`** | Cây phân loại học thuật: Môn học (`Subject`) chứa nhiều Chủ đề (`Topic`). |
+| **`Subject` & `Topic`** | Cây phân loại học thuật: Môn học (`Subject`) chứa nhiều Chủ đề (`Topic`). `Subject.owner_teacher_id` là giảng viên đang phụ trách; `created_by` lưu người tạo để truy vết. |
 | **`Question`** | Ngân hàng câu hỏi: Chứa nội dung, loại (`single_choice`, `multiple_choice`, `true_false`), cấu trúc JSON options, và `correct_answer`. Quản lý theo vòng đời (`draft` $\rightarrow$ `approved` $\rightarrow$ `rejected`). |
 | **`Exam`** | Đề thi mẫu (Template/Blueprint): Thiết lập thời lượng làm bài, điểm sàn, cơ chế xáo trộn câu hỏi. Không gắn liền với thời gian tổ chức cụ thể. |
 | **`ExamQuestion`** | Quan hệ Đề thi - Câu hỏi: Lưu metadata vị trí hiển thị (`order`) và thang điểm (`points`). |
@@ -83,7 +83,7 @@ Hệ thống kết hợp phân quyền theo vai trò (**Role-Based Access Contro
   - Quản trị cấu hình hệ thống, môn học, chủ đề và toàn bộ dữ liệu.
   - Xem mọi ca thi, bài làm và nhật ký giám sát (Audit & Proctoring).
 - **Teacher**:
-  - Quản lý môn học/chủ đề trong phạm vi phụ trách.
+  - Tạo môn học (tự nhận phụ trách); chỉ sửa/xóa môn học mình đang phụ trách và quản lý chủ đề thuộc các môn đó. Admin có thể phân công hoặc đổi giảng viên phụ trách.
   - Tạo, cập nhật và duyệt/từ chối câu hỏi trong ngân hàng đề.
   - Soạn đề thi mẫu (`Exam`) và lập lịch ca thi (`ExamSession`).
   - Gán danh sách sinh viên (`SessionAssignment`) và cán bộ coi thi (`SessionTeacher`).
