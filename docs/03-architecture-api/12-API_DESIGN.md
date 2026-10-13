@@ -40,6 +40,7 @@
 | `/api/v1/subjects/{id}` | `PATCH` | Admin, teacher phụ trách | Bearer | Cập nhật môn học; chỉ admin được đổi người phụ trách | `200 OK` |
 | `/api/v1/subjects/{id}` | `DELETE` | Admin, teacher phụ trách | Bearer | Xóa môn rỗng; `409` nếu đã có chủ đề | `204 No Content` |
 | `/api/v1/subjects/{id}/topics` | `GET` | All | Bearer | Xem các chủ đề của một môn học | `200 OK` |
+| `/api/v1/subjects/{id}/topics` | `POST` | Admin, teacher phụ trách | Bearer | Tạo chủ đề trong môn học | `201 Created` |
 | `/api/v1/questions` | `GET` | Teacher, Admin | Bearer | Tra cứu ngân hàng câu hỏi | `200 OK` |
 | `/api/v1/questions` | `POST` | Teacher, Admin | Bearer | Tạo câu hỏi mới vào ngân hàng đề | `201 Created` |
 | `/api/v1/questions/{id}/approve` | `POST` | Teacher, Admin | Bearer | Phê duyệt chất lượng câu hỏi | `200 OK` |
@@ -67,6 +68,13 @@
 - `PATCH /subjects/{id}`: các trường `code`, `name`, `description` là tùy chọn; chỉ admin có thể gửi `owner_teacher_id` để phân công lại hoặc bỏ phân công. `created_by` luôn do máy chủ ghi, không nhận từ client.
 - `GET /subjects`: `search` (tên/mã), `page`, `per_page` (1–100, mặc định 20); mọi vai trò đã đăng nhập được đọc. Response chứa `data`, `meta`, `links` và `topics_count`.
 - Môn chưa phân công chỉ admin được sửa/xóa. Khi admin chuyển quyền phụ trách, teacher cũ mất quyền ngay từ giao dịch tiếp theo. Quyền ghi được kiểm tra lại trên bản ghi khóa bằng `SELECT ... FOR UPDATE`.
+
+### Quyền và dữ liệu Topic
+
+- `GET /subjects/{id}/topics`: `page`, `per_page` (1–100, mặc định 20); mọi vai trò đã đăng nhập được đọc theo quyền xem Subject. Response phân trang có `data`, `meta`, `links`; mỗi Topic có `id`, `subject_id`, `name`, `description`, `questions_count`, `created_at`, `updated_at`.
+- `POST /subjects/{id}/topics`: body bắt buộc `name` (chuỗi tối đa 255), `description` tùy chọn; `subject_id` chỉ lấy từ URL, không nhận trong body. Admin tạo trong mọi Subject; teacher chỉ tạo trong Subject đang phụ trách. Quyền được kiểm tra lại trên Subject đã khóa trước khi ghi. Response `201` có `data` cùng các trường Topic và `questions_count: 0`.
+- Bảng `questions` thuộc Phase 4. Trước khi bảng đó tồn tại, `questions_count` là `0`; sau khi bảng được tạo, endpoint dùng quan hệ `Topic.questions()` để đếm theo từng Topic mà không tải toàn bộ câu hỏi.
+- Quyền và hợp đồng `PATCH`/`DELETE` Topic chưa được đặc tả đủ; hai endpoint này chưa được mở.
 
 ---
 

@@ -51,15 +51,15 @@
 ---
 
 ### Phase 3 — Quản lý Môn học & Chủ đề (Subjects & Topics)
-- **Tiến độ**: Đã triển khai phần Subject và quan hệ dữ liệu Topic phục vụ ràng buộc xóa; Topic API và kiểm thử của Topic còn ở bước tiếp theo.
+- **Tiến độ**: Đã triển khai Subject API và Topic `GET`/`POST` có kiểm thử. Quyền và hợp đồng sửa/xóa Topic cần quyết định nghiệp vụ trước khi triển khai; chưa coi toàn bộ CRUD Topic đã hoàn tất.
 - **Mục tiêu**: Quản lý danh mục Môn học và Chủ đề kiến thức.
 - **Phụ thuộc**: Phase 2.
-- **Tệp tin ảnh hưởng**: `app/Models/Subject.php`, `app/Models/Topic.php`, `app/Http/Controllers/Api/V1/SubjectController.php`.
+- **Tệp tin ảnh hưởng**: `app/Models/Subject.php`, `app/Models/Topic.php`, `app/Models/Question.php` (quan hệ đếm; schema Phase 4), `app/Policies/SubjectPolicy.php`, `app/Http/Controllers/Api/V1/SubjectController.php`, `app/Http/Controllers/Api/V1/TopicController.php`, Form Requests và API Resources tương ứng.
 - **Thay đổi CSDL**: Tạo bảng `subjects` (Unique `code`, `created_by` truy vết, `owner_teacher_id` chỉ giảng viên phụ trách hiện tại), `topics` (FK `subject_id` với `ON DELETE RESTRICT`).
-- **Endpoints**: `GET/POST/PATCH/DELETE /api/v1/subjects`, `GET /api/v1/subjects/{id}/topics`.
-- **Kiểm soát An ninh**: Admin quản lý mọi môn và phân công lại; teacher tạo môn tự phụ trách và chỉ sửa/xóa môn được phân công; sinh viên chỉ đọc. Topic API phải kế thừa cùng phạm vi quyền.
-- **Tests**: `tests/Feature/Subjects/SubjectCrudTest.php`.
-- **DoD**: CRUD môn học/chủ đề hoạt động kèm phân trang và tìm kiếm.
+- **Endpoints**: `GET/POST/PATCH/DELETE /api/v1/subjects`, `GET/POST /api/v1/subjects/{id}/topics`.
+- **Kiểm soát An ninh**: Admin quản lý mọi môn và phân công lại; teacher tạo môn tự phụ trách và chỉ sửa/xóa môn được phân công; sinh viên chỉ đọc. Mọi vai trò đã đăng nhập được xem danh sách Topic. Admin tạo Topic ở mọi Subject, teacher chỉ tạo ở Subject đang phụ trách; kiểm tra lại Policy khi đã khóa Subject.
+- **Tests**: `tests/Feature/Subjects/SubjectCrudTest.php`, `tests/Feature/Topics/TopicApiTest.php`.
+- **DoD hiện tại**: Subject CRUD và Topic `GET`/`POST` hoạt động; danh sách phân trang, có `questions_count` (bằng 0 trước migration Phase 4). Topic `PATCH`/`DELETE` chờ đặc tả về quyền và quy tắc xóa.
 
 ---
 

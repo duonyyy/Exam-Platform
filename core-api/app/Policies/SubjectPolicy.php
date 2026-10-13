@@ -22,6 +22,12 @@ class SubjectPolicy
         return $user->is_active && ($user->isAdmin() || $user->isTeacher());
     }
 
+    public function createTopic(User $user, Subject $subject): bool
+    {
+        return $user->is_active
+            && ($user->isAdmin() || ($user->isTeacher() && $subject->owner_teacher_id === $user->id));
+    }
+
     public function update(User $user, Subject $subject): bool
     {
         return $user->is_active

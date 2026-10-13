@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\SubjectController;
+use App\Http\Controllers\Api\V1\TopicController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +33,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::middleware(['role:admin,teacher,student'])->group(function () {
         Route::get('/subjects', [SubjectController::class, 'index'])->name('api.v1.subjects.index');
         Route::get('/subjects/{subject}', [SubjectController::class, 'show'])->name('api.v1.subjects.show');
+        Route::get('/subjects/{subject}/topics', [TopicController::class, 'index'])->name('api.v1.subjects.topics.index');
     });
 
     // Admin routes
@@ -44,7 +46,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/subjects', [SubjectController::class, 'store'])->name('api.v1.subjects.store');
         Route::patch('/subjects/{subject}', [SubjectController::class, 'update'])->name('api.v1.subjects.update');
         Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])->name('api.v1.subjects.destroy');
-        // Topics (Phase 3)
+        Route::post('/subjects/{subject}/topics', [TopicController::class, 'store'])->name('api.v1.subjects.topics.store');
         // Question Bank & Review (Phase 4)
         // Exam Templates & Assembly (Phase 5)
         // Exam Sessions Lifecycle (Phase 6)
