@@ -189,7 +189,7 @@ jobs:
         working-directory: ./core-api
         run: ./vendor/bin/pint --test
 
-      - name: Static Analysis (Larastan Level 8)
+      - name: Static Analysis (Larastan Level 5)
         if: steps.check_composer.outputs.exists == 'true'
         working-directory: ./core-api
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
