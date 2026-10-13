@@ -96,7 +96,7 @@ jobs:
 
       - name: Restore pnpm store cache
         if: steps.check_pkg.outputs.exists == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.local/share/pnpm/store
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('web-client/pnpm-lock.yaml') }}
@@ -172,7 +172,7 @@ jobs:
 
       - name: Cache Composer packages
         if: steps.check_composer.outputs.exists == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.composer/cache/files
           key: ${{ runner.os }}-composer-${{ hashFiles('core-api/composer.lock') }}
