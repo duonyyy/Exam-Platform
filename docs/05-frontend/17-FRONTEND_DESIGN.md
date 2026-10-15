@@ -26,7 +26,7 @@ graph TD
     AdminRoutes --> AdminUsers["/admin/users (Quản lý User & Role)"]
     AdminRoutes --> AdminAudit["/admin/audit-logs (Giám sát)"]
 
-    TeacherRoutes --> T_Questions["/teacher/questions (Ngân hàng câu hỏi & Duyệt)"]
+    TeacherRoutes --> T_Questions["/teacher/questions (Ngân hàng câu hỏi & Bật/tắt)"]
     TeacherRoutes --> T_Exams["/teacher/exams (Mẫu đề thi & Gán điểm)"]
     TeacherRoutes --> T_Sessions["/teacher/sessions (Ca thi & Phân công)"]
     TeacherRoutes --> T_Monitor["/teacher/sessions/[id]/monitor (Giám sát trực tiếp)"]

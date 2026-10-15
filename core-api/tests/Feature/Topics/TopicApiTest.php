@@ -5,10 +5,8 @@ namespace Tests\Feature\Topics;
 use App\Models\Subject;
 use App\Models\Topic;
 use App\Models\User;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class TopicApiTest extends TestCase
@@ -107,35 +105,34 @@ class TopicApiTest extends TestCase
         $this->assertDatabaseCount('topics', 0);
     }
 
-    public function test_list_is_paginated_and_counts_questions_when_phase_four_table_exists(): void
+    public function test_list_is_paginated_and_counts_active_questions_in_real_table(): void
     {
         $admin = User::factory()->admin()->create();
         $subject = $this->subject($admin);
         $first = Topic::create(['subject_id' => $subject->id, 'name' => 'Hàm']);
         Topic::create(['subject_id' => $subject->id, 'name' => 'Mảng']);
 
-        // Phase 4 migration is not yet present; create only the FK needed to verify withCount.
-        Schema::create('questions', function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('topic_id')->constrained('topics')->restrictOnDelete();
-        });
-
-        try {
+        foreach (['Một', 'Hai', 'Ba'] as $text) {
             DB::table('questions')->insert([
-                ['topic_id' => $first->id],
-                ['topic_id' => $first->id],
+                'topic_id' => $first->id,
+                'created_by' => $admin->id,
+                'question_text' => $text,
+                'question_type' => 'short_answer',
+                'correct_answer' => json_encode('đáp án'),
+                'difficulty' => 'medium',
+                'status' => 'ready',
+                'source' => 'manual',
             ]);
-
-            $this->actingAs($admin)
-                ->getJson("/api/v1/subjects/{$subject->id}/topics?per_page=1&page=1")
-                ->assertOk()->assertJsonCount(1, 'data')
-                ->assertJsonPath('data.0.questions_count', 2)
-                ->assertJsonPath('meta.total', 2)
-                ->assertJsonPath('meta.current_page', 1);
-            $this->getJson("/api/v1/subjects/{$subject->id}/topics?per_page=1&page=2")
-                ->assertOk()->assertJsonPath('data.0.questions_count', 0);
-        } finally {
-            Schema::dropIfExists('questions');
         }
+        DB::table('questions')->where('question_text', 'Ba')->update(['deleted_at' => now()]);
+
+        $this->actingAs($admin)
+            ->getJson("/api/v1/subjects/{$subject->id}/topics?per_page=1&page=1")
+            ->assertOk()->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.questions_count', 2)
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.current_page', 1);
+        $this->getJson("/api/v1/subjects/{$subject->id}/topics?per_page=1&page=2")
+            ->assertOk()->assertJsonPath('data.0.questions_count', 0);
     }
 }

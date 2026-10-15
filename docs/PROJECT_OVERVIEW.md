@@ -57,7 +57,7 @@ flowchart LR
 | Vai trò | Quyền hạn chính |
 |---|---|
 | **Admin** | Quản trị toàn bộ hệ thống, tài khoản, cấu hình, audit |
-| **Teacher** | Tạo/duyệt câu hỏi, soạn đề, lập lịch ca thi, giám sát |
+| **Teacher** | Tạo/sửa/vô hiệu hóa câu hỏi thuộc môn phụ trách, soạn đề, lập lịch ca thi, giám sát |
 | **Student** | Xem ca thi được gán, làm bài, nộp bài, xem kết quả |
 
 ### 2.4. Mô hình miền (Domain Model)
@@ -80,12 +80,12 @@ erDiagram
     User ||--o{ SessionAssignment : enrolled_in
 ```
 
-**4 loại câu hỏi:** `single_choice`, `multiple_choice`, `true_false`, `fill_in_the_blank`
+**4 loại câu hỏi:** `single_choice`, `multiple_choice`, `true_false`, `short_answer`
 
 ### 2.5. Máy trạng thái (State Machines)
 
 ```text
-Question:   draft → approved → rejected
+Question:   ready ↔ disabled (chỉ trước khi gắn vào đề)
 Session:    draft → published → in_progress → closed
 Attempt:    in_progress → submitted → graded
 ```

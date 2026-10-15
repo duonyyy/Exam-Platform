@@ -60,7 +60,7 @@ Mọi thảo luận, đặt tên biến, tên hàm, bảng CSDL và endpoints ph
 | :--- | :--- |
 | **`User`** | Người dùng hệ thống, gồm 3 roles: `admin`, `teacher`, `student`. |
 | **`Subject` & `Topic`** | Cây phân loại học thuật: Môn học (`Subject`) chứa nhiều Chủ đề (`Topic`). `Subject.owner_teacher_id` là giảng viên đang phụ trách; `created_by` lưu người tạo để truy vết. |
-| **`Question`** | Ngân hàng câu hỏi: Chứa nội dung, loại (`single_choice`, `multiple_choice`, `true_false`), cấu trúc JSON options, và `correct_answer`. Quản lý theo vòng đời (`draft` $\rightarrow$ `approved` $\rightarrow$ `rejected`). |
+| **`Question`** | Ngân hàng câu hỏi: Chứa nội dung, loại (`single_choice`, `multiple_choice`, `true_false`, `short_answer`), cấu trúc JSON options và `correct_answer`. Tạo ở `ready`, có thể chuyển sang `disabled`; chỉ câu hỏi `ready` được gắn vào đề. |
 | **`Exam`** | Đề thi mẫu (Template/Blueprint): Thiết lập thời lượng làm bài, điểm sàn, cơ chế xáo trộn câu hỏi. Không gắn liền với thời gian tổ chức cụ thể. |
 | **`ExamQuestion`** | Quan hệ Đề thi - Câu hỏi: Lưu metadata vị trí hiển thị (`order`) và thang điểm (`points`). |
 | **`ExamSession`** | Ca thi cụ thể: Một lần tổ chức thi thực tế với khung giờ bắt đầu (`start_at`) và kết thúc (`end_at`). Quản lý theo trạng thái (`draft` $\rightarrow$ `published` $\rightarrow$ `in_progress` $\rightarrow$ `closed`). |
@@ -84,7 +84,7 @@ Hệ thống kết hợp phân quyền theo vai trò (**Role-Based Access Contro
   - Xem mọi ca thi, bài làm và nhật ký giám sát (Audit & Proctoring).
 - **Teacher**:
   - Tạo môn học (tự nhận phụ trách); chỉ sửa/xóa môn học mình đang phụ trách và quản lý chủ đề thuộc các môn đó. Admin có thể phân công hoặc đổi giảng viên phụ trách.
-  - Tạo, cập nhật và duyệt/từ chối câu hỏi trong ngân hàng đề.
+  - Tạo câu hỏi dùng được ngay; sửa hoặc vô hiệu hóa câu hỏi thuộc môn mình phụ trách trước khi gắn vào đề.
   - Soạn đề thi mẫu (`Exam`) và lập lịch ca thi (`ExamSession`).
   - Gán danh sách sinh viên (`SessionAssignment`) và cán bộ coi thi (`SessionTeacher`).
   - Giám sát tiến độ thi trực tiếp và xem kết quả sau khi nộp.

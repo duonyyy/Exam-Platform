@@ -11,7 +11,7 @@
 Trong hệ thống thi trực tuyến, việc kiểm soát chặt chẽ trạng thái và các bước chuyển trạng thái (State Transitions) của thực thể là yếu tố sống còn để bảo đảm tính toàn vẹn dữ liệu, chống gian lận và ngăn ngừa lỗi logic.
 
 Hệ thống định nghĩa 3 FSM trọng yếu:
-1. **`Question Lifecycle`**: Vòng đời kiểm định câu hỏi trong ngân hàng đề.
+1. **`Question Lifecycle`**: Vòng đời khả dụng của câu hỏi trong ngân hàng đề.
 2. **`ExamSession Lifecycle`**: Vòng đời tổ chức và mở/đóng ca thi.
 3. **`ExamAttempt Lifecycle`**: Vòng đời một lượt làm bài thi của thí sinh.
 
@@ -23,28 +23,25 @@ Hệ thống định nghĩa 3 FSM trọng yếu:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> draft: Giảng viên khởi tạo câu hỏi
-    draft --> pending: Giảng viên gửi yêu cầu duyệt
-    pending --> approved: Người duyệt chấp thuận
-    pending --> rejected: Người duyệt từ chối (ghi lý do)
-    rejected --> draft: Giảng viên chỉnh sửa lại
-    approved --> [*]: Gán vào đề thi (bảo toàn)
-    draft --> [*]: Xóa mềm (Soft Delete)
+    [*] --> ready: Tạo câu hỏi hợp lệ
+    ready --> disabled: Tạm ngừng sử dụng
+    disabled --> ready: Bật lại
+    ready --> ready: Sửa trước khi gắn đề
+    disabled --> disabled: Sửa trước khi gắn đề
 ```
 
 ### 2.2. Bảng Chuyển đổi Trạng thái Hợp lệ & Điều kiện
 
 | Trạng thái hiện tại | Trạng thái tiếp theo | Tác nhân (Actor) | Điều kiện kiểm tra (Condition) | Tác dụng phụ (Side Effect) |
 | :--- | :--- | :--- | :--- | :--- |
-| `[*] (None)` | `draft` | Teacher, Admin | Dữ liệu câu hỏi hợp lệ theo Form Request. | Tạo bản ghi mới trong bảng `questions`. |
-| `draft` | `pending` | Teacher (Tác giả) | Câu hỏi có đầy đủ `question_text`, `options`, `correct_answer`. | Thông báo cho bộ phận kiểm duyệt đề. |
-| `pending` | `approved` | Reviewer, Admin | Câu hỏi chính xác về kiến thức, không vi phạm chuẩn. | Đánh dấu câu hỏi sẵn sàng được gán vào `exams`. |
-| `pending` | `rejected` | Reviewer, Admin | Bắt buộc phải nhập trường `rejection_reason`. | Lưu lý do từ chối để tác giả sửa đổi. |
-| `rejected` | `draft` | Teacher (Tác giả) | Tác giả tiếp nhận phản hồi và mở lại để sửa. | Cho phép cập nhật nội dung câu hỏi. |
+| `[*] (None)` | `ready` | Teacher phụ trách Subject, Admin | Dữ liệu hợp lệ theo Form Request. | Tạo bản ghi mới trong `questions`. |
+| `ready` | `disabled` | Teacher phụ trách Subject, Admin | Chưa gắn vào bất kỳ đề nào. | Ngừng cho phép gắn vào đề. |
+| `disabled` | `ready` | Teacher phụ trách Subject, Admin | Chưa gắn vào bất kỳ đề nào. | Có thể gắn vào đề. |
+| `ready` / `disabled` | giữ nguyên | Teacher phụ trách Subject, Admin | Chưa gắn vào bất kỳ đề nào; nội dung mới hợp lệ. | Ghi `updated_by`. |
 
 ### 2.3. Các Bước Chuyển Bị Cấm Tuyệt đối (Forbidden Transitions)
-- ❌ **`approved` $\rightarrow$ `draft`**: Khi câu hỏi đã được phê duyệt và đã được gắn vào đề thi đang mở, cấm tuyệt đối quay lại `draft` để sửa nội dung (tránh làm thay đổi đề thi của thí sinh đang làm bài).
-- ❌ **`draft` $\rightarrow$ `approved`**: Giảng viên không được tự ý duyệt câu hỏi của chính mình khi chưa qua bước kiểm duyệt `pending` (trừ khi có quyền Admin).
+- ❌ Sau khi câu hỏi đã gắn vào bất kỳ đề nào: cấm sửa nội dung hoặc đổi trạng thái để giữ nguyên đề thi và kết quả lịch sử. Tạo câu hỏi mới nếu cần sửa.
+- ❌ Gắn câu hỏi `disabled` vào đề; Phase 5 phải khóa dòng Question và kiểm tra `ready` trong transaction.
 
 ---
 

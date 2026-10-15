@@ -13,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
 class TopicController extends Controller
@@ -23,12 +22,7 @@ class TopicController extends Controller
         $filters = $request->validated();
         $topics = $subject->topics()->orderBy('id');
 
-        // Phase 4 adds questions; before that every topic has zero questions.
-        if (Schema::hasTable('questions')) {
-            $topics->withCount('questions');
-        } else {
-            $topics->select('topics.*')->selectRaw('0 AS questions_count');
-        }
+        $topics->withCount('questions');
 
         return TopicResource::collection($topics->paginate($filters['per_page'] ?? 20));
     }

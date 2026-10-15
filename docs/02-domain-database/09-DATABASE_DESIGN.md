@@ -122,7 +122,7 @@ graph TD
 Các chỉ mục B-Tree và Composite Index được thiết kế chuyên biệt cho các câu truy vấn có tần suất cao:
 
 ```sql
--- 1. Tối ưu tìm kiếm câu hỏi theo chủ đề và trạng thái duyệt
+-- 1. Tối ưu tìm kiếm câu hỏi theo chủ đề và trạng thái khả dụng
 CREATE INDEX idx_questions_topic_status ON questions(topic_id, status);
 
 -- 2. Tối ưu tải danh sách câu hỏi của một đề thi theo thứ tự
@@ -146,6 +146,8 @@ CREATE INDEX idx_proctoring_attempt_severity ON proctoring_events(attempt_id, se
 ## 7. Migration Code Mẫu Chuẩn Laravel (PostgreSQL JSONB & Constraints)
 
 ### 7.1. Migration Bảng `questions`
+
+Ví dụ dưới đây mô tả schema hiệu lực sau migration `2026_10_15_000001_switch_question_status_to_ready.php`. Migration tạo bảng ngày 2026-10-13 vẫn giữ nguyên để các môi trường đã áp dụng có cùng lịch sử; migration mới đổi default và chuyển trạng thái dữ liệu cũ. Việc chuyển trạng thái là một chiều vì không thể phục hồi chính xác trạng thái `draft`/`pending`/`rejected` sau khi gộp; `down()` từ chối rollback và yêu cầu khôi phục từ bản sao lưu hoặc migration sửa tiếp.
 ```php
 <?php
 
@@ -160,17 +162,17 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('topic_id')->constrained('topics')->restrictOnDelete();
-            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->text('question_text');
             $table->string('question_type'); // single_choice, multiple_choice, true_false, short_answer
-            $table->jsonb('options'); // [{id, content}]
+            $table->jsonb('options')->nullable(); // [{id, content}], null cho short_answer
             $table->jsonb('correct_answer'); // scalar or array
             $table->text('explanation')->nullable();
             $table->string('difficulty')->default('medium'); // easy, medium, hard
-            $table->string('status')->default('draft'); // draft, pending, approved, rejected
+            $table->string('status')->default('ready'); // ready, disabled sau migration chuyển trạng thái
             $table->string('source')->default('manual');
-            $table->text('rejection_reason')->nullable();
+            $table->text('rejection_reason')->nullable(); // Di sản từ schema ban đầu; không dùng trong API hiện tại
             $table->softDeletes();
             $table->timestamps();
 

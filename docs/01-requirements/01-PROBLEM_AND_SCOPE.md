@@ -43,7 +43,7 @@ Trong các cơ sở giáo dục và tổ chức đào tạo, quy trình tổ ch�
 
 ## 3. Mục tiêu Nghiệp vụ (Business Goals)
 
-1. **Quản lý Ngân hàng Câu hỏi Phân cấp (Hierarchical Question Bank)**: Phân loại câu hỏi theo Môn học (`Subject`) và Chủ đề (`Topic`), hỗ trợ đa dạng loại câu hỏi (đơn lựa chọn, nhiều lựa chọn, đúng/sai, trả lời ngắn) cùng quy trình duyệt câu hỏi nghiêm ngặt (`draft` $\rightarrow$ `pending` $\rightarrow$ `approved` / `rejected`).
+1. **Quản lý Ngân hàng Câu hỏi Phân cấp (Hierarchical Question Bank)**: Phân loại câu hỏi theo Môn học (`Subject`) và Chủ đề (`Topic`), hỗ trợ đa dạng loại câu hỏi (đơn lựa chọn, nhiều lựa chọn, đúng/sai, trả lời ngắn). Câu hỏi hợp lệ được tạo ở `ready`; người phụ trách có thể sửa hoặc chuyển sang `disabled` trước khi gắn vào đề.
 2. **Thiết kế Đề thi Mẫu Linh hoạt (Exam Templates)**: Cho phép tái sử dụng mẫu đề thi, cấu hình điểm số từng câu, xáo trộn câu hỏi và đáp án nhằm giảm thiểu gian lận nhìn bài.
 3. **Quản lý Ca thi Thực tế (Scheduled Exam Sessions)**: Khởi tạo ca thi có khung giờ bắt đầu và kết thúc cố định, chỉ định danh sách giám thị phụ trách và phân bổ thí sinh được phép tham gia.
 4. **Phòng thi Trực tuyến An toàn & Bền bỉ (Resilient Online Exam Room)**:
@@ -79,14 +79,14 @@ graph LR
 ### 4.2. Giảng viên / Giám thị (Teacher)
 - **Mục tiêu**: Xây dựng ngân hàng câu hỏi chất lượng, tổ chức các ca thi công bằng, giám sát phòng thi và đánh giá kết quả của thí sinh.
 - **Quyền hạn**:
-  - Quản lý câu hỏi do mình tạo; duyệt hoặc từ chối câu hỏi của đồng nghiệp (nếu có quyền duyệt).
+  - Quản lý câu hỏi thuộc môn mình phụ trách, rà soát nội dung trước khi gắn vào đề thi.
   - Soạn đề thi mẫu (`exams`), gán câu hỏi và đặt trọng số điểm.
   - Tạo ca thi (`exam_sessions`), phân công thí sinh (`session_assignments`), phân công giám thị (`session_teachers`).
   - Xuất bản (`publish`) hoặc đóng (`close`) ca thi.
   - Xem kết quả bài làm, phổ điểm và timeline vi phạm giám sát của ca thi mình được phân công.
 - **Dữ liệu được truy cập**: Câu hỏi trong bộ môn, danh sách thí sinh thuộc ca thi mình phụ trách, bài làm của thí sinh sau khi nộp.
 - **Dữ liệu không được truy cập**: Không được sửa/xóa tài khoản của người dùng khác; không được sửa điểm sau khi kết quả đã chốt mà không có quyền; không can thiệp vào ca thi của giảng viên khác trừ khi được cấp quyền.
-- **Hành động quan trọng**: Phê duyệt câu hỏi, xuất bản ca thi, giám sát timeline vi phạm trực tiếp.
+- **Hành động quan trọng**: Quản trị câu hỏi, xuất bản ca thi, giám sát timeline vi phạm trực tiếp.
 
 ### 4.3. Thí sinh (Student)
 - **Mục tiêu**: Tham gia các bài thi được phân công đúng giờ, làm bài mượt mà, lưu đáp án an toàn và nhận kết quả minh bạch.
@@ -118,7 +118,7 @@ pie title Phân bổ Phạm vi Nghiệp vụ Dự án
 ### 5.1. IN SCOPE (Trong phạm vi triển khai)
 - **Xác thực & Ủy quyền**: Laravel Sanctum Token, Middleware phân quyền vai trò (Admin, Teacher, Student), Laravel Policies bảo vệ tài nguyên (chống IDOR).
 - **Quản lý Danh mục**: CRUD Môn học (`Subject`), Chủ đề (`Topic`).
-- **Ngân hàng Câu hỏi**: Quản lý câu hỏi trắc nghiệm (đơn lựa chọn, nhiều lựa chọn, đúng/sai, trả lời ngắn), lưu trữ `options` dạng JSONB, quy trình duyệt câu hỏi (`draft`, `pending`, `approved`, `rejected`), Soft Delete để bảo toàn dữ liệu lịch sử.
+- **Ngân hàng Câu hỏi**: Quản lý câu hỏi (đơn lựa chọn, nhiều lựa chọn, đúng/sai, trả lời ngắn), lưu trữ `options` dạng JSONB, trạng thái `ready`/`disabled`; Soft Delete bảo toàn dữ liệu lịch sử.
 - **Đề thi mẫu**: Tạo đề thi mẫu, gán câu hỏi kèm số điểm và thứ tự, cấu hình xáo trộn câu hỏi và phương án.
 - **Tổ chức Ca thi**: Khởi tạo ca thi có thời gian bắt đầu/kết thúc, phân công thí sinh và giám thị, vòng đời ca thi (`draft` $\rightarrow$ `published` $\rightarrow$ `closed`).
 - **Phòng thi Trực tuyến**:
@@ -133,7 +133,7 @@ pie title Phân bổ Phạm vi Nghiệp vụ Dự án
 ### 5.2. OUT OF SCOPE (Tuyệt đối loại trừ ở giai đoạn này)
 - Không xây dựng tính năng họp trực tuyến qua video (WebRTC, Zoom/Teams integration) hoặc AI nhận diện khuôn mặt sinh trắc học phức tạp (yêu cầu hạ tầng GPU đắt đỏ).
 - Không hỗ trợ thanh toán trực tuyến (Payment Gateway).
-- Không tự động sinh câu hỏi bằng AI/LLM (giữ nguyên tắc nguồn câu hỏi do giảng viên biên soạn và kiểm duyệt).
+- Không tự động sinh câu hỏi bằng AI/LLM (nguồn câu hỏi do giảng viên biên soạn và tự rà soát).
 - Không hỗ trợ chấm bài tự luận dài bằng ngôn ngữ tự nhiên (NLP) ở giai đoạn này.
 
 ### 5.3. FUTURE (Xem xét ở các giai đoạn sau)

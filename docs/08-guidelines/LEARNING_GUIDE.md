@@ -196,7 +196,7 @@ Yêu cầu Antigravity trả lời:
 Bạn phải tự giải thích được:
 
 ```text
-Question được tạo và duyệt thế nào?
+Question được tạo ready, sửa và vô hiệu hóa thế nào?
 Exam lấy Question thế nào?
 Exam khác ExamSession thế nào?
 Student được assign thế nào?

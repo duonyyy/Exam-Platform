@@ -88,7 +88,7 @@ Trong cấu trúc Monorepo, scope giúp lập trình viên và reviewer nhận b
 | **`rbac`** | Phân quyền vai trò (`admin`, `teacher`, `student`), `RoleMiddleware`. |
 | **`subject`** | Danh mục Môn học (`Subject` model, CRUD, Unique code). |
 | **`topic`** | Chủ đề kiến thức thuộc môn học (`Topic` model, ràng buộc toàn vẹn). |
-| **`question`** | Ngân hàng câu hỏi, loại câu hỏi (`QuestionType`), kiểm duyệt (`draft → approved → rejected`). |
+| **`question`** | Ngân hàng câu hỏi, loại câu hỏi (`QuestionType`), trạng thái (`ready ↔ disabled`). |
 | **`exam`** | Đề thi mẫu (`Exam` blueprint, `ExamQuestion`, thứ tự, tính tổng điểm). |
 | **`session`** | Ca thi (`ExamSession`), lập lịch khung giờ, FSM (`draft → published → in_progress → closed`). |
 | **`assignment`** | Phân bổ thí sinh vào ca thi (`SessionAssignment`, Unique `exam_session_id + student_id`). |
@@ -112,7 +112,7 @@ Trong cấu trúc Monorepo, scope giúp lập trình viên và reviewer nhận b
 | **`timer`** | Bộ đếm thời gian thi phía client đồng bộ với Server Clock. |
 | **`autosave`** | Cơ chế Debounced Autosave (500ms) kèm trạng thái mạng. |
 | **`proctoring-collector`** | Lắng nghe cảm biến trình duyệt (`visibilitychange`, `blur`, `fullscreenchange`). |
-| **`teacher-portal`** | Giao diện dành cho Giảng viên: soạn đề, duyệt câu hỏi, giám sát ca thi. |
+| **`teacher-portal`** | Giao diện dành cho Giảng viên: soạn đề, quản lý câu hỏi, giám sát ca thi. |
 | **`admin-portal`** | Giao diện Quản trị viên: phân quyền, cấu hình hệ thống, audit log. |
 | **`ui`** | Reusable UI components (Button, Modal, Toast, Input), Tailwind Design Tokens. |
 
@@ -213,7 +213,7 @@ Tên nhánh được đặt theo tiền tố phản ánh mục đích làm việ
 - `docs/<slug>`: Viết hoặc cập nhật tài liệu (ví dụ: `docs/add-commit-standards`).
 
 ### 7.2. Tiêu Chuẩn Pull Request (PR Standards)
-- **Tiêu đề PR**: Phải tuân thủ chuẩn Conventional Commits (ví dụ: `feat(questions): implement jsonb validation and review workflow`).
+- **Tiêu đề PR**: Phải tuân thủ chuẩn Conventional Commits (ví dụ: `feat(question): create ready questions with validation`).
 - **Nội dung PR**: Phải hoàn thành checklist 14 yếu tố Pre-Implementation và 11 khía cạnh Post-Implementation quy định tại Hiến pháp `AGENTS.md`.
 - **Quality Gates CI**: Bắt buộc vượt qua 100% các jobs CI trên GitHub Actions:
   - Backend CI: Pint (PSR-12), Larastan Level 8, Feature Tests trên PostgreSQL 16 thật.

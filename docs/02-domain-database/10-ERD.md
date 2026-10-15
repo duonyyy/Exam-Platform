@@ -78,7 +78,7 @@ erDiagram
         jsonb correct_answer "scalar or array of ids"
         text explanation
         varchar difficulty "easy, medium, hard"
-        varchar status "draft, pending, approved, rejected"
+        varchar status "ready, disabled"
         varchar source "manual, import"
         text rejection_reason
         bigint created_by FK

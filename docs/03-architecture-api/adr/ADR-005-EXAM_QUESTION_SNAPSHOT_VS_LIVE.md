@@ -15,7 +15,7 @@ Trong hệ thống thi trực tuyến, một bài toán kiến trúc sống còn
 1. Bảng `exam_questions` lưu tham chiếu khóa ngoại `question_id` trỏ tới bảng `questions`.
 2. **Quy tắc Bất biến (Immutability Enforcement)**:
    - Một khi một câu hỏi đã được gắn vào một Đề thi mẫu đang được sử dụng trong bất kỳ Ca thi nào (`published` hoặc `closed`), câu hỏi đó **BỊ KHÓA HOÀN TOÀN QUYỀN CHỈNH SỬA NỘI DUNG VÀ PHƯƠNG ÁN**.
-   - Nếu giảng viên muốn cải tiến hoặc sửa lỗi chính tả của câu hỏi, hệ thống bắt buộc giảng viên phải **TẠO CÂU HỎI MỚI** (Clone/New Question) và gửi duyệt lại.
+   - Nếu giảng viên muốn cải tiến hoặc sửa lỗi chính tả của câu hỏi đã gắn vào đề, hệ thống bắt buộc giảng viên phải **TẠO CÂU HỎI MỚI** (Clone/New Question). Câu hỏi mới ở trạng thái `ready` sau khi qua kiểm tra dữ liệu đầu vào; không có bước duyệt.
    - Bảng `questions` áp dụng **Soft Delete** (`deleted_at`); nghiêm cấm xóa cứng (Hard Delete).
 3. Đề xuất kiến trúc cho giai đoạn tiếp theo (Future Phase): Nâng cấp lên cơ chế **Question Versioning** (`parent_id`, `version`) hoặc **Exam Snapshot** (sao chép toàn văn câu hỏi vào cột JSONB `exam_snapshots`) khi số lượng câu hỏi và nhu cầu tái sử dụng đề thi tăng cao.
 

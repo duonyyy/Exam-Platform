@@ -20,7 +20,7 @@ flowchart LR
     subgraph Teachers["Giảng viên (Teacher)"]
         UC_T1["UC-TEACHER-01: Quản lý Môn học & Chủ đề"]
         UC_T2["UC-TEACHER-02: Soạn & Biên tập Câu hỏi"]
-        UC_T3["UC-TEACHER-03: Duyệt / Từ chối Câu hỏi"]
+        UC_T3["UC-TEACHER-03: Sửa / Vô hiệu hóa Câu hỏi"]
         UC_T4["UC-TEACHER-04: Thiết kế Đề thi Mẫu & Gán Câu hỏi"]
         UC_T5["UC-TEACHER-05: Khởi tạo Ca thi & Phân công Thí sinh"]
         UC_T6["UC-SESSION-PUBLISH: Xuất bản Ca thi"]

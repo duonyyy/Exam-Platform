@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\QuestionController;
 use App\Http\Controllers\Api\V1\SubjectController;
 use App\Http\Controllers\Api\V1\TopicController;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +48,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::patch('/subjects/{subject}', [SubjectController::class, 'update'])->name('api.v1.subjects.update');
         Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])->name('api.v1.subjects.destroy');
         Route::post('/subjects/{subject}/topics', [TopicController::class, 'store'])->name('api.v1.subjects.topics.store');
-        // Question Bank & Review (Phase 4)
+        // Question Bank (Phase 4)
+        Route::get('/questions', [QuestionController::class, 'index'])->name('api.v1.questions.index');
+        Route::post('/questions', [QuestionController::class, 'store'])->name('api.v1.questions.store');
+        Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('api.v1.questions.update');
+        Route::patch('/questions/{question}/status', [QuestionController::class, 'changeStatus'])->name('api.v1.questions.status');
         // Exam Templates & Assembly (Phase 5)
         // Exam Sessions Lifecycle (Phase 6)
         // Student Assignments (Phase 7)

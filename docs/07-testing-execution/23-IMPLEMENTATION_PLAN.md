@@ -63,18 +63,20 @@
 
 ---
 
-### Phase 4 — Ngân hàng Câu hỏi & Kiểm duyệt (Question Bank & Review)
-- **Mục tiêu**: Quản lý ngân hàng câu hỏi 4 định dạng, lưu trữ options/correct_answer dạng JSONB, quy trình duyệt câu hỏi.
+### Phase 4 — Ngân hàng Câu hỏi (Question Bank)
+- **Mục tiêu**: Quản lý ngân hàng câu hỏi 4 định dạng, lưu trữ options/correct_answer dạng JSONB; câu hỏi hợp lệ được tạo `ready` ngay.
 - **Phụ thuộc**: Phase 3.
 - **Tệp tin ảnh hưởng**: `app/Models/Question.php`, `app/Enums/QuestionType.php`, `app/Http/Resources/QuestionAdminResource.php`, `app/Http/Resources/QuestionStudentResource.php`.
 - **Thay đổi CSDL**: Tạo bảng `questions` với các cột JSONB và Soft Deletes (`deleted_at`).
 - **Endpoints**:
   - `GET/POST /api/v1/questions`
-  - `POST /api/v1/questions/{id}/approve`
-  - `POST /api/v1/questions/{id}/reject`
+  - `PUT /api/v1/questions/{id}`
+  - `PATCH /api/v1/questions/{id}/status`
 - **Kiểm soát An ninh**: Form Request validate chặt chẽ cấu trúc JSON options và correct_answer; phân tách tuyệt đối giữa `QuestionAdminResource` và `QuestionStudentResource`.
-- **Tests**: `tests/Feature/Questions/QuestionValidationTest.php`, `tests/Feature/Questions/QuestionReviewTest.php`.
-- **DoD**: Tạo câu hỏi, duyệt câu hỏi hoạt động chuẩn; cấm xóa cứng câu hỏi.
+- **Tests**: `tests/Feature/Questions/QuestionApiTest.php` (tạo, sửa, bật/tắt, phân quyền, validation, chống lộ đáp án).
+- **DoD**: Tạo câu hỏi `ready`, sửa và bật/tắt trước khi gắn đề; không cho sửa câu hỏi đã gắn; cấm xóa cứng câu hỏi.
+
+**Quyết định 2026-10-15:** Bỏ luồng duyệt, tạo `ready` ngay. Dữ liệu cũ `draft`/`pending`/`rejected` chuyển sang `disabled`; `approved` chuyển sang `ready`. Trạng thái `ready` chỉ khẳng định hình dạng dữ liệu hợp lệ, người soạn chịu trách nhiệm xác minh kiến thức và đáp án. `PUT` thay toàn bộ nội dung trước khi gắn đề; `PATCH /status` chuyển `ready ↔ disabled`. Phase 5 phải dùng cùng khóa dòng Question ở luồng gắn vào đề. Kết quả quality gates phải báo theo lần chạy của thay đổi này.
 
 ---
 
@@ -86,9 +88,9 @@
 - **Endpoints**:
   - `POST /api/v1/exams`
   - `POST /api/v1/exams/{id}/questions`
-- **Kiểm soát An ninh**: Chỉ cho phép gán câu hỏi có `status = 'approved'`. Tính tổng điểm tự động trong Database Transaction.
+- **Kiểm soát An ninh**: Chỉ cho phép gắn câu hỏi `status = 'ready'`; khóa dòng Question, kiểm tra lại trạng thái trong transaction để chống chạy đua với vô hiệu hóa. Tính tổng điểm tự động trong cùng transaction.
 - **Tests**: `tests/Feature/Exams/ExamQuestionAssemblyTest.php`.
-- **DoD**: Gán câu hỏi tính đúng tổng điểm đề thi; chặn gán câu hỏi chưa duyệt.
+- **DoD**: Gắn câu hỏi tính đúng tổng điểm đề thi; chặn `disabled` và kiểm thử chạy đua với cập nhật trạng thái.
 
 ---
 

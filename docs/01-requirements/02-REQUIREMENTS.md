@@ -36,7 +36,7 @@ Hệ thống yêu cầu chức năng được phân loại theo các module nghi
 
 ---
 
-### 1.3. Module Ngân hàng Câu hỏi & Kiểm duyệt (QUESTION & REVIEW)
+### 1.3. Module Ngân hàng Câu hỏi (QUESTION)
 
 - **`FR-QUESTION-001`**: Hệ thống phải hỗ trợ 4 loại câu hỏi cơ bản:
   1. `single_choice`: Trắc nghiệm 1 đáp án đúng duy nhất.
@@ -49,9 +49,8 @@ Hệ thống yêu cầu chức năng được phân loại theo các module nghi
   - Với `multiple_choice`: Giá trị phải là mảng các `id` phương án hợp lệ.
   - Với `short_answer`: Giá trị là chuỗi văn bản mẫu chuẩn.
 - **`FR-QUESTION-004`**: Hệ thống phải hỗ trợ phân loại độ khó: `easy`, `medium`, `hard`.
-- **`FR-QUESTION-005`**: Khi mới tạo, câu hỏi mặc định ở trạng thái `draft` hoặc `pending`.
-- **`FR-REVIEW-001`**: Giảng viên hoặc Admin có thẩm quyền được quyền chuyển trạng thái câu hỏi từ `pending` sang `approved` hoặc `rejected`.
-- **`FR-REVIEW-002`**: Khi từ chối (`rejected`), hệ thống bắt buộc phải lưu lý do từ chối (`rejection_reason`) để người soạn biết và chỉnh sửa.
+- **`FR-QUESTION-005`**: Câu hỏi hợp lệ được tạo ở trạng thái `ready` ngay, không qua bước duyệt. Admin hoặc giảng viên phụ trách Subject có thể chuyển `ready ↔ disabled` trước khi câu hỏi được gắn vào đề.
+- **`FR-QUESTION-007`**: Admin hoặc giảng viên phụ trách Subject có thể thay toàn bộ nội dung/đáp án câu hỏi trước khi gắn vào đề; Topic của câu hỏi không được đổi qua API sửa. Sau khi gắn vào bất kỳ đề nào, phải tạo câu hỏi mới để sửa hoặc vô hiệu hóa.
 - **`FR-QUESTION-006`**: Khi xóa câu hỏi, hệ thống phải sử dụng cơ chế **Soft Delete** (`deleted_at`), tuyệt đối không xóa cứng (Hard Delete) khỏi database để bảo toàn tính toàn vẹn của các đề thi lịch sử.
 
 ---
@@ -60,7 +59,7 @@ Hệ thống yêu cầu chức năng được phân loại theo các module nghi
 
 - **`FR-EXAM-001`**: Giảng viên hoặc Admin được phép tạo đề thi mẫu (`Exam`) gắn với một môn học cụ thể, thiết lập thời lượng làm bài (`duration_minutes > 0`), điểm sàn đạt yêu cầu (`pass_score`), và các cờ xáo trộn (`shuffle_questions`, `shuffle_options`).
 - **`FR-EXAM-002`**: Hệ thống cho phép gán danh sách câu hỏi vào đề thi mẫu qua bảng trung gian `exam_questions`. Mỗi câu hỏi khi gắn vào đề phải được quy định thứ tự (`order`) và điểm số (`points > 0`).
-- **`FR-EXAM-003`**: Hệ thống **chỉ cho phép gán các câu hỏi đã được phê duyệt (`status = 'approved'`)** vào đề thi. Nếu câu hỏi ở trạng thái `draft`, `pending`, hoặc `rejected`, hệ thống phải từ chối với lỗi `422 Unprocessable Content`.
+- **`FR-EXAM-003`**: Hệ thống chỉ cho phép gắn câu hỏi `status = 'ready'` vào đề thi; `disabled` phải bị từ chối với lỗi `422 Unprocessable Content`. Thao tác gắn phải khóa dòng Question và kiểm tra lại trạng thái trong transaction để không chạy đua với thao tác vô hiệu hóa.
 - **`FR-EXAM-004`**: Mỗi khi có câu hỏi được thêm, sửa điểm hoặc gỡ khỏi đề thi, hệ thống phải tự động tính toán lại tổng điểm của đề thi (`total_points = SUM(exam_questions.points)`) trong cùng một Database Transaction.
 
 ---

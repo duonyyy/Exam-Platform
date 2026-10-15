@@ -33,9 +33,10 @@ Lựa chọn hiện tại là **chặn request**, không xóa token khi đổi `
 | **Subject.create** | ✅ *(có thể phân công)* | ✅ *(tự nhận phụ trách)* | ❌ | Middleware + `SubjectPolicy@create`; chủ sở hữu do máy chủ gán |
 | **Subject.update / delete** | ✅ | ✅ *(chỉ `owner_teacher_id` của mình)* | ❌ | Middleware + `SubjectPolicy`; khóa dòng và kiểm tra lại trước khi ghi |
 | **Topic.create / update / delete** | ✅ | ✅ *(chỉ thuộc môn phụ trách)* | ❌ | Middleware + Policy theo môn học (API Topic chưa triển khai) |
-| **Question.read** | ✅ | ✅ | ❌ | Middleware (`role:admin,teacher`) |
-| **Question.create / update / delete** | ✅ | ✅ | ❌ | Policy (`QuestionPolicy@manage`) |
-| **Question.approve / reject** | ✅ | ✅ | ❌ | Policy (`QuestionPolicy@review`) |
+| **Question.read** | ✅ | ✅ *(Subject phụ trách)* | ❌ | Middleware (`role:admin,teacher`) + lọc Subject trong SQL trước khi phân trang |
+| **Question.create** | ✅ | ✅ *(Subject phụ trách)* | ❌ | `QuestionPolicy@createInTopic` và kiểm tra lại quyền trong transaction |
+| **Question.update / changeStatus** | ✅ | ✅ *(Subject phụ trách)* | ❌ | `QuestionPolicy@update`; khóa Question và từ chối nếu đã gắn vào đề |
+| **Question.delete** | Chưa có API | Chưa có API | ❌ | Không xóa cứng câu hỏi |
 | **Exam.create / update / delete** | ✅ | ✅ | ❌ | Policy (`ExamPolicy@manage`) |
 | **ExamSession.create / update** | ✅ | ✅ | ❌ | Policy (`SessionPolicy@manage`) |
 | **ExamSession.publish / close** | ✅ | ✅ *(Chỉ ca thi được phân công)* | ❌ | Policy (`SessionPolicy@publish`) |

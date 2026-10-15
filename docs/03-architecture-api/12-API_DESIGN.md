@@ -10,7 +10,7 @@
 
 1. **RESTful Architecture**: Áp dụng triệt để các động từ HTTP (`GET`, `POST`, `PATCH`, `DELETE`) trên các danh từ đại diện cho tài nguyên (`/subjects`, `/questions`, `/exams`, `/exam-sessions`, `/exam-attempts`).
 2. **Business Action Endpoints**: Với các quy trình nghiệp vụ phức tạp không thuộc CRUD thông thường, thiết kế rõ ràng dưới dạng RPC-style hành động:
-   - `POST /questions/{id}/approve` & `POST /questions/{id}/reject`
+   - `PUT /questions/{id}` & `PATCH /questions/{id}/status` (chỉnh sửa và bật/tắt câu hỏi trước khi gắn đề)
    - `POST /exam-sessions/{id}/publish` & `POST /exam-sessions/{id}/close`
    - `POST /exam-sessions/{id}/attempts` (Khởi tạo lượt thi)
    - `PATCH /exam-attempts/{id}/answers` (Lưu đáp án)
@@ -43,8 +43,9 @@
 | `/api/v1/subjects/{id}/topics` | `POST` | Admin, teacher phụ trách | Bearer | Tạo chủ đề trong môn học | `201 Created` |
 | `/api/v1/questions` | `GET` | Teacher, Admin | Bearer | Tra cứu ngân hàng câu hỏi | `200 OK` |
 | `/api/v1/questions` | `POST` | Teacher, Admin | Bearer | Tạo câu hỏi mới vào ngân hàng đề | `201 Created` |
-| `/api/v1/questions/{id}/approve` | `POST` | Teacher, Admin | Bearer | Phê duyệt chất lượng câu hỏi | `200 OK` |
-| `/api/v1/questions/{id}/reject` | `POST` | Teacher, Admin | Bearer | Từ chối câu hỏi kèm lý do | `200 OK` |
+| `/api/v1/questions/{id}` | `PUT` | Admin, teacher phụ trách | Bearer | Thay toàn bộ nội dung câu hỏi chưa gắn đề | `200 OK` |
+| `/api/v1/questions/{id}/status` | `PATCH` | Admin, teacher phụ trách | Bearer | Chuyển `ready ↔ disabled` trước khi gắn đề | `200 OK` |
+
 | `/api/v1/exams` | `GET` | Teacher, Admin | Bearer | Danh sách đề thi mẫu | `200 OK` |
 | `/api/v1/exams` | `POST` | Teacher, Admin | Bearer | Tạo mẫu đề thi mới | `201 Created` |
 | `/api/v1/exams/{id}/questions` | `POST` | Teacher, Admin | Bearer | Gán câu hỏi vào đề và gán điểm số | `200 OK` |
@@ -62,6 +63,18 @@
 
 ---
 
+### Phase 4 Question API hiện thực (2026-10-15)
+
+Các route dùng `auth:sanctum`, `active`, `role:teacher,admin`. `GET /questions` nhận `page` và `per_page` (1–100, mặc định 20), trả `data`, `links`, `meta`; admin xem toàn bộ câu hỏi chưa xóa mềm, teacher chỉ xem câu hỏi thuộc Subject mà mình đang là `owner_teacher_id`. Không có Question API cho student.
+
+`POST /questions` bắt buộc `topic_id` (integer), `question_text` (chuỗi không rỗng, tối đa 10000 ký tự), `question_type` (`single_choice`, `multiple_choice`, `true_false`, `short_answer`), `difficulty` (`easy`, `medium`, `hard`) và `correct_answer`; `explanation` tùy chọn. Ba loại trắc nghiệm yêu cầu `options` là danh sách ít nhất 2 phần tử `{id: string, content: string}` với ID duy nhất; đáp án đơn là một ID, đáp án nhiều là danh sách ID không rỗng/không trùng, mọi ID phải có trong options. `short_answer` nhận đáp án chuỗi không rỗng và không nhận `options`. Teacher chỉ tạo trong Topic thuộc Subject mình phụ trách. Máy chủ ghi `created_by`, `status=ready`, `source=manual`; request chứa `subject_id`, `created_by`, `updated_by`, `status`, `source`, `rejection_reason`, `deleted_at` bị từ chối `422`.
+
+Response `201` và response danh sách dùng `QuestionAdminResource` trong `data`: `id`, `topic_id`, `question_text`, `question_type`, `options`, `correct_answer`, `explanation`, `difficulty`, `status`, `source`, `created_by`, `updated_by`, `created_at`, `updated_at`. `QuestionStudentResource` là lớp tuần tự hóa dự phòng cho Phase thi, chỉ có `id`, `question_text`, `question_type`, `options[{id,content}]`; chưa có endpoint student trả câu hỏi.
+
+`PUT /questions/{id}` nhận đầy đủ các trường nội dung như `POST` và cùng `topic_id` hiện tại. `PATCH /questions/{id}/status` chỉ nhận `{ "status": "ready" | "disabled" }`; gửi lại trạng thái hiện tại là thao tác idempotent. Cả hai khóa dòng Question, kiểm tra lại quyền trên Subject và từ chối `409` với `error_code=QUESTION_ALREADY_IN_EXAM` nếu đã có liên kết trong `exam_questions`; nếu chưa có bảng này (trước Phase 5), chỉ áp dụng các kiểm tra hiện có. Response `200` dùng `QuestionAdminResource`; thiếu/sai input `422`, không có quyền `403`, không tồn tại `404`, chưa xác thực `401`.
+
+**Ranh giới Phase 5:** Khi triển khai gắn câu hỏi vào đề, Action phải khóa cùng dòng Question, kiểm tra lại `status=ready` trong transaction rồi mới ghi `exam_questions`. Nếu bỏ khóa, thao tác gắn có thể chạy đua với `PATCH /status`. Chưa có endpoint xóa mềm Question; `disabled` là cách rút câu hỏi chưa dùng khỏi tập câu hỏi có thể gắn.
+
 ### Quyền và dữ liệu Subject
 
 - `POST /subjects`: body bắt buộc `code` (chuỗi tối đa 50, duy nhất), `name` (chuỗi tối đa 255); `description` tùy chọn. Admin có thể gửi `owner_teacher_id` là ID của teacher đang hoạt động hoặc `null`. Teacher luôn tự nhận phụ trách; không thể tự chỉ định người khác.
@@ -73,7 +86,7 @@
 
 - `GET /subjects/{id}/topics`: `page`, `per_page` (1–100, mặc định 20); mọi vai trò đã đăng nhập được đọc theo quyền xem Subject. Response phân trang có `data`, `meta`, `links`; mỗi Topic có `id`, `subject_id`, `name`, `description`, `questions_count`, `created_at`, `updated_at`.
 - `POST /subjects/{id}/topics`: body bắt buộc `name` (chuỗi tối đa 255), `description` tùy chọn; `subject_id` chỉ lấy từ URL, không nhận trong body. Admin tạo trong mọi Subject; teacher chỉ tạo trong Subject đang phụ trách. Quyền được kiểm tra lại trên Subject đã khóa trước khi ghi. Response `201` có `data` cùng các trường Topic và `questions_count: 0`.
-- Bảng `questions` thuộc Phase 4. Trước khi bảng đó tồn tại, `questions_count` là `0`; sau khi bảng được tạo, endpoint dùng quan hệ `Topic.questions()` để đếm theo từng Topic mà không tải toàn bộ câu hỏi.
+- Sau migration Phase 4, `questions_count` dùng quan hệ `Topic.questions()` để đếm câu hỏi chưa xóa mềm trong bảng thật mà không tải toàn bộ câu hỏi.
 - Quyền và hợp đồng `PATCH`/`DELETE` Topic chưa được đặc tả đủ; hai endpoint này chưa được mở.
 
 ---
