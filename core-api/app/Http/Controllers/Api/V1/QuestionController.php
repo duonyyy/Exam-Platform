@@ -18,7 +18,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
 class QuestionController extends Controller
@@ -112,8 +111,8 @@ class QuestionController extends Controller
 
     private function ensureNotUsedInExam(Question $question): void
     {
-        // Phase 5 must lock the same Question row before attaching it to an Exam.
-        if (Schema::hasTable('exam_questions') && DB::table('exam_questions')->where('question_id', $question->id)->exists()) {
+        // ASVS V15.4: the assembly action locks this Question row before inserting the pivot.
+        if (DB::table('exam_questions')->where('question_id', $question->id)->exists()) {
             throw new HttpResponseException(response()->json([
                 'message' => 'Question is already used in an exam. Create a new question instead.',
                 'error_code' => 'QUESTION_ALREADY_IN_EXAM',

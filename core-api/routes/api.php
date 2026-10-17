@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ExamController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\QuestionController;
 use App\Http\Controllers\Api\V1\SubjectController;
@@ -54,6 +55,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('api.v1.questions.update');
         Route::patch('/questions/{question}/status', [QuestionController::class, 'changeStatus'])->name('api.v1.questions.status');
         // Exam Templates & Assembly (Phase 5)
+        Route::get('/exams', [ExamController::class, 'index'])->name('api.v1.exams.index');
+        Route::post('/exams', [ExamController::class, 'store'])->name('api.v1.exams.store');
+        Route::post('/exams/{exam}/questions', [ExamController::class, 'attachQuestions'])->name('api.v1.exams.questions.store');
         // Exam Sessions Lifecycle (Phase 6)
         // Student Assignments (Phase 7)
     });

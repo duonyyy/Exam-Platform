@@ -4,16 +4,15 @@ namespace Tests\Feature\Questions;
 
 use App\Enums\QuestionStatus;
 use App\Http\Resources\QuestionStudentResource;
+use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Subject;
 use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Database\QueryException;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class QuestionApiTest extends TestCase
@@ -237,12 +236,17 @@ class QuestionApiTest extends TestCase
         $this->actingAs($admin);
         $id = $this->postJson('/api/v1/questions', $this->payload($topic))->assertCreated()->json('data.id');
 
-        // Phase 5 has not created this table yet; model its only dependency here.
-        Schema::create('exam_questions', function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('question_id')->constrained('questions')->restrictOnDelete();
-        });
-        DB::table('exam_questions')->insert(['question_id' => $id]);
+        $exam = new Exam([
+            'title' => 'Kiểm tra PHP', 'duration_minutes' => 60, 'pass_score' => 1,
+            'shuffle_questions' => false, 'shuffle_options' => false,
+        ]);
+        $exam->subject_id = $topic->subject_id;
+        $exam->created_by = $admin->id;
+        $exam->total_points = 0;
+        $exam->save();
+        $this->postJson("/api/v1/exams/{$exam->id}/questions", [
+            'questions' => [['question_id' => $id, 'order' => 1, 'points' => 1]],
+        ])->assertOk();
 
         $this->putJson("/api/v1/questions/{$id}", $this->payload($topic))
             ->assertConflict()->assertJsonPath('error_code', 'QUESTION_ALREADY_IN_EXAM');
