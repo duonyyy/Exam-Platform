@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property QuestionStatus $status
  * @property string $source
  * @property string|null $rejection_reason
+ * @property-read \Illuminate\Database\Eloquent\Relations\Pivot|null $pivot
  */
 class Question extends Model
 {

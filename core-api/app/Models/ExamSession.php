@@ -91,6 +91,12 @@ class ExamSession extends Model
             ->withTimestamps();
     }
 
+    /** @return HasMany<ExamAttempt, $this> */
+    public function attempts(): HasMany
+    {
+        return $this->hasMany(ExamAttempt::class, 'exam_session_id');
+    }
+
     public function isDraft(): bool
     {
         return $this->status === ExamSessionStatus::DRAFT;

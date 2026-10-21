@@ -26,9 +26,10 @@ class SubjectController extends Controller
 
         if (isset($filters['search'])) {
             $search = $filters['search'];
-            $subjects->where(function (Builder $query) use ($search): void {
-                $query->where('code', 'ILIKE', "%{$search}%")
-                    ->orWhere('name', 'ILIKE', "%{$search}%");
+            $likeOperator = DB::getDriverName() === 'pgsql' ? 'ILIKE' : 'like';
+            $subjects->where(function (Builder $query) use ($search, $likeOperator): void {
+                $query->where('code', $likeOperator, "%{$search}%")
+                    ->orWhere('name', $likeOperator, "%{$search}%");
             });
         }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ExamAttemptController;
 use App\Http\Controllers\Api\V1\ExamController;
 use App\Http\Controllers\Api\V1\ExamSessionController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -71,12 +72,15 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/exam-sessions/{exam_session}/assign-teachers', [ExamSessionController::class, 'assignTeachers'])->name('api.v1.exam-sessions.assign-teachers');
     });
 
-    // Student routes
-    Route::middleware(['role:student'])->prefix('student')->group(function () {
+    // Student routes & Attempt Lifecycle (Phase 8)
+    Route::middleware(['role:student'])->group(function () {
         // Assigned sessions list (Phase 7)
-        Route::get('/assigned-sessions', [StudentExamSessionController::class, 'index'])->name('api.v1.student.assigned-sessions');
+        Route::get('/student/assigned-sessions', [StudentExamSessionController::class, 'index'])->name('api.v1.student.assigned-sessions');
         // Exam Taking & Autosave (Phase 8)
-        // Submit Exam Attempt (Phase 9)
-        // Proctoring Events (Phase 10)
+        Route::post('/exam-sessions/{exam_session}/attempts', [ExamAttemptController::class, 'start'])->name('api.v1.exam-sessions.attempts.start');
+        Route::patch('/exam-attempts/{exam_attempt}/answers', [ExamAttemptController::class, 'saveAnswer'])->name('api.v1.exam-attempts.answers.save');
     });
+
+    // Attempt room view (Student owner, Teacher, Admin - protected by ExamAttemptPolicy)
+    Route::get('/exam-attempts/{exam_attempt}', [ExamAttemptController::class, 'show'])->name('api.v1.exam-attempts.show');
 });

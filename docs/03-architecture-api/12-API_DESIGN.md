@@ -97,6 +97,32 @@ Response `201` và response danh sách dùng `QuestionAdminResource` trong `data
 - `POST /exam-sessions/{id}/assign-teachers`: body bắt buộc `teacher_ids` (mảng integer dương, 1–50 phần tử, distinct). Tùy chọn: `role_in_session` (string, tối đa 50, mặc định `proctor`). Mọi ID phải thuộc bảng `users` với `role = 'teacher'` và `is_active = true`; vi phạm trả về `422`. Chỉ Admin, người tạo ca thi hoặc giảng viên phụ trách môn học mới được phân công cán bộ coi thi (`ExamSessionPolicy@assignTeachers`). Khóa dòng bi quan, từ chối `409` nếu ca thi đã đóng/hủy. Ghi nhận idempotent qua `insertOrIgnore`. Response `200 OK`: `{"message": "Phân công cán bộ coi thi thành công.", "data": {"exam_session_id": 1, "assigned_count": 2, "total_teachers": 3}}`.
 - `GET /student/assigned-sessions`: Endpoint dành riêng cho Thí sinh (`role:student`). Query parameters: `page`, `per_page` (1–100, mặc định 20), `status` (`published`, `closed`). Truy vấn ràng buộc trực tiếp theo `Auth::id()` trên quan hệ `session_assignments`. Ẩn các ca thi `draft` để bảo vệ ranh giới FSM. Response phân trang dạng `StudentAssignedSessionResource` gồm: `id`, `exam_id`, `title`, `status`, `start_at`, `end_at`, `allow_late_minutes`, `max_attempts`, `assigned_at`, `exam` (`id`, `title`, `duration_minutes`, `total_points`, `pass_score`, `subject` (`id`, `code`, `name`)). Tuyệt đối không trả về `questions` hay `correct_answer` (Zero-Leakage Policy).
 
+### Hợp đồng Phase 8: Vào phòng thi & Tự động lưu đáp án (Exam Taking & Autosave)
+
+- `POST /exam-sessions/{id}/attempts`: Endpoint dành riêng cho Thí sinh (`role:student`) bắt đầu vào làm bài thi.
+  - Action `StartExamAttemptAction` mở `DB::transaction()` kèm khóa dòng bi quan ca thi.
+  - Kiểm tra `BR-001`: Thí sinh phải được phân công trong `session_assignments` (`403 STUDENT_NOT_ASSIGNED`).
+  - Kiểm tra FSM: Ca thi phải có `status = 'published'` (`409 SESSION_NOT_PUBLISHED`).
+  - Kiểm tra khung giờ: Từ chối nếu chưa đến giờ mở ca (`409 SESSION_NOT_STARTED`) hoặc ca thi đã kết thúc (`409 SESSION_EXPIRED`).
+  - Hỗ trợ Resume: Nếu thí sinh đã có bản ghi lượt thi đang ở trạng thái `in_progress`, server trả về ngay bản ghi hiện tại kèm mã `200 OK` (không tạo lượt thi trùng lặp).
+  - Kiểm tra đến muộn (`BR-014`): Thí sinh mới vào sau mốc `start_at + allow_late_minutes` sẽ bị từ chối cấp lượt làm bài mới (`409 SESSION_LATE_ARRIVAL`).
+  - Kiểm tra số lượt thi (`BR-009`): Từ chối nếu số lượt thi đã thực hiện đạt mốc `max_attempts` của ca thi (`409 MAX_ATTEMPTS_REACHED`).
+  - Khởi tạo lượt thi mới: Ghi nhận `exam_attempts` với `attempt_number = count + 1`, `status = 'in_progress'`, `started_at = now()`.
+  - Response `201 Created` (hoặc `200 OK` khi resume) định dạng `ExamAttemptDetailResource`: Trả về `id`, `attempt_number`, `remaining_seconds`, `exam` metadata, và danh sách câu hỏi đã được làm sạch qua Zero-Leakage Policy (`BR-004`: loại bỏ hoàn toàn `correct_answer` và `explanation`).
+
+- `GET /exam-attempts/{id}`: Tải chi tiết phòng thi và danh sách câu hỏi.
+  - Phân quyền qua `ExamAttemptPolicy@view`: Thí sinh sở hữu bài thi, Giảng viên phụ trách/coi thi hoặc Admin.
+  - Response `200 OK` dạng `ExamAttemptDetailResource` gồm: `attempt` info, `remaining_seconds` tính toán theo đồng hồ máy chủ (`BR-014`), danh sách câu hỏi (Zero-Leakage) và các đáp án thí sinh đã lưu (`answers`).
+
+- `PATCH /exam-attempts/{id}/answers`: Thí sinh lưu đáp án (Autosave / Debounce 500ms).
+  - Yêu cầu `role:student` và `ExamAttemptPolicy@saveAnswer` (chỉ chính thí sinh sở hữu và bài thi còn `in_progress`).
+  - Request body `SaveAttemptAnswerRequest`: `question_id` (integer) và `selected_options` (mảng string hoặc string). Form Request kiểm tra câu hỏi phải thuộc đề thi của ca thi và các phương án chọn phải hợp lệ trong danh mục options của câu hỏi (`422 Unprocessable Content`).
+  - Action `SaveAttemptAnswerAction` mở transaction kèm khóa bi quan `lockForUpdate()`.
+  - Kiểm tra trạng thái: Từ chối `409 ATTEMPT_NOT_IN_PROGRESS` nếu bài đã nộp.
+  - Server-authoritative clock (`BR-014`): `deadline = min(started_at + duration_minutes, session.end_at) + 15s`. Từ chối `409 ATTEMPT_TIME_EXPIRED` nếu quá hạn.
+  - Idempotent Atomic Upsert: Ghi hoặc cập nhật câu trả lời vào `attempt_answers` với khóa duy nhất tổng hợp `(attempt_id, question_id)`.
+  - Response `200 OK` dạng `AttemptAnswerResource`: `id`, `attempt_id`, `question_id`, `selected_options`, `updated_at`.
+
 ### Quyền và dữ liệu Subject
 
 - `POST /subjects`: body bắt buộc `code` (chuỗi tối đa 50, duy nhất), `name` (chuỗi tối đa 255); `description` tùy chọn. Admin có thể gửi `owner_teacher_id` là ID của teacher đang hoạt động hoặc `null`. Teacher luôn tự nhận phụ trách; không thể tự chỉ định người khác.

@@ -131,7 +131,7 @@
   - `PATCH /api/v1/exam-attempts/{id}/answers`
 - **Kiểm soát An ninh**: Chặn IDOR qua Policy; đảm bảo tuyệt đối không trả về `correct_answer`; đồng hồ tính giờ chuẩn Server.
 - **Tests**: `tests/Feature/Attempts/StartAttemptSecurityTest.php`, `tests/Feature/Attempts/SaveAnswerTest.php`.
-- **DoD**: Thí sinh vào thi nhận đề thi sạch đáp án; thao tác lưu câu trả lời phản hồi dưới 100ms.
+- **DoD**: Thí sinh vào thi nhận đề thi sạch đáp án; thao tác lưu câu trả lời phản hồi dưới 100ms. *(Hoàn thành: 2026-10-21 — 16 Feature Tests PASS, Pint clean, PHPStan Level 5 clean).*
 
 ---
 
