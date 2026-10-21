@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ThiSmart — Comprehensive Wireframe Explorer</title>
+<style>
+:root{--ink:#0f172a;--slate:#475569;--muted:#64748b;--primary:#2563eb;--primary-dark:#1d4ed8;--pale:#eff6ff;--border:#e2e8f0;--background:#f8fafc;--white:#fff;--green:#15803d;--green-soft:#f0fdf4;--amber:#b45309;--amber-soft:#fffbeb;--red:#b91c1c;--red-soft:#fef2f2;--radius:14px;--shadow:0 6px 20px rgba(15,23,42,.035),0 1px 3px rgba(15,23,42,.03)}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{background:var(--background);color:var(--ink);font-family:Inter,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}
+button:focus-visible,input:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}svg{display:inline-block;vertical-align:middle;flex:none}a{color:inherit;text-decoration:none}
+.icon{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* Top Navigation Bar */
+.wireframe-nav{background:#0b1329;color:#cbd5e1;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 24px;position:sticky;top:0;z-index:40;border-bottom:1px solid #1e293b}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+.brand-badge{background:#2563eb;color:#fff;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:800}
+.role-pills{display:flex;gap:6px;flex-wrap:wrap}
+.role-btn{color:#94a3b8;background:#172338;border:1px solid #273958;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;transition:all .15s}
+.role-btn.active{background:#2563eb;color:#fff;border-color:#3b82f6;box-shadow:0 0 12px rgba(37,99,235,.4)}
+.screen-selector{display:flex;align-items:center;gap:8px}
+.screen-select{background:#172338;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;min-width:240px}
+
+/* Meta Inspector Bar */
+.meta-inspector{background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:8px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:12px}
+.meta-chips{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:6px;font-weight:700;font-size:11px}
+.chip-id{background:#dbeafe;color:#1e40af}
+.chip-route{background:#e2e8f0;color:#334155;font-family:monospace}
+.chip-db{background:#fef3c7;color:#92400e}
+.chip-api{background:#dcfce7;color:#166534}
+
+/* Shell Layouts */
+.shell-container{min-height:calc(100vh - 96px)}
+.work-shell{display:flex;min-height:calc(100vh - 96px)}
+.sidebar{width:250px;background:#fff;border-right:1px solid var(--border);padding:24px 14px;flex:none}
+.sidebar-header{padding:0 12px 24px}
+.sidebar-title{font-size:16px;font-weight:800;letter-spacing:-.4px}
+.sidebar-sub{font-size:11px;color:var(--muted)}
+.side-group{font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:1px;padding:14px 12px 6px;text-transform:uppercase}
+.side-item{display:flex;align-items:center;gap:12px;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--slate);font-weight:600;margin-bottom:3px;cursor:pointer;transition:background .12s}
+.side-item:hover{background:#f8fafc;color:var(--ink)}
+.side-item.active{background:var(--pale);color:var(--primary);font-weight:750}
+.side-bottom{border-top:1px solid var(--border);margin:24px 12px 0;padding-top:16px;display:flex;align-items:center;gap:12px}
+.avatar{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#dbeafe;color:#1d4ed8;font-weight:800;font-size:12px}
+
+.work-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.work-top{height:68px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 36px}
+.breadcrumbs{font-size:13px;color:var(--muted)}
+.breadcrumbs strong{color:var(--ink)}
+.work-content{max-width:1440px;margin:0 auto;width:100%;padding:30px 36px 60px}
+
+/* Page Components */
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}
+.page-head h1{font-size:24px;letter-spacing:-.6px;margin:0 0 4px;font-weight:800}
+.page-head p{color:var(--muted);margin:0;font-size:13px}
+.eyebrow{color:var(--primary);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.stat-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;font-weight:600}
+.stat-big{font-size:28px;font-weight:850;letter-spacing:-1px;display:block;margin:10px 0 2px}
+.stat-sub{font-size:11px;color:var(--green);font-weight:600}
+
+.panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+.panel-head h2{font-size:16px;font-weight:800;margin:0}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse;text-align:left}
+.data-table th{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #edf2f7;padding:12px 10px;font-weight:750}
+.data-table td{font-size:13px;color:var(--slate);padding:14px 10px;border-bottom:1px solid #f1f5f9}
+.data-table tr:hover td{background:#fafcff}
+.data-table tr:last-child td{border-bottom:none}
+.cell-title{font-weight:750;color:var(--ink);display:block}
+
+/* Badges & Buttons */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:750;padding:4px 8px;border-radius:20px;white-space:nowrap}
+.badge-green{background:var(--green-soft);color:var(--green)}
+.badge-blue{background:var(--pale);color:var(--primary)}
+.badge-amber{background:var(--amber-soft);color:var(--amber)}
+.badge-red{background:var(--red-soft);color:var(--red)}
+.badge-gray{background:#f1f5f9;color:var(--slate)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.btn-primary,.btn-secondary,.btn-danger{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:10px;font-weight:750;padding:10px 16px;font-size:13px;transition:all .14s}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 3px 8px rgba(37,99,235,.15)}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:#fff;border-color:#cbd5e1;color:var(--slate)}
+.btn-secondary:hover{background:#f8fafc;border-color:#94a3b8;color:var(--ink)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#991b1b}
+
+/* Focus Exam Room Specifics */
+.exam-shell{min-height:calc(100vh - 96px);display:flex;flex-direction:column}
+.exam-top{background:#fff;border-bottom:1px solid var(--border);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.exam-top-left{display:flex;align-items:center;gap:16px}
+.exam-mark{width:40px;height:40px;background:var(--primary);color:#fff;border-radius:10px;display:grid;place-items:center}
+.exam-title-box strong{font-size:15px;font-weight:800;display:block}
+.exam-title-box small{font-size:12px;color:var(--muted)}
+.exam-top-right{display:flex;align-items:center;gap:14px}
+.timer-pill{border:1px solid #dbeafe;background:#f8fbff;border-radius:10px;padding:6px 14px;display:flex;align-items:center;gap:10px}
+.timer-pill small{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;display:block}
+.timer-pill strong{font-size:20px;font-variant-numeric:tabular-nums;line-height:1.1}
+.save-pill{font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:30px;border:1px solid #bbf7d0;background:var(--green-soft);color:var(--green)}
+.save-pill.saving{border-color:#bfdbfe;background:var(--pale);color:var(--primary)}
+.save-pill.offline{border-color:#fecaca;background:var(--red-soft);color:var(--red)}
+
+.exam-progress-bar{background:#fff;border-bottom:1px solid #edf2f7;padding:12px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.progress-box{display:flex;align-items:center;gap:14px;flex:1;max-width:500px}
+.progress-track{height:8px;background:#e2e8f0;border-radius:30px;flex:1;overflow:hidden}
+.progress-fill{height:100%;background:var(--primary);border-radius:30px;transition:width .25s}
+
+.exam-layout{width:100%;max-width:1440px;margin:0 auto;padding:28px 36px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;flex:1;align-items:start}
+.question-panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:32px;min-height:500px;box-shadow:var(--shadow)}
+.q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.q-count{background:#eff6ff;color:#1e40af;border:1px solid #dbeafe;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px}
+.q-flag{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--slate);border:1px solid var(--border);border-radius:8px;padding:7px 12px;background:#fff}
+.q-flag.active{color:var(--amber);background:var(--amber-soft);border-color:#fcd34d}
+.q-type-label{font-size:11px;font-weight:800;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
+.q-statement{font-size:20px;font-weight:750;line-height:1.5;margin:0 0 26px;letter-spacing:-.4px}
+
+.options-list{display:grid;gap:12px}
+.opt-card{border:1.5px solid #e2e8f0;border-radius:12px;padding:15px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .14s;position:relative}
+.opt-card:hover{border-color:#93c5fd;background:#fafcff}
+.opt-card.selected{border-color:var(--primary);background:var(--pale);box-shadow:0 0 0 1px var(--primary)}
+.opt-radio{width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e1;display:grid;place-items:center;flex:none}
+.opt-card.selected .opt-radio{border-color:var(--primary)}
+.opt-card.selected .opt-radio:after{content:"";width:8px;height:8px;background:var(--primary);border-radius:50%}
+.opt-letter{font-weight:800;color:var(--muted);width:16px;flex:none}
+.opt-card.selected .opt-letter{color:var(--primary)}
+.opt-text{flex:1;color:var(--slate);font-size:14px}
+.opt-card.selected .opt-text{color:#1e40af;font-weight:650}
+
+.navigator-panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:sticky;top:70px}
+.nav-kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.nav-kpi-box{background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:10px;text-align:center}
+.nav-kpi-box strong{font-size:22px;font-weight:850;display:block}
+.nav-kpi-box small{font-size:11px;color:var(--muted)}
+.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:260px;overflow-y:auto;padding:2px}
+.pal-btn{height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:750;color:var(--slate);position:relative}
+.pal-btn.answered{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.pal-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--primary)}
+.pal-btn.flagged:after{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--amber);border-radius:50%;border:1.5px solid #fff}
+
+.exam-footer{background:#fff;border-top:1px solid var(--border);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;bottom:0;z-index:20}
+
+/* Modal Backdrops */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px}
+.modal-card{background:#fff;border-radius:18px;padding:32px;width:min(100%,480px);box-shadow:0 20px 60px rgba(15,23,42,.25)}
+.modal-icon{width:50px;height:50px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+
+.hidden{display:none!important}
+@media(max-width:1100px){.exam-layout{grid-template-columns:1fr}.navigator-panel{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.sidebar{display:none}.wireframe-nav{padding:8px 12px}.work-content{padding:18px 14px}.work-top{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<!-- Navigation Header -->
+<header class="wireframe-nav">
+  <div class="nav-brand">
+    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px;box-shadow:0 2px 6px rgba(37,99,235,.4)">T</div>
+    ThiSmart <span class="brand-badge">WIREFRAME v2.0</span>
+  </div>
+  
+  <div class="role-pills" role="tablist">
+    <button class="role-btn" data-role="auth">🔐 1. Auth</button>
+    <button class="role-btn active" data-role="student">🎓 2. Student</button>
+    <button class="role-btn" data-role="exam">🎯 3. Focus Room</button>
+    <button class="role-btn" data-role="teacher">👨‍🏫 4. Teacher</button>
+    <button class="role-btn" data-role="admin">🛡️ 5. Admin</button>
+  </div>
+
+  <div class="screen-selector">
+    <select id="screen-select" class="screen-select" aria-label="Chọn màn hình wireframe chi tiết"></select>
+  </div>
+</header>
+
+<!-- Technical Meta Inspector -->
+<div class="meta-inspector" id="meta-bar">
+  <div class="meta-chips">
+    <span class="chip chip-id" id="chip-id">SCR-STU-03</span>
+    <span class="chip chip-route" id="chip-route">/exam/[attemptId]</span>
+    <span class="chip chip-db" id="chip-db">CSDL: exam_attempts, attempt_answers</span>
+    <span class="chip chip-api" id="chip-api">API: PATCH /answers, POST /submit</span>
+  </div>
+  <div>
+    <button class="btn-secondary" id="offline-sim-btn" style="padding:4px 10px;font-size:11px">⚡ Thử mất mạng</button>
+  </div>
+</div>
+
+<!-- Main Screen Render Outlet -->
+<main id="screen-outlet" class="shell-container"></main>
+
+<!-- Modals Container -->
+<div id="modal-outlet"></div>
+
+<script>
+'use strict';
+const I={
+  cap:'<svg class="icon" viewBox="0 0 24 24"><path d="m2 10 10-6 10 6-10 6-10-6Z"/><path d="M6 12.4V17c3 3 9 3 12 0v-4.6"/><path d="M22 10v7"/></svg>',
+  clock:'<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  check:'<svg class="icon" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></svg>',
+  cloud:'<svg class="icon" viewBox="0 0 24 24"><path d="M8 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.5-1.5A4.5 4.5 0 0 0 8 18Z"/><path d="m9 13 2 2 4-4"/></svg>',
+  cloudOff:'<svg class="icon" viewBox="0 0 24 24"><path d="m3 3 18 18M10 8a6 6 0 0 1 9 3 4 4 0 0 1 1 6M7.5 9.5A4.5 4.5 0 0 0 8 18h9"/></svg>',
+  flag:'<svg class="icon" viewBox="0 0 24 24"><path d="M5 21V5m0 0c5-3 9 3 14 0v11c-5 3-9-3-14 0"/></svg>',
+  left:'<svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>',
+  right:'<svg class="icon" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>',
+  users:'<svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8a4 4 0 0 1 0 7m2 6v-2a4 4 0 0 0-3-3.9"/></svg>',
+  book:'<svg class="icon" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H21v17H6.5A2.5 2.5 0 0 1 4 17.5v-12ZM4 17.5A2.5 2.5 0 0 1 6.5 15H21"/></svg>',
+  file:'<svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6M8 13h8M8 17h8"/></svg>',
+  bell:'<svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>',
+  shield:'<svg class="icon" viewBox="0 0 24 24"><path d="m12 2 9 4v6c0 5-3.4 8-9 10-5.6-2-9-5-9-10V6l9-4Z"/></svg>',
+  activity:'<svg class="icon" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
+  settings:'<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M20 12a8 8 0 0 0-.3-2l1.5-1.2-2-3.5-2 .6a8 8 0 0 0-3.4-2L13.4 2h-3L10 4a8 8 0 0 0-3.4 2l-2-.7-2 3.5L4 10a8 8 0 0 0 0 4l-1.4 1.2 2 3.5 2-.6a8 8 0 0 0 3.4 2l.4 1.9h3l.4-2a8 8 0 0 0 3.4-2l2 .7 2-3.5L19.7 14A8 8 0 0 0 20 12Z"/></svg>'
+};
+
+// Screen Registry
+const SCREENS = [
+  // Auth
+  { id:'SCR-AUTH-01', role:'auth', name:'Đăng nhập hệ thống', route:'/login', db:'users, personal_access_tokens', api:'POST /api/v1/auth/login' },
+  { id:'SCR-AUTH-02', role:'auth', name:'Đăng ký Thí sinh', route:'/register', db:'users (role=student)', api:'POST /api/v1/auth/register' },
+  { id:'SCR-AUTH-03', role:'auth', name:'Quên mật khẩu', route:'/forgot-password', db:'users', api:'POST /api/v1/auth/forgot-password' },
+  
+  // Student
+  { id:'SCR-STU-01', role:'student', name:'Ca thi của tôi', route:'/student/exams', db:'session_assignments, exam_sessions', api:'GET /api/v1/student/assigned-sessions' },
+  { id:'SCR-STU-02', role:'student', name:'Kiểm tra điều kiện thi', route:'/student/exams/[id]/instructions', db:'exam_sessions, exams', api:'POST /api/v1/exam-sessions/{id}/attempts' },
+  { id:'SCR-STU-03', role:'exam', name:'🎯 Phòng thi Tập trung (Focus Room)', route:'/exam/[attemptId]', db:'exam_attempts, attempt_answers', api:'PATCH /answers, POST /submit' },
+  { id:'SCR-STU-04', role:'student', name:'Biên nhận nộp bài', route:'Modal / Receipt', db:'exam_attempts (status=submitted)', api:'POST /api/v1/exam-attempts/{id}/submit' },
+  { id:'SCR-STU-05', role:'student', name:'Bảng điểm & Chi tiết bài làm', route:'/student/results/[attemptId]', db:'exam_attempts, attempt_answers', api:'GET /api/v1/exam-attempts/{id}/result' },
+  
+  // Teacher
+  { id:'SCR-TEA-01', role:'teacher', name:'Tổng quan Giảng viên', route:'/teacher', db:'subjects, exams, exam_sessions', api:'GET /api/v1/auth/me' },
+  { id:'SCR-TEA-02', role:'teacher', name:'Quản lý Môn học & Chủ đề', route:'/teacher/subjects', db:'subjects, topics', api:'GET/POST /api/v1/subjects' },
+  { id:'SCR-TEA-03', role:'teacher', name:'Ngân hàng Câu hỏi', route:'/teacher/questions', db:'questions, topics', api:'GET /questions, PATCH /status' },
+  { id:'SCR-TEA-04', role:'teacher', name:'Soạn thảo Câu hỏi', route:'/teacher/questions/new', db:'questions', api:'POST /questions, PUT /questions/{id}' },
+  { id:'SCR-TEA-05', role:'teacher', name:'Thiết kế Đề thi Mẫu', route:'/teacher/exams/[id]/edit', db:'exams, exam_questions', api:'POST /exams/{id}/questions' },
+  { id:'SCR-TEA-06', role:'teacher', name:'Lập lịch Ca thi & Gán SV', route:'/teacher/sessions/[id]/edit', db:'exam_sessions, session_assignments', api:'POST /sessions, POST /publish' },
+  { id:'SCR-TEA-07', role:'teacher', name:'Giám sát Phòng thi Trực tiếp', route:'/teacher/sessions/[id]/monitor', db:'exam_sessions, proctoring_events', api:'GET /monitor-stream, POST /close' },
+  { id:'SCR-TEA-08', role:'teacher', name:'Báo cáo Phổ điểm Ca thi', route:'/teacher/sessions/[id]/results', db:'exam_sessions, exam_attempts', api:'GET /api/v1/exam-sessions/{id}/results' },
+
+  // Admin
+  { id:'SCR-ADM-01', role:'admin', name:'Tổng quan Quản trị', route:'/admin', db:'users, exam_sessions, attempts', api:'Dashboard KPI Stats' },
+  { id:'SCR-ADM-02', role:'admin', name:'Quản trị Người dùng (RBAC)', route:'/admin/users', db:'users', api:'GET/POST/PATCH /api/v1/users' },
+  { id:'SCR-ADM-03', role:'admin', name:'Nhật ký Kiểm toán (Audit)', route:'/admin/audit-logs', db:'proctoring_events, audit_logs', api:'GET /api/v1/admin/audit-logs' },
+  { id:'SCR-ADM-04', role:'admin', name:'Cấu hình Tham số Hệ thống', route:'/admin/settings', db:'system_settings', api:'PATCH /api/v1/admin/settings' }
+];
+
+let currentScreenId = 'SCR-STU-03';
+let examState = {
+  curQ: 14,
+  answers: {0:1, 1:2, 2:0, 3:1, 4:2, 5:2, 6:0, 7:2, 8:0, 9:1, 10:2, 11:0, 12:1, 13:1, 14:1},
+  flagged: new Set([6, 14, 23]),
+  remainingSec: 45 * 60 + 12,
+  saveState: 'saved',
+  offline: false
+};
+
+const $ = id => document.getElementById(id);
+
+function populateSelect(role) {
+  const filtered = role ? SCREENS.filter(s => s.role === role) : SCREENS;
+  const select = $('screen-select');
+  select.innerHTML = filtered.map(s => `<option value="${s.id}" ${s.id===currentScreenId?'selected':''}>${s.id}: ${s.name}</option>`).join('');
+}
+
+function updateMeta(screen) {
+  $('chip-id').textContent = screen.id;
+  $('chip-route').textContent = screen.route;
+  $('chip-db').textContent = 'CSDL: ' + screen.db;
+  $('chip-api').textContent = 'API: ' + screen.api;
+}
+
+function setScreen(id) {
+  currentScreenId = id;
+  const screen = SCREENS.find(s => s.id === id);
+  if (!screen) return;
+  updateMeta(screen);
+  
+  // Highlight role button
+  document.querySelectorAll('.role-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.role === screen.role);
+  });
+  
+  populateSelect(screen.role);
+  $('screen-select').value = id;
+  renderScreen(id);
+}
+
+// Renderers
+function renderScreen(id) {
+  const out = $('screen-outlet');
+  if (id === 'SCR-STU-03') return renderFocusExam();
+  if (id === 'SCR-AUTH-01') return renderLogin();
+  if (id === 'SCR-AUTH-02') return renderRegister();
+  if (id === 'SCR-STU-01') return renderStudentExams();
+  if (id === 'SCR-STU-02') return renderPreflight();
+  if (id === 'SCR-STU-05') return renderStudentResults();
+  if (id === 'SCR-TEA-01') return renderTeacherDash();
+  if (id === 'SCR-TEA-02') return renderTeacherSubjects();
+  if (id === 'SCR-TEA-03') return renderTeacherQuestions();
+  if (id === 'SCR-TEA-04') return renderTeacherQuestionEditor();
+  if (id === 'SCR-TEA-05') return renderTeacherExamAssembler();
+  if (id === 'SCR-TEA-07') return renderTeacherMonitor();
+  if (id === 'SCR-ADM-01') return renderAdminOverview();
+  if (id === 'SCR-ADM-02') return renderAdminUsers();
+  if (id === 'SCR-ADM-03') return renderAdminAudit();
+  
+  out.innerHTML = `<div class="work-content"><div class="panel"><h2>${id} — ${SCREENS.find(s=>s.id===id)?.name}</h2><p>Wireframe chi tiết xem tại hồ sơ tài liệu markdown tương ứng trong <code>docs/05-frontend/wireframe/</code>.</p></div></div>`;
+}
+
+// 1. Focus Exam Room
+function renderFocusExam() {
+  const qNum = examState.curQ;
+  const answeredCount = Object.keys(examState.answers).length;
+  const isFlagged = examState.flagged.has(qNum);
+  const saveLabel = examState.offline ? '⚠ Mất mạng (Chờ đồng bộ)' : (examState.saveState === 'saved' ? '✓ Đã lưu tất cả thay đổi' : 'Đang lưu đáp án...');
+  const saveClass = examState.offline ? 'offline' : (examState.saveState === 'saved' ? 'saved' : 'saving');
+
+  let navBtns = '';
+  for (let i = 0; i < 40; i++) {
+    const isAns = examState.answers[i] !== undefined;
+    const isCur = i === qNum;
+    const isFl = examState.flagged.has(i);
+    navBtns += `<button class="pal-btn ${isAns?'answered':''} ${isCur?'active':''} ${isFl?'flagged':''}" onclick="goQuestion(${i})">${String(i+1).padStart(2,'0')}</button>`;
+  }
+
+  const options = [
+    { letter:'A', text:'POST' },
+    { letter:'B', text:'PUT (Selected)' },
+    { letter:'C', text:'PATCH' },
+    { letter:'D', text:'DELETE' }
+  ];
+
+  let optHTML = options.map((opt, idx) => {
+    const isSel = examState.answers[qNum] === idx;
+    return `<div class="opt-card ${isSel?'selected':''}" onclick="chooseOption(${idx})">
+      <div class="opt-radio"></div>
+      <span class="opt-letter">${opt.letter}.</span>
+      <span class="opt-text">${opt.text}</span>
+      ${isSel ? `<span style="color:var(--primary)">${I.check}</span>`:''}
+    </div>`;
+  }).join('');
+
+  $('screen-outlet').innerHTML = `
+    <div class="exam-shell">
+      <header class="exam-top">
+        <div class="exam-top-left">
+          <div class="exam-mark">${I.cap}</div>
+          <div class="exam-title-box">
+            <strong>Lập trình Web nâng cao (IT4409) — K21</strong>
+            <small>Kỳ thi Giữa kỳ • Khóa thi EX-2026-012</small>
+          </div>
+        </div>
+        <div class="exam-top-right">
+          <div style="text-align:right">
+            <strong style="font-size:13px;display:block">Nguyễn Văn A</strong>
+            <small style="color:var(--muted)">MSSV: 21020015</small>
+          </div>
+          <div class="timer-pill">
+            <span style="color:var(--primary)">${I.clock}</span>
+            <div>
+              <small>Thời gian còn lại</small>
+              <strong id="timer-val">45:12</strong>
+            </div>
+          </div>
+          <div class="save-pill ${saveClass}">${I.cloud} <span>${saveLabel}</span></div>
+        </div>
+      </header>
+
+      <div class="exam-progress-bar">
+        <div class="progress-box">
+          <strong style="font-size:12px;white-space:nowrap">Tiến độ ${answeredCount}/40 câu (${Math.round(answeredCount/40*100)}%)</strong>
+          <div class="progress-track"><div class="progress-fill" style="width:${answeredCount/40*100}%"></div></div>
+        </div>
+        <small style="color:var(--muted)">Đồng hồ chuẩn máy chủ • Tự động lưu đáp án sau 500ms</small>
+      </div>
+
+      <div class="exam-layout">
+        <section class="question-panel">
+          <div class="q-head">
+            <span class="q-count">CÂU HỎI ${String(qNum+1).padStart(2,'0')} / 40 &nbsp;•&nbsp; 0.25 ĐIỂM</span>
+            <button class="q-flag ${isFlagged?'active':''}" onclick="toggleFlag(${qNum})">${I.flag} ${isFlagged?'Đã đánh dấu':'Đánh dấu xem lại'}</button>
+          </div>
+          <div class="q-type-label">CÂU HỎI TRẮC NGHIỆM ĐƠN LỰA CHỌN (SINGLE CHOICE)</div>
+          <h1 class="q-statement">Trong kiến trúc RESTful API, phương thức HTTP nào có tính chất Idempotent và thường được sử dụng để thay thế toàn bộ nội dung của tài nguyên đích?</h1>
+          <div class="options-list">${optHTML}</div>
+        </section>
+
+        <aside class="navigator-panel">
+          <div class="panel-head">
+            <h2>Điều hướng câu hỏi</h2>
+            <small style="color:var(--muted)">${answeredCount}/40 Đã làm</small>
+          </div>
+          <div class="nav-kpi">
+            <div class="nav-kpi-box"><strong>${answeredCount}</strong><small>Đã trả lời</small></div>
+            <div class="nav-kpi-box"><strong>${40 - answeredCount}</strong><small>Chưa làm</small></div>
+          </div>
+          <div class="palette-grid">${navBtns}</div>
+          <div style="margin:16px 0;font-size:12px;color:var(--amber);background:var(--amber-soft);padding:8px 12px;border-radius:8px;font-weight:700">
+            ${I.flag} ${examState.flagged.size} câu được đánh dấu xem lại
+          </div>
+          <button class="btn-primary" style="width:100%;padding:12px" onclick="openSubmitModal()">📤 Nộp bài thi chính thức</button>
+        </aside>
+      </div>
+
+      <footer class="exam-footer">
+        <button class="btn-secondary" onclick="goQuestion(${Math.max(0, qNum-1)})" ${qNum===0?'disabled':''}>${I.left} Câu trước</button>
+        <div style="font-size:12px;color:var(--muted)">Phím tắt: <kbd style="background:#f1f5f9;padding:2px 6px;border-radius:4px;border:1px solid #cbd5e1">←</kbd> <kbd style="background:#f1f5f9;padding:2px 6px;border-radius:4px;border:1px solid #cbd5e1">→</kbd> chuyển câu • <kbd style="background:#f1f5f9;padding:2px 6px;border-radius:4px;border:1px solid #cbd5e1">F</kbd> Đánh dấu</div>
+        <button class="btn-primary" onclick="goQuestion(${Math.min(39, qNum+1)})" ${qNum===39?'disabled':''}>Câu tiếp theo ${I.right}</button>
+      </footer>
+    </div>
+  `;
+}
+
+window.chooseOption = function(idx) {
+  examState.answers[examState.curQ] = idx;
+  examState.saveState = 'saving';
+  renderFocusExam();
+  setTimeout(() => {
+    examState.saveState = 'saved';
+    renderFocusExam();
+  }, 400);
+};
+
+window.goQuestion = function(i) {
+  examState.curQ = i;
+  renderFocusExam();
+};
+
+window.toggleFlag = function(i) {
+  if (examState.flagged.has(i)) examState.flagged.delete(i);
+  else examState.flagged.add(i);
+  renderFocusExam();
+};
+
+window.openSubmitModal = function() {
+  const ans = Object.keys(examState.answers).length;
+  const unans = 40 - ans;
+  $('modal-outlet').innerHTML = `
+    <div class="modal-overlay" onclick="closeModal(event)">
+      <div class="modal-card">
+        <div class="modal-icon" style="background:#eff6ff;color:var(--primary)">${I.file}</div>
+        <h2 style="font-size:20px;margin:0 0 8px">Xác nhận nộp bài thi?</h2>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 16px">Sau khi nộp, bạn sẽ không thể thay đổi đáp án. Bài thi sẽ được máy chủ chấm điểm tự động.</p>
+        <div class="nav-kpi" style="margin-bottom:16px">
+          <div class="nav-kpi-box"><strong>${ans}</strong><small>Đã trả lời</small></div>
+          <div class="nav-kpi-box"><strong style="color:var(--red)">${unans}</strong><small>Chưa trả lời</small></div>
+        </div>
+        ${unans > 0 ? `<div style="background:#fef2f2;color:#b91c1c;padding:10px;border-radius:8px;font-size:12px;margin-bottom:16px;font-weight:600">⚠ Chú ý: Bạn vẫn còn ${unans} câu hỏi chưa hoàn thành!</div>` : ''}
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="$('modal-outlet').innerHTML=''">Tiếp tục làm bài</button>
+          <button class="btn-primary" onclick="confirmSubmit()">✓ Xác nhận nộp bài</button>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+window.confirmSubmit = function() {
+  $('modal-outlet').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-card" style="text-align:center">
+        <div class="modal-icon" style="background:var(--green-soft);color:var(--green);margin:0 auto 16px">${I.check}</div>
+        <h2 style="font-size:20px;margin:0 0 6px">Đã nộp bài thành công!</h2>
+        <p style="color:var(--muted);font-size:13px">Hệ thống máy chủ đã ghi nhận an toàn bài thi của bạn.</p>
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin:18px 0;text-align:left;font-size:13px;line-height:1.7">
+          <div><b>Mã biên nhận:</b> REC-20261017-SV101-0982</div>
+          <div><b>Thời điểm:</b> ${new Date().toLocaleTimeString('vi-VN')} - 17/10/2026</div>
+          <div><b>Số câu hoàn thành:</b> 38 / 40 câu</div>
+          <div><b>Điểm số đạt được:</b> <span style="color:var(--green);font-weight:800;font-size:16px">8.75 / 10.0</span> (Đạt)</div>
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="$('modal-outlet').innerHTML='';setScreen('SCR-STU-01')">Quay về danh sách ca thi</button>
+      </div>
+    </div>
+  `;
+};
+
+window.closeModal = function(e) {
+  if (e.target.classList.contains('modal-overlay')) $('modal-outlet').innerHTML = '';
+};
+
+// 2. Login
+function renderLogin() {
+  $('screen-outlet').innerHTML = `
+    <div style="min-height:calc(100vh - 96px);display:grid;place-items:center;padding:24px">
+      <div class="panel" style="width:min(100%,440px);padding:36px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div class="exam-mark" style="width:36px;height:36px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-weight:900;display:grid;place-items:center;border-radius:10px">T</div>
+          <div><strong style="font-size:16px">ThiSmart</strong><br><small style="color:var(--muted)">Đăng nhập cổng khảo thí trực tuyến</small></div>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px">Email / Mã sinh viên:</label>
+          <input type="text" class="screen-select" style="width:100%;background:#fff;color:var(--ink);border-color:#cbd5e1" value="21020015@student.edu.vn" />
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+            <label style="font-weight:700">Mật khẩu:</label>
+            <a href="#" style="color:var(--primary)">Quên mật khẩu?</a>
+          </div>
+          <input type="password" class="screen-select" style="width:100%;background:#fff;color:var(--ink);border-color:#cbd5e1" value="••••••••••••" />
+        </div>
+        <button class="btn-primary" style="width:100%;padding:12px" onclick="setScreen('SCR-STU-01')">ĐĂNG NHẬP VÀO HỆ THỐNG</button>
+        <div style="text-align:center;font-size:12px;margin-top:20px;color:var(--muted)">
+          Chưa có tài khoản? <a href="#" style="color:var(--primary);font-weight:700" onclick="setScreen('SCR-AUTH-02')">Đăng ký dự thi</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 3. Register
+function renderRegister() {
+  $('screen-outlet').innerHTML = `
+    <div style="min-height:calc(100vh - 96px);display:grid;place-items:center;padding:24px">
+      <div class="panel" style="width:min(100%,480px);padding:36px">
+        <h2 style="font-size:20px;margin:0 0 6px">Đăng ký tài khoản Sinh viên</h2>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 20px">Tạo tài khoản để tham gia các kỳ thi trực tuyến của trường.</p>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px">Họ và tên thí sinh:</label>
+          <input type="text" class="screen-select" style="width:100%;background:#fff;color:var(--ink);border-color:#cbd5e1" value="Nguyễn Văn A" />
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px">Mã số sinh viên (MSSV):</label>
+          <input type="text" class="screen-select" style="width:100%;background:#fff;color:var(--ink);border-color:#cbd5e1" value="21020015" />
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px">Email trường cấp:</label>
+          <input type="email" class="screen-select" style="width:100%;background:#fff;color:var(--ink);border-color:#cbd5e1" value="21020015@student.edu.vn" />
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px">Mật khẩu khởi tạo:</label>
+          <input type="password" class="screen-select" style="width:100%;background:#fff;color:var(--ink);border-color:#cbd5e1" value="••••••••••••" />
+        </div>
+        <button class="btn-primary" style="width:100%;padding:12px" onclick="setScreen('SCR-STU-01')">ĐĂNG KÝ TÀI KHOẢN DỰ THI</button>
+      </div>
+    </div>
+  `;
+}
+
+// 4. Student Exams
+function renderStudentExams() {
+  $('screen-outlet').innerHTML = `
+    <div class="work-shell">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">ThiSmart</div>
+          <div class="sidebar-sub">Sinh viên Workspace</div>
+        </div>
+        <div class="side-group">Menu</div>
+        <div class="side-item active">${I.book} <span>Ca thi của tôi</span></div>
+        <div class="side-item" onclick="setScreen('SCR-STU-05')">${I.file} <span>Kết quả học tập</span></div>
+        <div class="side-bottom">
+          <div class="avatar">SV</div>
+          <div><b style="font-size:13px">Nguyễn Văn A</b><br><small style="color:var(--muted)">MSSV: 21020015</small></div>
+        </div>
+      </aside>
+      <div class="work-main">
+        <div class="work-top">
+          <div class="breadcrumbs">Workspace &nbsp;/&nbsp; <strong>Ca thi của tôi</strong></div>
+          <div style="display:flex;gap:12px;align-items:center"><span class="badge badge-blue">Học kỳ I 2026</span></div>
+        </div>
+        <div class="work-content">
+          <div class="panel" style="background:linear-gradient(110deg,#1e40af,#2563eb);color:#fff;border:none">
+            <small style="color:#bfdbfe;font-weight:800;letter-spacing:1px">CA THI ĐANG MỞ HÔM NAY</small>
+            <h2 style="font-size:24px;margin:8px 0">Kiểm tra Giữa kỳ: Lập trình Web nâng cao</h2>
+            <p style="color:#dbeafe;margin:0 0 20px">Thời lượng: 60 phút • 40 câu hỏi • Hạn chót vào thi: 08:15 Sáng nay</p>
+            <button class="btn-primary" style="background:#fff;color:#1e40af;font-weight:800" onclick="setScreen('SCR-STU-02')">🚀 VÀO XEM HƯỚNG DẪN & DỰ THI</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Danh sách ca thi được phân công</h2></div>
+            <table class="data-table">
+              <thead><tr><th>Môn học</th><th>Khung giờ thi</th><th>Thời lượng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+              <tbody>
+                <tr><td><span class="cell-title">Lập trình Web nâng cao</span><small>IT4409 - K21</small></td><td>08:00 - 09:30 (Hôm nay)</td><td>60 phút</td><td><span class="badge badge-green"><i class="dot"></i> Đang mở</span></td><td><button class="btn-primary" style="padding:6px 12px;font-size:12px" onclick="setScreen('SCR-STU-02')">Vào thi</button></td></tr>
+                <tr><td><span class="cell-title">Cấu trúc Dữ liệu & Giải thuật</span><small>CS201</small></td><td>14:00 - 15:45 (20/10/2026)</td><td>90 phút</td><td><span class="badge badge-blue">Mở sau 2 ngày</span></td><td><button class="btn-secondary" style="padding:6px 12px;font-size:12px" disabled>Chưa mở</button></td></tr>
+                <tr><td><span class="cell-title">Cơ sở Dữ liệu</span><small>DB301</small></td><td>10:00 - 11:30 (12/10/2026)</td><td>60 phút</td><td><span class="badge badge-gray">Đã hoàn thành</span></td><td><button class="btn-secondary" style="padding:6px 12px;font-size:12px" onclick="setScreen('SCR-STU-05')">Xem điểm</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 5. Pre-flight
+function renderPreflight() {
+  $('screen-outlet').innerHTML = `
+    <div class="work-content" style="max-width:900px;margin:30px auto">
+      <button class="btn-secondary" style="margin-bottom:16px" onclick="setScreen('SCR-STU-01')">${I.left} Quay lại danh sách ca thi</button>
+      <div class="panel">
+        <span class="eyebrow">HƯỚNG DẪN & ĐIỀU KIỆN DỰ THI</span>
+        <h1 style="font-size:24px;margin:6px 0 20px">Môn thi: Lập trình Web nâng cao (IT4409)</h1>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:18px">
+            <strong style="display:block;margin-bottom:10px">Thông số ca thi</strong>
+            <div style="font-size:13px;line-height:1.8;color:var(--slate)">
+              • Thời lượng: <b>60 phút</b><br>
+              • Số lượng: <b>40 câu hỏi trắc nghiệm</b><br>
+              • Điểm sàn đạt: <b>5.0 / 10.0</b><br>
+              • Số lần làm bài: <b>01 lần duy nhất</b>
+            </div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:18px">
+            <strong style="display:block;margin-bottom:10px">Kiểm tra kỹ thuật thiết bị</strong>
+            <div style="font-size:13px;line-height:1.8;color:var(--green)">
+              ✓ Kết nối Internet: Ổn định (25 Mbps)<br>
+              ✓ Trình duyệt: Chrome 128 (Được hỗ trợ)<br>
+              ✓ Màn hình: Đạt chuẩn 1920x1080<br>
+              ✓ Đồng bộ đồng hồ: Khớp với máy chủ
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:18px;margin-bottom:24px;color:#92400e;font-size:13px;line-height:1.7">
+          <strong>QUY CHẾ PHÒNG THI & CẢNH BÁO GIÁM SÁT AN NINH:</strong><br>
+          1. Bài thi được thực hiện ở chế độ Toàn màn hình (Fullscreen Focus Mode).<br>
+          2. Tuyệt đối không chuyển tab, mở cửa sổ khác hoặc ngắt toàn màn hình.<br>
+          3. Mọi thao tác rời khỏi màn hình sẽ được hệ thống cảm biến ghi nhận tự động vào bảng theo dõi của Giám thị.
+        </div>
+
+        <label style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px;margin-bottom:24px;cursor:pointer">
+          <input type="checkbox" id="preflight-agree" checked />
+          Tôi đã đọc kỹ quy chế và cam kết làm bài trung thực.
+        </label>
+
+        <button class="btn-primary" style="width:100%;padding:14px;font-size:14px" onclick="setScreen('SCR-STU-03')">🚀 BẮT ĐẦU LÀM BÀI THI (VÀO PHÒNG THI FOCUS)</button>
+      </div>
+    </div>
+  `;
+}
+
+// 6. Student Results
+function renderStudentResults() {
+  $('screen-outlet').innerHTML = `
+    <div class="work-content" style="max-width:1000px;margin:30px auto">
+      <button class="btn-secondary" style="margin-bottom:16px" onclick="setScreen('SCR-STU-01')">${I.left} Quay lại</button>
+      <div class="panel">
+        <span class="eyebrow">KẾT QUẢ THI CHÍNH THỨC</span>
+        <h1 style="font-size:24px;margin:6px 0 20px">Lập trình Web nâng cao (IT4409) — Kỳ thi Giữa kỳ</h1>
+        
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div>
+            <span style="font-size:12px;color:#166534;font-weight:700;text-transform:uppercase">ĐIỂM SỐ ĐẠT ĐƯỢC</span>
+            <div style="font-size:36px;font-weight:900;color:var(--green);letter-spacing:-1px">8.75 <span style="font-size:18px;color:#64748b">/ 10.0</span></div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge badge-green" style="font-size:13px;padding:6px 14px">ĐẠT — XẾP LOẠI GIỎI</span>
+            <div style="font-size:12px;color:#64748b;margin-top:6px">Thời gian làm bài: 52 phút 14 giây</div>
+          </div>
+        </div>
+
+        <div class="panel" style="border-color:#dbeafe">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="badge badge-green">✓ Câu 1: Đúng (+0.25đ)</span>
+            <small style="color:var(--muted)">HTTP / REST Architecture</small>
+          </div>
+          <p style="font-size:16px;font-weight:700;margin:0 0 14px">Trong giao thức HTTP, phương thức nào thường được sử dụng để lấy biểu diễn hiện tại của tài nguyên?</p>
+          <div style="padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-weight:600;color:#166534;margin-bottom:8px">
+            ✓ A. GET (Lựa chọn của bạn — Chính xác)
+          </div>
+          <small style="color:var(--muted)">💡 Lời giải thích: Phương thức GET dùng để đọc dữ liệu an toàn mà không làm biến đổi trạng thái máy chủ.</small>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 7. Teacher Dashboard
+function renderTeacherDash() {
+  $('screen-outlet').innerHTML = `
+    <div class="work-shell">
+      <aside class="sidebar">
+        <div class="sidebar-header"><div class="sidebar-title">ThiSmart</div><div class="sidebar-sub">Giảng viên Workspace</div></div>
+        <div class="side-group">Quản trị đào tạo</div>
+        <div class="side-item active">${I.book} <span>Tổng quan</span></div>
+        <div class="side-item" onclick="setScreen('SCR-TEA-02')">${I.file} <span>Môn & Chủ đề</span></div>
+        <div class="side-item" onclick="setScreen('SCR-TEA-03')">${I.file} <span>Ngân hàng câu hỏi</span></div>
+        <div class="side-item" onclick="setScreen('SCR-TEA-05')">${I.file} <span>Đề thi mẫu</span></div>
+        <div class="side-item" onclick="setScreen('SCR-TEA-07')">${I.activity} <span>Giám sát trực tiếp</span></div>
+        <div class="side-bottom"><div class="avatar">GV</div><div><b style="font-size:13px">TS. Trần Minh Khoa</b><br><small style="color:var(--muted)">Giảng viên phụ trách</small></div></div>
+      </aside>
+      <div class="work-main">
+        <div class="work-top"><div class="breadcrumbs">Workspace &nbsp;/&nbsp; <strong>Tổng quan Giảng viên</strong></div></div>
+        <div class="work-content">
+          <div class="stats-grid">
+            <div class="stat-box"><div class="stat-head">Môn phụ trách ${I.book}</div><span class="stat-big">03</span><span class="stat-sub">IT4409, CS201, DB301</span></div>
+            <div class="stat-box"><div class="stat-head">Câu hỏi trong kho ${I.file}</div><span class="stat-big">240</span><span class="stat-sub">45 câu thêm tuần này</span></div>
+            <div class="stat-box"><div class="stat-head">Ca thi đang mở ${I.clock}</div><span class="stat-big">01</span><span class="stat-sub">Đang giám sát</span></div>
+            <div class="stat-box"><div class="stat-head">Thí sinh online ${I.users}</div><span class="stat-big">38</span><span class="stat-sub">Đang làm bài</span></div>
+          </div>
+          <div class="panel" style="border-left:4px solid var(--primary)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <span class="badge badge-green"><i class="dot"></i> CA THI ĐANG DIỄN RA</span>
+                <h3 style="margin:8px 0 4px;font-size:18px">Lập trình Web nâng cao - K21 (IT4409)</h3>
+                <p style="margin:0;color:var(--muted);font-size:13px">Khung giờ: 08:00 - 09:30 • 42/45 Thí sinh đã vào phòng</p>
+              </div>
+              <button class="btn-primary" onclick="setScreen('SCR-TEA-07')">🔴 Vào Bảng Giám Sát Trực Tiếp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 8. Teacher Live Monitor
+function renderTeacherMonitor() {
+  $('screen-outlet').innerHTML = `
+    <div class="work-shell">
+      <div class="work-main">
+        <div class="work-top" style="background:#0f172a;color:#fff;border-color:#334155">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="badge badge-red"><i class="dot"></i> LIVE PROCTORING</span>
+            <strong>Ca thi: Lập trình Web K21 (IT4409)</strong>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn-secondary" style="background:#1e293b;color:#fff;border-color:#475569" onclick="setScreen('SCR-TEA-01')">Thoát giám sát</button>
+            <button class="btn-danger" onclick="alert('Đã đóng ca thi khẩn cấp!')">🛑 Đóng ca thi</button>
+          </div>
+        </div>
+        <div class="work-content">
+          <div class="stats-grid">
+            <div class="stat-box"><div class="stat-head">Tổng phân công</div><span class="stat-big">45</span></div>
+            <div class="stat-box"><div class="stat-head">Đang làm bài</div><span class="stat-big" style="color:var(--primary)">38</span></div>
+            <div class="stat-box"><div class="stat-head">Đã nộp bài</div><span class="stat-big" style="color:var(--green)">05</span></div>
+            <div class="stat-box"><div class="stat-head">Cảnh báo vi phạm</div><span class="stat-big" style="color:var(--amber)">04</span></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.8fr 1fr;gap:20px">
+            <div class="panel">
+              <div class="panel-head"><h2>Danh sách thí sinh trong phòng</h2></div>
+              <table class="data-table">
+                <thead><tr><th>MSSV</th><th>Họ và tên</th><th>Tiến độ</th><th>Cảnh báo</th><th>Trạng thái</th></tr></thead>
+                <tbody>
+                  <tr><td>21020015</td><td><b>Nguyễn Văn A</b></td><td>32 / 40</td><td>01 vi phạm</td><td><span class="badge badge-green">Đang thi</span></td></tr>
+                  <tr><td>21020016</td><td><b>Trần Thị B</b></td><td>28 / 40</td><td>0 vi phạm</td><td><span class="badge badge-green">Đang thi</span></td></tr>
+                  <tr><td>21020017</td><td><b>Lê Hoàng C</b></td><td>12 / 40</td><td>02 vi phạm</td><td><span class="badge badge-amber">⚠ Mất kết nối</span></td></tr>
+                  <tr><td>21020018</td><td><b>Phạm Minh D</b></td><td>40 / 40</td><td>0 vi phạm</td><td><span class="badge badge-blue">✓ Đã nộp</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h2>Dòng sự kiện cảm biến (Sensor Stream)</h2></div>
+              <div style="display:grid;gap:12px;font-size:12px">
+                <div style="background:#fffbeb;border:1px solid #fde68a;padding:10px;border-radius:8px">
+                  <span style="color:#b45309;font-weight:700">08:41:02 — SV 21020017</span><br>
+                  ⚠ Thí sinh rời tab màn hình thi (tab_hidden - Medium)
+                </div>
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px;border-radius:8px">
+                  <span style="color:#15803d;font-weight:700">08:40:15 — SV 21020018</span><br>
+                  ✓ Nộp bài thành công (Điểm: 9.50)
+                </div>
+                <div style="background:#fffbeb;border:1px solid #fde68a;padding:10px;border-radius:8px">
+                  <span style="color:#b45309;font-weight:700">08:38:50 — SV 21020015</span><br>
+                  ⚠ Thoát chế độ toàn màn hình (fullscreen_exit)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 9. Admin Users
+function renderAdminUsers() {
+  $('screen-outlet').innerHTML = `
+    <div class="work-shell">
+      <aside class="sidebar">
+        <div class="sidebar-header"><div class="sidebar-title">ThiSmart</div><div class="sidebar-sub">Admin Quản trị</div></div>
+        <div class="side-group">Quản trị hệ thống</div>
+        <div class="side-item" onclick="setScreen('SCR-ADM-01')">${I.activity} <span>Tổng quan</span></div>
+        <div class="side-item active">${I.users} <span>Người dùng & RBAC</span></div>
+        <div class="side-item" onclick="setScreen('SCR-ADM-03')">${I.shield} <span>Nhật ký Audit</span></div>
+        <div class="side-bottom"><div class="avatar" style="background:#fef3c7;color:#b45309">AD</div><div><b style="font-size:13px">System Admin</b></div></div>
+      </aside>
+      <div class="work-main">
+        <div class="work-top"><div class="breadcrumbs">Quản trị &nbsp;/&nbsp; <strong>Người dùng & Vai trò</strong></div><button class="btn-primary">+ Tạo người dùng mới</button></div>
+        <div class="work-content">
+          <div class="panel">
+            <table class="data-table">
+              <thead><tr><th>Họ và tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+              <tbody>
+                <tr><td><b>TS. Trần Minh Khoa</b></td><td>khoatm@university.edu</td><td><span class="badge badge-blue">Teacher</span></td><td><span class="badge badge-green">Hoạt động</span></td><td><button class="btn-secondary" style="padding:4px 8px;font-size:11px">Phân vai trò</button></td></tr>
+                <tr><td><b>Nguyễn Văn A</b></td><td>21020015@student.edu</td><td><span class="badge badge-gray">Student</span></td><td><span class="badge badge-green">Hoạt động</span></td><td><button class="btn-secondary" style="padding:4px 8px;font-size:11px">Phân vai trò</button></td></tr>
+                <tr><td><b>Đỗ Gia Hưng</b></td><td>21020019@student.edu</td><td><span class="badge badge-gray">Student</span></td><td><span class="badge badge-red">Tạm khóa</span></td><td><button class="btn-secondary" style="padding:4px 8px;font-size:11px">Mở khóa</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Handlers
+document.querySelectorAll('.role-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const role = btn.dataset.role;
+    populateSelect(role);
+    const firstInRole = SCREENS.find(s => s.role === role);
+    if (firstInRole) setScreen(firstInRole.id);
+  });
+});
+
+$('screen-select').addEventListener('change', e => {
+  setScreen(e.target.value);
+});
+
+$('offline-sim-btn').addEventListener('click', () => {
+  examState.offline = !examState.offline;
+  $('offline-sim-btn').classList.toggle('btn-danger', examState.offline);
+  $('offline-sim-btn').textContent = examState.offline ? '⚡ Khôi phục mạng' : '⚡ Thử mất mạng';
+  if (currentScreenId === 'SCR-STU-03') renderFocusExam();
+});
+
+// Init
+populateSelect('student');
+setScreen('SCR-STU-03');
+</script>
+</body>
+</html>

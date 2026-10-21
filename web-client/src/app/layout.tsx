@@ -10,9 +10,21 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Exam Platform — Hệ Thống Thi Trực Tuyến & Giám Sát Thông Minh",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://thismart.edu.vn"),
+  title: {
+    default: "ThiSmart — Hệ Thống Thi Trực Tuyến & Giám Sát Thông Minh",
+    template: "%s | ThiSmart",
+  },
   description:
-    "Nền tảng thi cử và đánh giá năng lực trực tuyến bảo mật cao, chống gian lận đa tầng, phân quyền vai trò và trải nghiệm phòng thi tối ưu.",
+    "ThiSmart — Thi thông minh. Đánh giá chính xác. Nền tảng thi trực tuyến bảo mật cao, chống gian lận đa tầng, phân quyền vai trò và trải nghiệm phòng thi tối ưu.",
+  icons: {
+    icon: [
+      { url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/brand/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

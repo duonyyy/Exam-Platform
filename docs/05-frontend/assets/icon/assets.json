@@ -1,0 +1,74 @@
+{
+  "hero-exam-orbit": {
+    "png": "hero_quy_dao_bai_thi.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Hero - Quỹ đạo bài thi thông minh",
+    "source": "independent rendering"
+  },
+  "question-bank": {
+    "png": "ngan_hang_cau_hoi_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Ngân hàng câu hỏi",
+    "source": "independent rendering"
+  },
+  "focus-exam-room": {
+    "png": "phong_thi_focus_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Phòng thi Focus Mode",
+    "source": "independent rendering"
+  },
+  "proctoring-security": {
+    "png": "giam_sat_bao_mat_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Giám sát & Bảo mật",
+    "source": "independent rendering"
+  },
+  "exam-creation": {
+    "png": "thiet_ke_de_thi_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Thiết kế đề thi",
+    "source": "independent rendering"
+  },
+  "session-scheduling": {
+    "png": "lap_lich_ca_thi_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Lập lịch ca thi",
+    "source": "independent rendering"
+  },
+  "grading-analytics": {
+    "png": "cham_diem_thong_ke_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Chấm điểm & Thống kê",
+    "source": "independent rendering"
+  },
+  "user-roles": {
+    "png": "vai_tro_nguoi_dung_3d.png",
+    "width": 1448,
+    "height": 1086,
+    "alpha": true,
+    "label": "Vai trò người dùng & RBAC",
+    "source": "independent rendering"
+  },
+  "integrations": {
+    "png": "tich_hop_he_thong_api.png",
+    "width": 353,
+    "height": 292,
+    "alpha": true,
+    "label": "Tích hợp hệ thống API",
+    "source": "cropped from isolated image sheet"
+  }
+}
