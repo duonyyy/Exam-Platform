@@ -108,14 +108,15 @@
 ---
 
 ### Phase 7 — Phân công Thí sinh & Giám thị (Assignments & Proctors)
+- **Tiến độ**: Hoàn thành (Completed 2026-10-21).
 - **Mục tiêu**: Phân bổ thí sinh và gán giám thị coi thi cho ca thi.
 - **Phụ thuộc**: Phase 6.
-- **Tệp tin ảnh hưởng**: `app/Models/SessionAssignment.php`, `app/Models/SessionTeacher.php`.
-- **Thay đổi CSDL**: Tạo bảng `session_assignments` (Unique `session_id + student_id`) và `session_teachers`.
-- **Endpoints**: `POST /api/v1/exam-sessions/{id}/assign-students`, `GET /api/v1/student/assigned-sessions`.
-- **Kiểm soát An ninh**: Chống trùng lặp phân công ở cấp database constraint.
-- **Tests**: `tests/Feature/Sessions/AssignmentTest.php`.
-- **DoD**: Sinh viên xem được danh sách ca thi của chính mình; không thể bị gán trùng lặp.
+- **Tệp tin ảnh hưởng**: `app/Models/SessionAssignment.php`, `app/Models/SessionTeacher.php`, `app/Actions/ExamSessions/AssignStudentsAction.php`, `app/Actions/ExamSessions/AssignTeachersAction.php`, `app/Policies/ExamSessionPolicy.php`, `app/Http/Controllers/Api/V1/ExamSessionController.php`, `app/Http/Controllers/Api/V1/StudentExamSessionController.php`, `app/Http/Requests/ExamSessions/*`, `app/Http/Requests/Students/*`, `app/Http/Resources/StudentAssignedSessionResource.php`.
+- **Thay đổi CSDL**: Bảng `session_assignments` (Unique `exam_session_id + student_id`) và `session_teachers` (Unique `exam_session_id + teacher_id`) từ migration Phase 6.
+- **Endpoints**: `POST /api/v1/exam-sessions/{id}/assign-students`, `POST /api/v1/exam-sessions/{id}/assign-teachers`, `GET /api/v1/student/assigned-sessions`.
+- **Kiểm soát An ninh**: Chống trùng lặp phân công ở cấp database constraint; khóa dòng bi quan `SELECT ... FOR UPDATE`; Policy chống IDOR; Zero-leakage đáp án và câu hỏi trong resource của thí sinh.
+- **Tests**: `tests/Feature/Sessions/AssignmentTest.php` (12 tests, 90 assertions, 100% PASS).
+- **DoD**: Sinh viên xem được danh sách ca thi của chính mình; không thể bị gán trùng lặp (Idempotent BR-008); 100% Feature Tests pass; Pint & Larastan level 5 clean.
 
 ---
 

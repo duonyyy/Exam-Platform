@@ -39,6 +39,20 @@ class ExamSessionPolicy
         return $this->viewAny($user) && $this->isAuthorizedForSession($user, $session);
     }
 
+    public function assignStudents(User $user, ExamSession $session): bool
+    {
+        return $this->viewAny($user) && $this->isAuthorizedForSession($user, $session);
+    }
+
+    public function assignTeachers(User $user, ExamSession $session): bool
+    {
+        return $this->viewAny($user) && (
+            $user->isAdmin()
+            || $session->created_by === $user->id
+            || $session->exam?->subject?->owner_teacher_id === $user->id
+        );
+    }
+
     private function isAuthorizedForSession(User $user, ExamSession $session): bool
     {
         if ($user->isAdmin()) {

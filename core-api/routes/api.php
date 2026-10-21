@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\ExamController;
 use App\Http\Controllers\Api\V1\ExamSessionController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\QuestionController;
+use App\Http\Controllers\Api\V1\StudentExamSessionController;
 use App\Http\Controllers\Api\V1\SubjectController;
 use App\Http\Controllers\Api\V1\TopicController;
 use Illuminate\Support\Facades\Route;
@@ -65,12 +66,15 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/exam-sessions/{exam_session}', [ExamSessionController::class, 'show'])->name('api.v1.exam-sessions.show');
         Route::post('/exam-sessions/{exam_session}/publish', [ExamSessionController::class, 'publish'])->name('api.v1.exam-sessions.publish');
         Route::post('/exam-sessions/{exam_session}/close', [ExamSessionController::class, 'close'])->name('api.v1.exam-sessions.close');
-        // Student Assignments (Phase 7)
+        // Student Assignments & Teacher Invigilation (Phase 7)
+        Route::post('/exam-sessions/{exam_session}/assign-students', [ExamSessionController::class, 'assignStudents'])->name('api.v1.exam-sessions.assign-students');
+        Route::post('/exam-sessions/{exam_session}/assign-teachers', [ExamSessionController::class, 'assignTeachers'])->name('api.v1.exam-sessions.assign-teachers');
     });
 
     // Student routes
     Route::middleware(['role:student'])->prefix('student')->group(function () {
-        // Assigned sessions list
+        // Assigned sessions list (Phase 7)
+        Route::get('/assigned-sessions', [StudentExamSessionController::class, 'index'])->name('api.v1.student.assigned-sessions');
         // Exam Taking & Autosave (Phase 8)
         // Submit Exam Attempt (Phase 9)
         // Proctoring Events (Phase 10)
