@@ -263,8 +263,8 @@ flowchart TD
 | Foundation Design Review | ✅ **APPROVED** |
 | 4 quyết định kiến trúc then chốt | ✅ Đã chốt |
 | Architecture Evidence Matrix (17 concepts) | ✅ 14 hoàn thành, 3 deferred |
-| Code scaffolding (`agentic-system/`) | 🔄 **Đã khởi tạo cấu hình** (`pyproject.toml`, `.env.example`, `README.md`) |
-| Tests & Evaluations | ⬜ Chưa viết |
+| Code scaffolding (`agentic-system/`) | ✅ **Hoàn thành toàn diện** (`src/`, `tests/`, `docs/`, `pyproject.toml`, `uv.lock`) |
+| Tests & Evaluations | ✅ **33 tests PASS 100%** (Unit, Integration, 6 Eval Scenarios) |
 
 ---
 
@@ -349,7 +349,7 @@ pie title Tiến Độ Tổng Thể
 | 🐳 Docker Compose | ✅ **Sẵn sàng** | 4 services đã cấu hình |
 | 🔧 Backend (Laravel) | ⬜ **Chưa bắt đầu** | Cần scaffold Laravel, migrations, routes, controllers |
 | 🎨 Frontend (Next.js) | ⬜ **Chưa bắt đầu** | Chỉ có config files |
-| 🤖 ExamOps Agent | 🟢 **Đã khởi tạo cấu hình** | Foundation Design APPROVED, cấu hình pyproject.toml, .env.example, README.md đã sẵn sàng |
+| 🤖 ExamOps Agent | ✅ **Đã hoàn thành cấu trúc & harness** | Foundation Scaffolding, 6-Node Loop, Mypy strict & 33 tests PASS |
 | 🧪 Testing | ⬜ **Chưa bắt đầu** | Chiến lược đã thiết kế, chưa viết test |
 
 ### Bước tiếp theo ưu tiên

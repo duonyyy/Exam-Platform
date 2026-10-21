@@ -49,8 +49,12 @@ docs/
 │   └── 16-CONSISTENCY_AND_CONCURRENCY.md # Khóa bi quan FOR UPDATE, Race conditions, Idempotency
 │
 ├── 05-frontend/                        # [VAI TRÒ: THIẾT KẾ GIAO DIỆN & TRẢI NGHIỆM NGƯỜI DÙNG]
-│   ├── README.md                       # Mục lục & vai trò tài liệu nhóm 05
-│   └── 17-FRONTEND_DESIGN.md           # Kiến trúc Next.js 15+ App Router, Focus Room, TanStack Query
+│   ├── README.md                       # Bản đồ tra cứu toàn diện phân hệ Web Client & ThiSmart
+│   ├── THISMART_BRAND_GUIDELINES.md    # Cẩm nang thương hiệu ThiSmart Concept 03 (Tokens, Logos, Rules)
+│   ├── 17-FRONTEND_DESIGN.md           # Kiến trúc Dual Shell Next.js 15+, Focus Room, TanStack Query
+│   ├── SCREEN_SPECIFICATIONS.md        # Đặc tả chi tiết 17 màn hình (SCR-01 -> SCR-17)
+│   ├── wireframe/                      # Bộ đặc tả wireframe phân hệ (Auth, Student, Teacher, Admin, Focus)
+│   └── assets/                         # Kho tư liệu hình ảnh và thiết kế thương hiệu
 │
 ├── 06-operations-devops/               # [VAI TRÒ: VẬN HÀNH, GIÁM SÁT & TRIỂN KHAI]
 │   ├── README.md                       # Mục lục & vai trò tài liệu nhóm 06
@@ -82,7 +86,7 @@ docs/
 | **Cấu trúc CSDL, Bảng, Khóa ngoại, Composite Index** | [`02-domain-database/`](02-domain-database/README.md) | [09-DATABASE_DESIGN.md](02-domain-database/09-DATABASE_DESIGN.md) & [10-ERD.md](02-domain-database/10-ERD.md) |
 | **Kiến trúc C4 & Hợp đồng API /api/v1** | [`03-architecture-api/`](03-architecture-api/README.md) | [08-ARCHITECTURE.md](03-architecture-api/08-ARCHITECTURE.md) & [12-API_DESIGN.md](03-architecture-api/12-API_DESIGN.md) |
 | **Bảo mật, Chống IDOR, Cơ chế Khóa nộp bài** | [`04-security-concurrency/`](04-security-concurrency/README.md)| [13-AUTH_AND_ACCESS_CONTROL.md](04-security-concurrency/13-AUTH_AND_ACCESS_CONTROL.md) & [16-CONSISTENCY_AND_CONCURRENCY.md](04-security-concurrency/16-CONSISTENCY_AND_CONCURRENCY.md) |
-| **Cấu trúc màn hình Web Client Next.js** | [`05-frontend/`](05-frontend/README.md) | [17-FRONTEND_DESIGN.md](05-frontend/17-FRONTEND_DESIGN.md) |
+| **Giao diện Web Client & Brand ThiSmart** | [`05-frontend/`](05-frontend/README.md) | [THISMART_BRAND_GUIDELINES.md](05-frontend/THISMART_BRAND_GUIDELINES.md), [17-FRONTEND_DESIGN.md](05-frontend/17-FRONTEND_DESIGN.md) & [SCREEN_SPECIFICATIONS.md](05-frontend/SCREEN_SPECIFICATIONS.md) |
 | **Giám sát Observability & Triển khai Docker** | [`06-operations-devops/`](06-operations-devops/README.md) | [18-OBSERVABILITY.md](06-operations-devops/18-OBSERVABILITY.md) & [21-DEPLOYMENT.md](06-operations-devops/21-DEPLOYMENT.md) |
 | **Cách viết Feature Test kiểm chứng** | [`07-testing-execution/`](07-testing-execution/README.md) | [19-TEST_STRATEGY.md](07-testing-execution/19-TEST_STRATEGY.md) |
 | **Lộ trình từng bước khi code (Phase 1 $\rightarrow$ 12)** | [`07-testing-execution/`](07-testing-execution/README.md) | [23-IMPLEMENTATION_PLAN.md](07-testing-execution/23-IMPLEMENTATION_PLAN.md) |

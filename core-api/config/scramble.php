@@ -41,6 +41,6 @@ return [
     ],
 
     'servers' => [
-        'Local Development' => 'http://localhost:8000',
+        'Local Development' => 'http://localhost:8000/api/v1',
     ],
 ];
