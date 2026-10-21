@@ -1,0 +1,6 @@
+# Ignore SQLite databases and journals in this data directory
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+!.gitignore
