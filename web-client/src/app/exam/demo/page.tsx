@@ -31,12 +31,12 @@ const DEMO_QUESTIONS: Question[] = [
     points: 0.25,
     type: "single_choice",
     content:
-      "Phương thức HTTP nào dưới đây bắt buộc phải có tính chất Idempotent theo chuẩn RFC 9110 và kiến trúc RESTful API?",
+      "Độ phức tạp thời gian trong trường hợp xấu nhất (Worst-case time complexity) của thuật toán Tìm kiếm Nhị phân (Binary Search) trên mảng đã sắp xếp gồm n phần tử là gì?",
     options: [
-      { key: "A", label: "POST — Luôn tạo mới tài nguyên và không idempotent." },
-      { key: "B", label: "PUT — Thay thế toàn bộ tài nguyên, gửi nhiều lần cho cùng kết quả." },
-      { key: "C", label: "PATCH — Luôn cập nhật cục bộ và không được phép idempotent." },
-      { key: "D", label: "OPTIONS — Chỉ dùng cho Websocket handshake." },
+      { key: "A", label: "O(log n) — Do không gian tìm kiếm được chia đôi sau mỗi phép so sánh." },
+      { key: "B", label: "O(n) — Do phải duyệt tuần tự qua từng phần tử khi giá trị nằm ở cuối mảng." },
+      { key: "C", label: "O(n log n) — Do phải thực hiện chia mảng đệ quy liên tục." },
+      { key: "D", label: "O(1) — Luôn tìm thấy phần tử ngay trong bước kiểm tra đầu tiên." },
     ],
   },
   {
@@ -45,12 +45,12 @@ const DEMO_QUESTIONS: Question[] = [
     points: 0.25,
     type: "single_choice",
     content:
-      "Tại sao hệ thống Exam Platform sử dụng khóa bi quan (Pessimistic Locking `lockForUpdate()`) trong Database Transaction khi nộp bài thi (`SubmitExamAttemptAction`)?",
+      "Cấu trúc dữ liệu nào hoạt động theo nguyên lý LIFO (Last-In-First-Out — Vào sau, Ra trước) và thường được ứng dụng để quản lý ngăn xếp lệnh gọi hàm (Call Stack)?",
     options: [
-      { key: "A", label: "Để tăng tốc độ truy vấn SELECT của sinh viên khác." },
-      { key: "B", label: "Để khóa dòng attempt, ngăn chặn tuyệt đối tình trạng race condition và double submit khi mạng lag." },
-      { key: "C", label: "Vì PostgreSQL không hỗ trợ ACID nếu không có khóa bi quan." },
-      { key: "D", label: "Để ngăn database tự động ghi log vào ổ cứng." },
+      { key: "A", label: "Hàng đợi (Queue — Hoạt động theo nguyên lý FIFO)." },
+      { key: "B", label: "Ngăn xếp (Stack — Thao tác push/pop tại đỉnh)." },
+      { key: "C", label: "Danh sách liên kết đơn (Singly Linked List)." },
+      { key: "D", label: "Cây nhị phân tìm kiếm (Binary Search Tree)." },
     ],
   },
   {
@@ -59,12 +59,12 @@ const DEMO_QUESTIONS: Question[] = [
     points: 0.25,
     type: "single_choice",
     content:
-      "Chính sách bảo mật Zero-Leakage đối với đề thi trực tuyến trong `AGENTS.md` yêu cầu điều gì đối với API JSON trả về cho thí sinh đang làm bài?",
+      "Giao thức nào dưới đây hoạt động ở tầng Giao vận (Transport Layer), cung cấp cơ chế kết nối tin cậy và kiểm soát luồng dữ liệu thông qua cơ chế bắt tay 3 bước (3-way handshake)?",
     options: [
-      { key: "A", label: "Được phép trả về correct_answer nhưng mã hóa Base64." },
-      { key: "B", label: "Loại bỏ hoàn toàn trường correct_answer và explanation thông qua QuestionStudentResource." },
-      { key: "C", label: "Chỉ ẩn correct_answer đối với câu hỏi trắc nghiệm nhiều đáp án." },
-      { key: "D", label: "Gửi kèm đáp án đúng trong cookie mã hóa AES-256." },
+      { key: "A", label: "UDP (User Datagram Protocol — Không hướng kết nối)." },
+      { key: "B", label: "TCP (Transmission Control Protocol — Hướng kết nối tin cậy)." },
+      { key: "C", label: "IP (Internet Protocol — Định tuyến gói tin ở tầng Mạng)." },
+      { key: "D", label: "HTTP (Hypertext Transfer Protocol — Giao thức tầng Ứng dụng)." },
     ],
   },
   {
@@ -73,12 +73,12 @@ const DEMO_QUESTIONS: Question[] = [
     points: 0.25,
     type: "single_choice",
     content:
-      "Cơ chế nào được khuyến nghị trong Hiến pháp Kỹ thuật để bảo vệ sinh viên trước lỗ hổng IDOR (Insecure Direct Object References)?",
+      "Trong logic toán học, mệnh đề phản đảo (contrapositive) của mệnh đề kéo theo P → Q có dạng nào dưới đây và luôn có cùng bảng chân trị (tương đương logic)?",
     options: [
-      { key: "A", label: "Sử dụng Laravel Policy để kiểm tra quyền sở hữu ($user->id === $attempt->student_id)." },
-      { key: "B", label: "Ẩn ID trên URL bằng cách dùng POST cho toàn bộ API." },
-      { key: "C", label: "Kiểm tra role admin tại Controller là đủ." },
-      { key: "D", label: "Mã hóa ID thành token MD5 ngẫu nhiên." },
+      { key: "A", label: "¬Q → ¬P (Phủ định hệ quả suy ra phủ định tiền đề)." },
+      { key: "B", label: "Q → P (Mệnh đề đảo, không tương đương logic)." },
+      { key: "C", label: "¬P → ¬Q (Mệnh đề nghịch, không tương đương logic)." },
+      { key: "D", label: "P ∧ ¬Q (Phủ định của mệnh đề kéo theo)." },
     ],
   },
 ];
@@ -119,6 +119,16 @@ export default function FocusExamDemoPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 select-none">
+      {/* Sandbox Demo Banner */}
+      <div className="bg-blue-600/15 border-b border-blue-500/30 text-blue-200 px-4 py-2 text-xs flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 max-w-5xl mx-auto w-full">
+          <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <span>
+            <strong>Môi trường trải nghiệm phòng thi (Interactive Sandbox)</strong> — Toàn bộ quy trình đếm giờ, lưu nháp đáp án và bảng điều hướng câu hỏi đều hoạt động thực tế.
+          </span>
+        </div>
+      </div>
+
       {/* Focus Mode Header (Distraction-Free) */}
       <header className="h-16 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
@@ -129,17 +139,20 @@ export default function FocusExamDemoPage() {
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 hidden sm:flex items-center justify-center text-white font-black text-xs font-sans shadow-sm">
+            T
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm sm:text-base text-white">
-                Môn: Lập Trình Web Nâng Cao
+                Môn: Nhập Môn Khoa Học Máy Tính &amp; Thuật Toán
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                Ca thi K21-WEB-01
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 border border-blue-500/30">
+                Ca K21-CS-01
               </span>
             </div>
             <div className="text-xs text-slate-400">
-              Thí sinh: <span className="text-slate-200 font-medium">Nguyễn Văn A (SV202601)</span> • Mã đề: 104
+              Thí sinh: <span className="text-slate-200 font-medium">Nguyễn Văn A (SV202601)</span> • Mã đề: 104 • <span className="text-cyan-400 font-medium">ThiSmart Focus</span>
             </div>
           </div>
         </div>
@@ -156,7 +169,7 @@ export default function FocusExamDemoPage() {
             ) : (
               <>
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-emerald-300">🟢 Đã đồng bộ đáp án</span>
+                <span className="text-emerald-300 font-medium">Đã đồng bộ đáp án</span>
               </>
             )}
           </div>
@@ -325,7 +338,7 @@ export default function FocusExamDemoPage() {
                   alert("Bài thi đã được ghi nhận và gửi lên máy chủ an toàn!");
                 }
               }}
-              className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition"
+              className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition"
             >
               <Send className="w-4 h-4" />
               <span>NỘP BÀI THI CHÍNH THỨC</span>
