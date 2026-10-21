@@ -24,9 +24,11 @@ return new class extends Migration
             $table->index('created_by');
         });
 
-        DB::statement('ALTER TABLE exams ADD CONSTRAINT chk_exam_duration CHECK (duration_minutes > 0)');
-        DB::statement('ALTER TABLE exams ADD CONSTRAINT chk_exam_pass_score CHECK (pass_score >= 0)');
-        DB::statement('ALTER TABLE exams ADD CONSTRAINT chk_exam_total_points CHECK (total_points >= 0)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE exams ADD CONSTRAINT chk_exam_duration CHECK (duration_minutes > 0)');
+            DB::statement('ALTER TABLE exams ADD CONSTRAINT chk_exam_pass_score CHECK (pass_score >= 0)');
+            DB::statement('ALTER TABLE exams ADD CONSTRAINT chk_exam_total_points CHECK (total_points >= 0)');
+        }
 
         Schema::create('exam_questions', function (Blueprint $table): void {
             $table->id();
@@ -41,8 +43,10 @@ return new class extends Migration
             $table->index('question_id');
         });
 
-        DB::statement('ALTER TABLE exam_questions ADD CONSTRAINT chk_exam_question_order CHECK ("order" > 0)');
-        DB::statement('ALTER TABLE exam_questions ADD CONSTRAINT chk_exam_question_points CHECK (points > 0)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE exam_questions ADD CONSTRAINT chk_exam_question_order CHECK ("order" > 0)');
+            DB::statement('ALTER TABLE exam_questions ADD CONSTRAINT chk_exam_question_points CHECK (points > 0)');
+        }
     }
 
     public function down(): void

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ExamController;
+use App\Http\Controllers\Api\V1\ExamSessionController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\QuestionController;
 use App\Http\Controllers\Api\V1\SubjectController;
@@ -59,6 +60,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/exams', [ExamController::class, 'store'])->name('api.v1.exams.store');
         Route::post('/exams/{exam}/questions', [ExamController::class, 'attachQuestions'])->name('api.v1.exams.questions.store');
         // Exam Sessions Lifecycle (Phase 6)
+        Route::get('/exam-sessions', [ExamSessionController::class, 'index'])->name('api.v1.exam-sessions.index');
+        Route::post('/exam-sessions', [ExamSessionController::class, 'store'])->name('api.v1.exam-sessions.store');
+        Route::get('/exam-sessions/{exam_session}', [ExamSessionController::class, 'show'])->name('api.v1.exam-sessions.show');
+        Route::post('/exam-sessions/{exam_session}/publish', [ExamSessionController::class, 'publish'])->name('api.v1.exam-sessions.publish');
+        Route::post('/exam-sessions/{exam_session}/close', [ExamSessionController::class, 'close'])->name('api.v1.exam-sessions.close');
         // Student Assignments (Phase 7)
     });
 

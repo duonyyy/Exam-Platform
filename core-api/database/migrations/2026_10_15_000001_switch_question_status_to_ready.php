@@ -14,7 +14,9 @@ return new class extends Migration
         // Keep previously rejected or unreviewed questions unavailable; only newly created questions are ready immediately.
         DB::table('questions')->whereIn('status', ['draft', 'pending', 'rejected'])->update(['status' => 'disabled']);
         DB::table('questions')->where('status', 'approved')->update(['status' => 'ready']);
-        DB::statement("ALTER TABLE questions ALTER COLUMN status SET DEFAULT 'ready'");
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE questions ALTER COLUMN status SET DEFAULT 'ready'");
+        }
     }
 
     public function down(): void

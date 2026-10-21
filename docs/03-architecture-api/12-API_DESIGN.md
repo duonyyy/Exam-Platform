@@ -49,7 +49,9 @@
 | `/api/v1/exams` | `GET` | Teacher, Admin | Bearer | Danh sách đề thi mẫu | `200 OK` |
 | `/api/v1/exams` | `POST` | Teacher, Admin | Bearer | Tạo mẫu đề thi mới | `201 Created` |
 | `/api/v1/exams/{id}/questions` | `POST` | Teacher, Admin | Bearer | Gán câu hỏi vào đề và gán điểm số | `200 OK` |
+| `/api/v1/exam-sessions` | `GET` | Teacher, Admin | Bearer | Danh sách ca thi có phân trang và lọc theo trạng thái | `200 OK` |
 | `/api/v1/exam-sessions` | `POST` | Teacher, Admin | Bearer | Tạo ca thi cụ thể theo lịch trình | `201 Created` |
+| `/api/v1/exam-sessions/{id}` | `GET` | Teacher, Admin | Bearer | Xem thông tin chi tiết ca thi | `200 OK` |
 | `/api/v1/exam-sessions/{id}/publish` | `POST` | Teacher, Admin | Bearer | Xuất bản ca thi đón thí sinh | `200 OK` |
 | `/api/v1/exam-sessions/{id}/close` | `POST` | Teacher, Admin | Bearer | Đóng ca thi khi hết giờ | `200 OK` |
 | `/api/v1/exam-sessions/{id}/assign-students` | `POST` | Teacher, Admin | Bearer | Phân công danh sách thí sinh vào ca | `200 OK` |
@@ -80,6 +82,14 @@ Response `201` và response danh sách dùng `QuestionAdminResource` trong `data
 - `GET /exams`: Admin thấy mọi đề; teacher chỉ thấy đề thuộc Subject mình đang phụ trách. `page`, `per_page` (1–100, mặc định 20), response Resource phân trang gồm `questions_count`, không tải nội dung hoặc đáp án câu hỏi.
 - `POST /exams`: body bắt buộc `subject_id`, `title` (tối đa 255), `duration_minutes` (1–10080), `pass_score` (không âm, tối đa 2 chữ số thập phân), `shuffle_questions`, `shuffle_options` (boolean). Teacher chỉ tạo trong Subject đang phụ trách; Admin có thể tạo trong mọi Subject. `created_by` và `total_points` do server ghi. Response `201` dùng `ExamResource`.
 - `POST /exams/{exam}/questions`: body `{ "questions": [{ "question_id": 1, "order": 1, "points": 1.25 }] }`, tối đa 100 mục. ID và thứ tự dương, không lặp trong batch; điểm dương, tối đa 2 chữ số thập phân. Chỉ nhận Question còn tồn tại, chưa xóa mềm, `ready`, cùng Subject. Action khóa Exam, các Question theo ID tăng dần, rồi Subject để kiểm tra quyền hiện tại; thao tác ghi và cập nhật `total_points` nằm trong một transaction. Gửi lại cùng ID/thứ tự/điểm là idempotent (`200`); thay đổi mục đã gắn hoặc chiếm thứ tự trả `409 EXAM_QUESTION_CONFLICT`. Câu hỏi không khả dụng trả `422 QUESTION_NOT_AVAILABLE`. Không có API sửa điểm/gỡ câu hỏi trong Phase 5.
+
+### Hợp đồng Phase 6: Ca thi & Lập lịch (Exam Sessions Lifecycle)
+
+- `GET /exam-sessions`: Lấy danh sách ca thi có phân trang. Query parameters: `page`, `per_page` (1–100, mặc định 20), `status` (`draft`, `published`, `closed`, `cancelled`), `exam_id`. Admin thấy toàn bộ ca thi; Teacher chỉ thấy ca thi mình tạo, ca thi thuộc Subject mình phụ trách, hoặc ca thi mình được phân công trong `session_teachers`. Response dạng `ExamSessionResource` tập hợp có `assigned_students_count` và `teachers_count`.
+- `POST /exam-sessions`: body bắt buộc `exam_id` (integer), `title` (chuỗi tối đa 255), `start_at` (chuỗi ISO 8601), `end_at` (chuỗi ISO 8601, sau `start_at`). Tùy chọn: `allow_late_minutes` (0–1440, mặc định 15), `max_attempts` (1–10, mặc định 1). Nghiêm cấm gửi `status` hoặc `created_by` (`missing`). Kiểm tra quy tắc `BR-005`: `(end_at - start_at) >= exam.duration_minutes`, vi phạm trả về `422`. Teacher chỉ tạo ca thi cho đề thi thuộc môn mình phụ trách; Admin tạo cho mọi đề thi. Tạo mới luôn ở trạng thái `status=draft`. Response `201 Created` dùng `ExamSessionResource`.
+- `GET /exam-sessions/{id}`: Xem thông tin chi tiết ca thi kèm quan hệ `exam`, số lượng thí sinh và giám thị. Trả về `403` nếu Teacher không có quyền truy cập ca thi.
+- `POST /exam-sessions/{id}/publish`: Xuất bản ca thi. Action thực thi `DB::transaction()` kèm khóa dòng bi quan `SELECT ... FOR UPDATE`. Kiểm tra FSM: chỉ ca thi đang `draft` mới được publish (`409 INVALID_STATE_TRANSITION` nếu sai). Kiểm tra hạn thi: từ chối nếu `now >= end_at` (`422 SESSION_EXPIRED`). Kiểm tra quy tắc `BR-006`: đề thi phải có ít nhất 01 câu hỏi (`409 EXAM_EMPTY`) và ca thi phải có ít nhất 01 thí sinh được phân công (`409 NO_STUDENTS_ASSIGNED`). Cập nhật `status=published`. Response `200 OK` dùng `ExamSessionResource`.
+- `POST /exam-sessions/{id}/close`: Đóng ca thi. Action thực thi `DB::transaction()` kèm khóa dòng bi quan `SELECT ... FOR UPDATE`. Kiểm tra FSM: chỉ ca thi đang `published` mới được đóng (`409 INVALID_STATE_TRANSITION` nếu sai). Cập nhật `status=closed`. Response `200 OK` dùng `ExamSessionResource`.
 
 ### Quyền và dữ liệu Subject
 

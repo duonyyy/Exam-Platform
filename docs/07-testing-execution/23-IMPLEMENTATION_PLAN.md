@@ -95,14 +95,15 @@
 ---
 
 ### Phase 6 — Ca thi & Lập lịch (Exam Sessions Lifecycle)
+- **Tiến độ**: Hoàn thành (Completed 2026-10-21).
 - **Mục tiêu**: Khởi tạo ca thi có thời gian bắt đầu/kết thúc, quản lý vòng đời `draft` $\rightarrow$ `published` $\rightarrow$ `closed`.
 - **Phụ thuộc**: Phase 5.
-- **Tệp tin ảnh hưởng**: `app/Models/ExamSession.php`, `app/Actions/ExamSessions/PublishSessionAction.php`.
-- **Thay đổi CSDL**: Tạo bảng `exam_sessions` (Check `end_at > start_at`).
-- **Endpoints**: `POST /api/v1/exam-sessions`, `POST /api/v1/exam-sessions/{id}/publish`, `POST /api/v1/exam-sessions/{id}/close`.
-- **Kiểm soát An ninh**: Bắt buộc kiểm tra điều kiện đề thi có câu hỏi và ca thi có thí sinh mới cho phép publish.
-- **Tests**: `tests/Feature/Sessions/ExamSessionLifecycleTest.php`.
-- **DoD**: Vòng đời ca thi hoạt động đúng FSM; từ chối bước chuyển trạng thái sai.
+- **Tệp tin ảnh hưởng**: `app/Models/ExamSession.php`, `app/Models/SessionAssignment.php`, `app/Models/SessionTeacher.php`, `app/Actions/ExamSessions/PublishSessionAction.php`, `app/Actions/ExamSessions/CloseSessionAction.php`, `app/Policies/ExamSessionPolicy.php`, `app/Http/Controllers/Api/V1/ExamSessionController.php`, `app/Http/Requests/ExamSessions/*`, `app/Http/Resources/ExamSessionResource.php`.
+- **Thay đổi CSDL**: Tạo bảng `exam_sessions` (Check `end_at > start_at`), `session_assignments` (Unique `exam_session_id + student_id`), `session_teachers`.
+- **Endpoints**: `GET/POST /api/v1/exam-sessions`, `GET /api/v1/exam-sessions/{id}`, `POST /api/v1/exam-sessions/{id}/publish`, `POST /api/v1/exam-sessions/{id}/close`.
+- **Kiểm soát An ninh**: Bắt buộc kiểm tra điều kiện đề thi có câu hỏi và ca thi có thí sinh mới cho phép publish; khóa bi quan `SELECT ... FOR UPDATE` bảo vệ FSM; Policy chống IDOR.
+- **Tests**: `tests/Feature/Sessions/ExamSessionLifecycleTest.php` (12 tests, 73 assertions, 100% PASS).
+- **DoD**: Vòng đời ca thi hoạt động đúng FSM; từ chối bước chuyển trạng thái sai; 100% Feature Tests pass; Pint & Larastan level 5 clean.
 
 ---
 

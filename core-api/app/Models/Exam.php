@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -48,5 +49,11 @@ class Exam extends Model
     public function questions(): BelongsToMany
     {
         return $this->belongsToMany(Question::class, 'exam_questions')->withPivot(['order', 'points']);
+    }
+
+    /** @return HasMany<ExamSession, $this> */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(ExamSession::class);
     }
 }
