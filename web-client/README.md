@@ -1,8 +1,11 @@
-# 💻 Exam Platform — Web Client
+# 💻 ThiSmart — Web Client (Next.js 15+ App Router)
 
-> Giao diện Web Client cho hệ thống thi trực tuyến **Exam Platform**, xây dựng trên nền tảng **Next.js 15+ (App Router)**, **React 19**, **TypeScript Strict Mode**, **Tailwind CSS**, và **TanStack Query v5**.
+> Giao diện Web Client cho hệ thống khảo thí trực tuyến **ThiSmart** (*Thi thông minh. Đánh giá chính xác.*), xây dựng trên nền tảng **Next.js 15+ (App Router)**, **React 19**, **TypeScript Strict Mode**, **Tailwind CSS**, và **TanStack Query v5**.
 
-Tài liệu chi tiết về thiết kế hệ thống, xem tại: [docs/05-frontend/17-FRONTEND_DESIGN.md](../docs/05-frontend/17-FRONTEND_DESIGN.md).
+Tài liệu chi tiết về thiết kế hệ thống và thương hiệu, xem tại:
+- [docs/05-frontend/17-FRONTEND_DESIGN.md](../docs/05-frontend/17-FRONTEND_DESIGN.md) (Kiến trúc & UX)
+- [docs/05-frontend/THISMART_BRAND_GUIDELINES.md](../docs/05-frontend/THISMART_BRAND_GUIDELINES.md) (Nhận diện Thương hiệu & Logo Assets)
+- [docs/05-frontend/SCREEN_SPECIFICATIONS.md](../docs/05-frontend/SCREEN_SPECIFICATIONS.md) (Đặc tả 17 Màn hình)
 
 ---
 
@@ -56,16 +59,17 @@ NEXT_PUBLIC_APP_ENV=development
 
 ```text
 web-client/
-├── public/                                  # Static assets (logo, minh họa)
+├── public/
+│   └── brand/                               # Logo, icons, favicons chính thức (ThiSmart Concept 03)
 ├── src/
 │   ├── app/                                 # Next.js App Router (Routing & Composition)
-│   │   ├── (auth)/                          # Nhóm trang công khai (login, register)
-│   │   ├── (dashboard)/                     # Nhóm trang có Navigation Sidebar
-│   │   │   ├── admin/                       # Màn hình Admin (Quản trị User, Giám sát hệ thống)
-│   │   │   ├── teacher/                     # Màn hình Giảng viên (Môn học, Ngân hàng câu hỏi, Đề thi, Ca thi)
+│   │   ├── (auth)/                          # Nhóm trang công khai (login, register, forgot-password)
+│   │   ├── (workspace)/                     # Nhóm trang có Navigation Sidebar & Topbar
+│   │   │   ├── admin/                       # Màn hình Admin (Quản trị User, Audit Logs, Settings)
+│   │   │   ├── teacher/                     # Màn hình Giảng viên (Môn học, Ngân hàng câu hỏi, Đề thi, Ca thi, Giám sát)
 │   │   │   └── student/                     # Màn hình Sinh viên (Dashboard, Lịch thi, Kết quả)
-│   │   ├── exam/                            # Phòng thi trực tuyến (Focus Layout, Timer, Autosave)
-│   │   │   └── [attemptId]/
+│   │   ├── (focus)/                         # Phòng thi trực tuyến (Focus Layout, Timer, Autosave)
+│   │   │   └── exam/[attemptId]/
 │   │   ├── forbidden/page.tsx               # 403 Forbidden
 │   │   ├── not-found.tsx                    # 404 Not Found
 │   │   └── layout.tsx                       # Root Layout (Providers, Fonts, Toaster)
