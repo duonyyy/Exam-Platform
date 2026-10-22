@@ -25,6 +25,7 @@ import { useExamAttempt } from "@/features/exam-taking/hooks/useExamAttempt";
 import { useSaveAnswer } from "@/features/exam-taking/hooks/useSaveAnswer";
 import { useSubmitAttempt } from "@/features/exam-taking/hooks/useSubmitAttempt";
 import { useCurrentUser } from "@/features/auth/hooks/useAuth";
+import { useProctoringCollector } from "@/features/proctoring/hooks/useProctoringCollector";
 
 interface Question {
   id: number;
@@ -142,6 +143,12 @@ export default function FocusExamRoomPage() {
   const { data: currentUser } = useCurrentUser();
   const saveAnswerMutation = useSaveAnswer(numericAttemptId);
   const submitAttemptMutation = useSubmitAttempt(numericAttemptId);
+
+  // Background Proctoring Event Collector (Phase 10)
+  useProctoringCollector({
+    attemptId: numericAttemptId ?? null,
+    enabled: attemptDetail?.status === "in_progress",
+  });
 
   // Dynamic Questions from server or fallback to mock
   const questions: Question[] =
