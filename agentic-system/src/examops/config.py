@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     # Application
     app_env: str = Field(default="development", alias="APP_ENV")
     api_host: str = Field(default="127.0.0.1", alias="API_HOST")
-    api_port: int = Field(default=8000, alias="API_PORT")
-    api_key: str = Field(default="dev-secret-key-change-me", alias="API_KEY")
+    api_port: int = Field(default=8001, alias="API_PORT")
+    api_key: str = Field(default="test-agent-key", alias="API_KEY")
 
     # Model Provider
     model_provider: str = Field(default="mock", alias="MODEL_PROVIDER")
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # Exam Platform Core API Integration
     exam_platform_base_url: str = Field(
-        default="http://localhost:8080/api/v1", alias="EXAM_PLATFORM_BASE_URL"
+        default="http://localhost:8000/api/v1", alias="EXAM_PLATFORM_BASE_URL"
     )
     exam_platform_api_token: str = Field(default="", alias="EXAM_PLATFORM_API_TOKEN")
     exam_platform_mock: bool = Field(default=True, alias="EXAM_PLATFORM_MOCK")

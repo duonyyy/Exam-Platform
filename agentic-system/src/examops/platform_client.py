@@ -109,7 +109,7 @@ class ExamPlatformClient:
             }
 
         try:
-            resp = self._client.get(f"/topics/{topic_id}/questions")
+            resp = self._client.get("/questions", params={"topic_id": topic_id})
             resp.raise_for_status()
             return {"source": "LIVE", "data": resp.json()}
         except httpx.HTTPError as err:

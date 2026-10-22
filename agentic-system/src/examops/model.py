@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Protocol, TypeVar, runtime_checkable
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
 import httpx
 from pydantic import BaseModel
@@ -212,6 +212,75 @@ class OpenAICompatibleProvider:
         return schema.model_validate(data)
 
 
+class GeminiProvider:
+    """HTTP client adapter for Google Gemini API."""
+
+    def __init__(self, settings: Settings) -> None:
+        self.settings = settings
+        base_url = (
+            settings.model_base_url
+            or "https://generativelanguage.googleapis.com/v1beta"
+        ).rstrip("/")
+        self.base_url = base_url
+        self.client = httpx.Client(timeout=30.0)
+
+    def generate_text(self, prompt: str, system_prompt: str | None = None) -> str:
+        model = self.settings.model_name
+        url = f"{self.base_url}/models/{model}:generateContent"
+        params = {"key": self.settings.model_api_key}
+        payload: dict[str, Any] = {
+            "contents": [{"parts": [{"text": prompt}]}],
+        }
+        if system_prompt:
+            payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+
+        response = self.client.post(url, params=params, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        candidates = data.get("candidates", [])
+        if not candidates:
+            return ""
+        parts = candidates[0].get("content", {}).get("parts", [])
+        return str(parts[0].get("text", "") if parts else "")
+
+    def generate_structured(
+        self, prompt: str, schema: type[T], system_prompt: str | None = None
+    ) -> T:
+        model = self.settings.model_name
+        url = f"{self.base_url}/models/{model}:generateContent"
+        params = {"key": self.settings.model_api_key}
+        schema_json = schema.model_json_schema()
+        payload: dict[str, Any] = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": (
+                                f"{prompt}\n\nRespond ONLY with valid JSON conforming to schema:\n"
+                                f"{json.dumps(schema_json)}"
+                            )
+                        }
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "responseMimeType": "application/json",
+            },
+        }
+        if system_prompt:
+            payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+
+        response = self.client.post(url, params=params, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        candidates = data.get("candidates", [])
+        if not candidates:
+            raise ValueError("No candidates returned from Gemini API")
+        text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "{}")
+        parsed = json.loads(text)
+        return schema.model_validate(parsed)
+
+
 def get_model_provider(settings: Settings | None = None) -> ModelProvider:
     """Factory creating configured ModelProvider instance."""
     cfg = settings or get_settings()
@@ -219,5 +288,7 @@ def get_model_provider(settings: Settings | None = None) -> ModelProvider:
 
     if provider_type == "openai_compatible":
         return OpenAICompatibleProvider(cfg)
+    if provider_type == "gemini":
+        return GeminiProvider(cfg)
     # Default to hermetic mock provider
     return MockModelProvider(cfg)

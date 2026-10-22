@@ -7,9 +7,11 @@ from typing import Any
 from examops.model import ModelProvider
 from examops.schemas import (
     ExamBlueprint,
+    ExamDifficultyDistribution,
     QuestionRecord,
     ReadinessCheckItem,
     ReadinessReview,
+    TopicDistributionItem,
 )
 
 
@@ -33,14 +35,42 @@ class ExamBlueprintSkill:
         blueprint: ExamBlueprint = model.generate_structured(prompt, ExamBlueprint)
 
         # Ensure parameters match caller constraints if explicitly provided
-        if "duration_minutes" in constraints:
+        if "title" in constraints and constraints["title"]:
+            blueprint.title = str(constraints["title"])
+        if "duration_minutes" in constraints and constraints["duration_minutes"] is not None:
             blueprint.duration_minutes = int(constraints["duration_minutes"])
-        if "total_questions" in constraints:
+        if "total_questions" in constraints and constraints["total_questions"] is not None:
             blueprint.total_questions = int(constraints["total_questions"])
-        if "subject_id" in constraints:
+        if "subject_id" in constraints and constraints["subject_id"]:
             blueprint.subject_id = str(constraints["subject_id"])
         elif subject_id:
             blueprint.subject_id = subject_id
+        if "total_points" in constraints and constraints["total_points"] is not None:
+            blueprint.total_points = float(constraints["total_points"])
+        if "passing_score" in constraints and constraints["passing_score"] is not None:
+            blueprint.passing_score = float(constraints["passing_score"])
+        elif "pass_score" in constraints and constraints["pass_score"] is not None:
+            blueprint.passing_score = float(constraints["pass_score"])
+
+        # Override difficulty distribution if explicitly supplied
+        if "difficulty_distribution" in constraints and constraints["difficulty_distribution"]:
+            raw_diff = constraints["difficulty_distribution"]
+            if isinstance(raw_diff, dict):
+                blueprint.difficulty_distribution = ExamDifficultyDistribution.model_validate(raw_diff)
+            elif isinstance(raw_diff, ExamDifficultyDistribution):
+                blueprint.difficulty_distribution = raw_diff
+
+        # Override topic distribution if explicitly supplied (topics or topic_distribution)
+        topics_payload = constraints.get("topics") or constraints.get("topic_distribution")
+        if topics_payload and isinstance(topics_payload, list):
+            items = []
+            for t in topics_payload:
+                if isinstance(t, dict) and t.get("question_count", 0) > 0:
+                    items.append(TopicDistributionItem.model_validate(t))
+                elif isinstance(t, TopicDistributionItem) and t.question_count > 0:
+                    items.append(t)
+            if items:
+                blueprint.topic_distribution = items
 
         # Verify mathematical integrity
         diff = blueprint.difficulty_distribution

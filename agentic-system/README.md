@@ -112,8 +112,8 @@ uv sync --all-extras
 # 3. Sao chép cấu hình môi trường
 cp .env.example .env
 
-# 4. Khởi chạy máy chủ phát triển
-uv run uvicorn examops.main:app --reload --host 127.0.0.1 --port 8000
+# 4. Khởi chạy máy chủ phát triển (Port 8001 đồng bộ với Web Client Proxy và tránh xung đột Core API 8000)
+uv run uvicorn examops.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
 ### Chạy kiểm thử tự động (Test Suite):

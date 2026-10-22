@@ -6,7 +6,9 @@ from examops.config import Settings
 def test_settings_default_values() -> None:
     settings = Settings()
     assert settings.app_env in ("development", "testing", "production")
-    assert settings.api_port == 8000
+    assert settings.api_port == 8001
+    assert settings.api_key == "test-agent-key"
+    assert settings.exam_platform_base_url == "http://localhost:8000/api/v1"
     assert settings.model_provider in ("mock", "gemini", "openai_compatible")
     assert settings.max_retries == 2
 
