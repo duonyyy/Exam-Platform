@@ -268,7 +268,7 @@ Khi cần tra cứu đặc tả kỹ thuật chi tiết, luôn tham chiếu tr�
 - [`docs/04-security-concurrency/`](docs/04-security-concurrency/README.md): Cơ chế xác thực Sanctum (`13-AUTH_AND_ACCESS_CONTROL.md`), Mô hình rủi ro STRIDE (`14-THREAT_MODEL.md`), Khóa bi quan và xử lý tranh chấp (`16-CONSISTENCY_AND_CONCURRENCY.md`).
 - [`docs/05-frontend/`](docs/05-frontend/README.md): Thiết kế ứng dụng Web Client Next.js & UX phòng thi (`17-FRONTEND_DESIGN.md`).
 - [`docs/06-operations-devops/`](docs/06-operations-devops/README.md): Giám sát Observability (`18-OBSERVABILITY.md`), Chịu tải đỉnh (`20-PERFORMANCE_PLAN.md`), Docker & CI/CD (`21-DEPLOYMENT.md`).
-- [`docs/07-testing-execution/`](docs/07-testing-execution/README.md): Chiến lược kiểm thử tự động (`19-TEST_STRATEGY.md`), Lộ trình 13 Phase thi công chi tiết (`23-IMPLEMENTATION_PLAN.md`).
+- [`docs/07-testing-execution/`](docs/07-testing-execution/README.md): Chiến lược kiểm thử tự động (`19-TEST_STRATEGY.md`), Lộ trình 14 Phase thi công chi tiết (`23-IMPLEMENTATION_PLAN.md`).
 - [`docs/08-guidelines/`](docs/08-guidelines/README.md): Tiêu chuẩn viết code (`CODING_STANDARDS.md`), Quy chuẩn commit chuẩn production (`COMMIT_STANDARDS.md`), Cẩm nang học Senior Backend (`LEARNING_GUIDE.md`).
 
 ---

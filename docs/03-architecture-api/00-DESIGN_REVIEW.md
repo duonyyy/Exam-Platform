@@ -37,7 +37,7 @@ Hội đồng Kiến trúc đã thực hiện rà soát nghiêm ngặt 22 hạng
 - [x] **Deployment reviewed**: Ma trận môi trường, CI/CD GitHub Actions, Zero-downtime migration tại `21-DEPLOYMENT.md`.
 - [x] **ADRs written**: 6 bản ghi quyết định kiến trúc (`ADR-001` đến `ADR-006`) tại `docs/03-architecture-api/adr/`.
 - [x] **Risks documented**: Bảng đăng ký rủi ro (Risk Register) toàn diện tại `22-RISK_REGISTER.md`.
-- [x] **Implementation plan structured**: Kế hoạch 13 phase chi tiết với DoD nghiêm ngặt tại `23-IMPLEMENTATION_PLAN.md`.
+- [x] **Implementation plan structured**: Kế hoạch 14 phase chi tiết với DoD nghiêm ngặt tại `23-IMPLEMENTATION_PLAN.md`.
 
 ---
 

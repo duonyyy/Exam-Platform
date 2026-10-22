@@ -8,7 +8,7 @@ Tài liệu chi tiết về thiết kế hệ thống xem tại:
 - [Kiến trúc An ninh & Chống gian lận (docs/04-security-concurrency/)](../docs/04-security-concurrency/13-AUTH_AND_ACCESS_CONTROL.md) & [Threat Model (14-THREAT_MODEL.md)](../docs/04-security-concurrency/14-THREAT_MODEL.md)
 - [Chiến lược Kiểm thử Tự động (docs/07-testing-execution/)](../docs/07-testing-execution/19-TEST_STRATEGY.md)
 - [Hạ tầng & Triển khai Production (docs/06-operations-devops/)](../docs/06-operations-devops/21-DEPLOYMENT.md)
-- [Lộ trình Triển khai 13 Phase Chi tiết (docs/07-testing-execution/)](../docs/07-testing-execution/23-IMPLEMENTATION_PLAN.md)
+- [Lộ trình Triển khai 14 Phase Chi tiết (docs/07-testing-execution/)](../docs/07-testing-execution/23-IMPLEMENTATION_PLAN.md)
 
 ---
 

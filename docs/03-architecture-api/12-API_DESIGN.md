@@ -45,6 +45,9 @@
 | `/api/v1/questions` | `POST` | Teacher, Admin | Bearer | Tạo câu hỏi mới vào ngân hàng đề | `201 Created` |
 | `/api/v1/questions/{id}` | `PUT` | Admin, teacher phụ trách | Bearer | Thay toàn bộ nội dung câu hỏi chưa gắn đề | `200 OK` |
 | `/api/v1/questions/{id}/status` | `PATCH` | Admin, teacher phụ trách | Bearer | Chuyển `ready ↔ disabled` trước khi gắn đề | `200 OK` |
+| `/api/v1/questions/import/template` | `GET` | Teacher, Admin | Bearer | Tải file mẫu Excel nạp câu hỏi hàng loạt | `200 OK` |
+| `/api/v1/questions/import/validate` | `POST` | Teacher, Admin | Bearer | Thẩm định và preview dữ liệu file Excel nạp câu hỏi | `200 OK` |
+| `/api/v1/questions/import` | `POST` | Teacher, Admin | Bearer | Nạp hàng loạt câu hỏi hợp lệ vào CSDL trong 1 Transaction | `201 Created` |
 
 | `/api/v1/exams` | `GET` | Teacher, Admin | Bearer | Danh sách đề thi mẫu | `200 OK` |
 | `/api/v1/exams` | `POST` | Teacher, Admin | Bearer | Tạo mẫu đề thi mới | `201 Created` |
@@ -64,6 +67,9 @@
 | `/api/v1/exam-attempts/{id}/submit` | `POST` | Student (owner) | Bearer (student)| Nộp bài thi và kích hoạt tính điểm | `200 OK` |
 | `/api/v1/exam-attempts/{id}/proctoring-events` | `POST` | Student (owner) | Bearer (student)| Gửi tín hiệu vi phạm từ trình duyệt | `201 Created` |
 | `/api/v1/exam-sessions/{id}/results` | `GET` | Teacher, Admin | Bearer | Xem bảng điểm và thống kê ca thi | `200 OK` |
+| `/api/v1/exam-sessions/{id}/export/excel` | `GET` | Teacher, Admin | Bearer | Xuất toàn bộ bảng điểm ca thi ra file Excel (.xlsx) | `200 OK` |
+| `/api/v1/exam-sessions/{id}/export/pdf` | `GET` | Teacher, Admin | Bearer | Xuất biên bản và bảng điểm ca thi ra file PDF in ấn | `200 OK` |
+| `/api/v1/exams/{id}/export/pdf` | `GET` | Teacher, Admin | Bearer | Xuất đề thi và phiếu trả lời trắc nghiệm ra file PDF | `200 OK` |
 
 ---
 
@@ -180,6 +186,44 @@ Response `201` và response danh sách dùng `QuestionAdminResource` trong `data
     - Độ bao phủ chủ đề: số lượng chủ đề (`topics`) có câu hỏi trong đề thi so với tổng số chủ đề của môn học.
     - Trạng thái sẵn sàng: cờ `is_ready_for_session` (true nếu $\ge 1$ câu hỏi và mọi câu hỏi đều ở trạng thái `ready`).
   - Response `200 OK`: `{"data": {"exam_id": 1, "title": "Đề thi Giữa kỳ", "is_ready_for_session": true, "total_questions": 40, "total_points": 10.0, "difficulty_distribution": {"easy": {"count": 16, "percentage": 40.0}, "medium": {"count": 16, "percentage": 40.0}, "hard": {"count": 8, "percentage": 20.0}}, "topics_covered": [...]}}`.
+
+### Hợp đồng Phase 14: Nhập Ngân Hàng Câu Hỏi Hàng Loạt & Xuất Bản Báo Cáo, Bảng Điểm Khảo Thí (Bulk Import & Official Reporting)
+
+- `GET /api/v1/questions/import/template`:
+  - Trả về file mẫu `question_import_template.xlsx` với cấu trúc cột: `Topic Name`, `Question Text`, `Question Type` (`single_choice`, `multiple_choice`, `true_false`, `short_answer`), `Difficulty` (`easy`, `medium`, `hard`), `Option A`, `Option B`, `Option C`, `Option D`, `Correct Answer`, `Explanation`.
+  - Content-Type: `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.
+
+- `POST /api/v1/questions/import/validate`:
+  - Yêu cầu `multipart/form-data`, trường `file` (bắt buộc, file Excel `.xlsx`, tối đa 10MB), `subject_id` (integer).
+  - Phân quyền: `SubjectPolicy@importQuestions` (chỉ teacher phụ trách môn hoặc admin).
+  - Đọc và validate từng hàng (row-by-row): kiểm tra độ dài câu hỏi, loại câu hỏi hợp lệ, options không trùng lặp, đáp án đúng khớp với options, topic tồn tại trong môn học.
+  - Response `200 OK`: `{"data": {"total_rows": 50, "valid_rows_count": 48, "invalid_rows_count": 2, "errors": [{"row": 12, "column": "Correct Answer", "message": "Đáp án không khớp với các lựa chọn"}, {"row": 25, "column": "Topic Name", "message": "Chủ đề không tồn tại trong môn học"}], "preview": [...]}}`.
+
+- `POST /api/v1/questions/import`:
+  - Yêu cầu `multipart/form-data`, trường `file` và `subject_id`. Tùy chọn `skip_errors` (boolean, mặc định `false`).
+  - Phân quyền: `SubjectPolicy@importQuestions`.
+  - Transaction Boundary: Nếu `skip_errors=false` và có lỗi $\rightarrow$ rollback toàn bộ và trả về `422`. Nếu `skip_errors=true` hoặc tất cả dòng hợp lệ $\rightarrow$ ghi nhận toàn bộ câu hỏi vào bảng `questions` với `source = 'excel_import'`, `status = 'ready'`.
+  - Response `201 Created`: `{"message": "Đã nhập thành công 48 câu hỏi vào ngân hàng đề.", "data": {"imported_count": 48}}`.
+
+- `GET /api/v1/exam-sessions/{id}/export/excel`:
+  - Phân quyền: `ExamSessionPolicy@exportResults`.
+  - Xuất bảng tính Excel `.xlsx` gồm 3 trang tính (sheets):
+    1. `Bang_Diem`: Danh sách toàn bộ thí sinh (MSSV, Họ tên, Điểm số, Thang điểm, Xếp loại, Số vi phạm, Trạng thái nộp bài, Thời gian bắt đầu, Thời gian nộp).
+    2. `Thong_Ke_Tong_Quan`: Tóm tắt số liệu (Tổng thí sinh, Điểm trung bình, Điểm cao nhất, Điểm thấp nhất, Tỷ lệ đạt/trượt, Phổ điểm histogram).
+    3. `Phan_Tich_Cau_Hoi`: Bảng chỉ số khảo thí cổ điển từng câu (Độ khó $P$, Độ phân biệt $D$).
+  - Headers: `Content-Disposition: attachment; filename="bang-diem-ca-thi-{id}.xlsx"`.
+
+- `GET /api/v1/exam-sessions/{id}/export/pdf`:
+  - Phân quyền: `ExamSessionPolicy@exportResults`.
+  - Xuất tệp PDF biên bản điểm chính thức chuẩn in khổ A4 ngang/dọc, có quốc hiệu/tiêu ngữ, tên trường, tên môn học, ca thi, danh sách điểm có số thứ tự, và khối ký tên của Cán bộ coi thi 1, Cán bộ coi thi 2 và Trưởng ban chấm thi.
+  - Headers: `Content-Disposition: attachment; filename="bien-ban-diem-ca-thi-{id}.pdf"`.
+
+- `GET /api/v1/exams/{id}/export/pdf`:
+  - Phân quyền: `ExamPolicy@view`.
+  - Query parameter: `include_answers` (boolean, chỉ admin hoặc giáo viên sở hữu mới được đặt `true`). Thí sinh không có quyền gọi endpoint này.
+  - Xuất đề thi ra PDF chuẩn in ấn khổ A4, đánh số câu hỏi, trình bày options rõ ràng, có khung ghi thông tin thí sinh và phiếu làm bài trắc nghiệm dự phòng ở trang cuối.
+  - Headers: `Content-Disposition: attachment; filename="de-thi-{id}.pdf"`.
+
 
 
 ### Quyền và dữ liệu Subject

@@ -214,7 +214,7 @@ Toàn bộ hệ thống tài liệu và đặc tả kiến trúc được tổ c
    - [Bảng Đăng ký Rủi ro Hệ thống (22-RISK_REGISTER.md)](docs/06-operations-devops/22-RISK_REGISTER.md)
 9. **[07 — Kiểm Thử & Thực Thi (docs/07-testing-execution/)](docs/07-testing-execution/README.md)**:
    - [Chiến lược Kiểm thử Tự động & RTM Matrix (19-TEST_STRATEGY.md)](docs/07-testing-execution/19-TEST_STRATEGY.md)
-   - [Lộ trình Triển khai 13 Phase Chi tiết kèm DoD (23-IMPLEMENTATION_PLAN.md)](docs/07-testing-execution/23-IMPLEMENTATION_PLAN.md)
+   - [Lộ trình Triển khai 14 Phase Chi tiết kèm DoD (23-IMPLEMENTATION_PLAN.md)](docs/07-testing-execution/23-IMPLEMENTATION_PLAN.md)
 10. **[08 — Quy Chuẩn & Đào Tạo (docs/08-guidelines/)](docs/08-guidelines/README.md)**:
    - [Tiêu chuẩn Lập trình PHP & TypeScript (CODING_STANDARDS.md)](docs/08-guidelines/CODING_STANDARDS.md)
    - [Quy chuẩn Commit Chuẩn Production (COMMIT_STANDARDS.md)](docs/08-guidelines/COMMIT_STANDARDS.md)

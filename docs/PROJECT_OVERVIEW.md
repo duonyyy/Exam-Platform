@@ -294,9 +294,9 @@ docs/
 |---|---|
 | [`AGENTS.md`](../AGENTS.md) | Hiến pháp kỹ thuật — quy tắc vàng cho toàn bộ dự án |
 | [`00-FOUNDATION_DESIGN.md`](agentic-ai/00-FOUNDATION_DESIGN.md) | Thiết kế nền tảng ExamOps Agent (APPROVED) |
-| [`12-API_DESIGN.md`](03-architecture-api/12-API_DESIGN.md) | Đặc tả 23 API endpoints Exam Platform |
+| [`12-API_DESIGN.md`](03-architecture-api/12-API_DESIGN.md) | Đặc tả 31 API endpoints Exam Platform |
 | [`09-DATABASE_DESIGN.md`](02-domain-database/09-DATABASE_DESIGN.md) | Thiết kế 14 bảng CSDL PostgreSQL |
-| [`23-IMPLEMENTATION_PLAN.md`](07-testing-execution/23-IMPLEMENTATION_PLAN.md) | Lộ trình triển khai 13 Phase |
+| [`23-IMPLEMENTATION_PLAN.md`](07-testing-execution/23-IMPLEMENTATION_PLAN.md) | Lộ trình triển khai 14 Phase |
 
 ---
 
@@ -353,12 +353,13 @@ pie title Tiến Độ Tổng Thể
 | 🎨 Frontend (Next.js) | ✅ **Phase 1–12 Completed** | Dual shell, Focus Exam Room, 25/25 routes standalone build pass |
 | 🤖 ExamOps Agent | ✅ **Đã hoàn thành cấu trúc & Docker** | 6-Node Loop, Mypy strict & 34 tests PASS, hỗ trợ Gemini & Ollama |
 | 🚀 Phase 13 | 🟡 **SPEC APPROVED** | Lớp điều phối AI Copilot & Blueprint Integration sẵn sàng thi công |
+| 📊 Phase 14 | 🟡 **SPEC APPROVED** | Nhập câu hỏi hàng loạt (Excel) & Xuất bảng điểm, báo cáo (Excel/PDF) |
 
 ### Bước tiếp theo ưu tiên
 
 1. **Thi công Phase 13 Backend**: Migration bảng `ai_generation_logs`, Model `AiGenerationLog`, Action `GenerateExamFromBlueprintAction`, Endpoints `/exams/from-blueprint` & `/exams/{id}/readiness-review`
-2. **Thi công Phase 13 Frontend**: Màn hình Teacher AI Assistant kết nối trực tiếp với Agent và Human Review Gate
-3. **End-to-end Integration Test**: Kiểm thử luồng trọn vẹn từ prompt giảng viên → Agent proposal → Duyệt → CSDL Core API
+2. **Thi công Phase 14 Core Khảo Thí**: Services nhập câu hỏi Excel (`QuestionImportService`), xuất bảng điểm ca thi Excel/PDF, xuất đề thi PDF
+3. **End-to-end Integration Test**: Kiểm thử luồng trọn vẹn từ nhập ngân hàng câu hỏi, tạo đề, thi, đến xuất bảng điểm chính thức
 
 ---
 

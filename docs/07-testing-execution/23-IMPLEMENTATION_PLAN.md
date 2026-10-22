@@ -17,7 +17,7 @@
 
 ---
 
-## 2. Chi tiết 13 Giai đoạn Triển khai (Phase-by-Phase Roadmap)
+## 2. Chi tiết 14 Giai đoạn Triển khai (Phase-by-Phase Roadmap)
 
 ---
 
@@ -213,5 +213,41 @@
   - Fail-closed: AI tuyệt đối không có quyền truy cập trực tiếp database PostgreSQL, mọi thao tác ghi đều thông qua REST API có xác thực Sanctum Token của Giảng viên.
 - **Tests**: `tests/Feature/Exams/GenerateExamFromBlueprintTest.php`, `tests/evals/test_eval_suite.py` trong `agentic-system`.
 - **DoD**: Giảng viên bấm Approve trên giao diện Next.js $\rightarrow$ Đề thi mới xuất hiện ngay trong CSDL Core API với đầy đủ câu hỏi và thang điểm chính xác; 100% tests PASS; Larastan Level 5 clean.
+
+---
+
+### Phase 14 — Nhập Ngân Hàng Câu Hỏi Hàng Loạt & Xuất Bản Báo Cáo, Bảng Điểm Khảo Thí (Bulk Question Import & Official Reporting)
+- **Tiến độ**: Đã phê duyệt đặc tả (SPEC APPROVED) — Tính năng nghiệp vụ khảo thí cốt lõi chuẩn doanh nghiệp.
+- **Mục tiêu**:
+  1. Cho phép Giảng viên nạp hàng trăm câu hỏi vào ngân hàng đề từ file Excel (`.xlsx`) hoặc tệp chuẩn Aiken/Word: có template chuẩn hóa, validation theo từng dòng, phân loại lỗi chi tiết (dòng nào sai cú pháp, thiếu đáp án, sai loại câu), và nạp an toàn trong Database Transaction.
+  2. Cung cấp bộ công cụ xuất bản tài liệu khảo thí chuyên nghiệp cho Phòng Khảo thí & Giảng viên:
+     - Xuất Bảng điểm ca thi ra file Excel (`.xlsx`) kèm phân loại xếp loại, điểm số, thời gian làm bài, vi phạm giám sát.
+     - Xuất Bảng điểm chính thức & Biên bản coi thi ra file PDF in ấn có tiêu đề trường học và chữ ký cán bộ coi thi.
+     - Xuất Đề thi và Phiếu trả lời trắc nghiệm ra PDF (hỗ trợ thi dự phòng trên giấy hoặc lưu trữ học thuật).
+     - Xuất Báo cáo Phổ điểm & Phân tích chất lượng câu hỏi (Độ khó $P$, Độ phân biệt $D$) ra Excel phục vụ thẩm định chất lượng đào tạo.
+- **Phụ thuộc**: Phase 4 (Ngân hàng câu hỏi), Phase 11 (Báo cáo kết quả ca thi), Phase 12 (Production Container).
+- **Tệp tin ảnh hưởng / khởi tạo**:
+  - `core-api/app/Services/Excel/QuestionImportService.php`
+  - `core-api/app/Services/Export/ExamSessionExcelExport.php`
+  - `core-api/app/Services/Export/ExamSessionPdfExport.php`
+  - `core-api/app/Http/Controllers/Api/V1/QuestionImportController.php`
+  - `core-api/app/Http/Controllers/Api/V1/ExamExportController.php`
+  - `web-client/src/features/questions/components/QuestionImportModal.tsx`
+  - `web-client/src/features/results/components/ExportReportButtons.tsx`
+- **Thay đổi CSDL**: Không phát sinh thêm bảng mới; sử dụng bảng `questions` (ghi nhận `source = 'excel_import'`), `exam_sessions`, `exam_attempts`, `attempt_answers`.
+- **Endpoints**:
+  - `GET /api/v1/questions/import/template`: Tải về file mẫu Excel chuẩn để giảng viên soạn câu hỏi.
+  - `POST /api/v1/questions/import/validate`: Thẩm định file Excel tải lên, kiểm tra cú pháp, trả về preview số dòng hợp lệ và chi tiết các dòng lỗi.
+  - `POST /api/v1/questions/import`: Thực thi import toàn bộ câu hỏi hợp lệ trong 1 Transaction.
+  - `GET /api/v1/exam-sessions/{id}/export/excel`: Tải về file Excel bảng điểm ca thi đầy đủ.
+  - `GET /api/v1/exam-sessions/{id}/export/pdf`: Tải về file PDF biên bản điểm ca thi chính thức chuẩn in ấn.
+  - `GET /api/v1/exams/{id}/export/pdf`: Xuất đề thi ra PDF (tùy chọn kèm/không kèm đáp án).
+- **Kiểm soát An ninh**:
+  - Upload security: Giới hạn dung lượng upload (tối đa 10MB), xác thực MIME type nhị phân (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`), ngăn ngừa Zip Bomb (XML entity expansion) và file độc hại.
+  - Phân quyền IDOR: Giảng viên chỉ được import câu hỏi vào Môn học mình phụ trách (`SubjectPolicy@importQuestions`); chỉ được xuất bảng điểm ca thi mà mình phụ trách hoặc được phân công coi thi (`ExamSessionPolicy@exportResults`).
+  - Dữ liệu export được lấy từ Snapshot của CSDL có kiểm soát transaction và eager loading chống N+1.
+- **Tests**: `tests/Feature/Questions/QuestionImportTest.php`, `tests/Feature/Exams/ExamExportTest.php`.
+- **DoD**: Giảng viên tải file Excel 100 câu hỏi $\rightarrow$ preview lỗi trực quan $\rightarrow$ import thành công vào ngân hàng câu hỏi trong CSDL; Xuất bảng điểm ca thi ra file `.xlsx` và `.pdf` mở được trên Excel/Acrobat với định dạng bảng biểu sắc nét; 100% tests PASS; Larastan Level 5 clean.
+
 
 
