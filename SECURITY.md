@@ -36,7 +36,7 @@ Nếu bạn phát hiện một lỗ hổng bảo mật trong Exam Platform, vui 
 
 ## 🛡️ 3. Các Nguyên Tắc An Ninh Bắt Buộc Trong Dự Án (Security Standards)
 
-Toàn bộ mã nguồn triển khai phải tuân thủ nghiêm ngặt các nguyên tắc quy định tại [AGENTS.md](file:///c:/Users/Admin/Desktop/PHP/AGENTS.md) và [docs/04-security-concurrency/](file:///c:/Users/Admin/Desktop/PHP/docs/04-security-concurrency/README.md):
+Toàn bộ mã nguồn triển khai phải tuân thủ nghiêm ngặt các nguyên tắc quy định tại [AGENTS.md](AGENTS.md) và [docs/04-security-concurrency/](docs/04-security-concurrency/README.md):
 
 1. **Phòng chống BOLA / IDOR (Broken Object Level Authorization)**:
    - Sử dụng Laravel Policy kiểm tra quyền sở hữu trên từng bản ghi. Thí sinh chỉ được xem/sửa bài thi của chính mình.

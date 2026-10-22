@@ -290,11 +290,11 @@ docs/
 
 | Tài liệu | Mô tả |
 |---|---|
-| [`AGENTS.md`](file:///c:/Users/Admin/Desktop/PHP/AGENTS.md) | Hiến pháp kỹ thuật — quy tắc vàng cho toàn bộ dự án |
-| [`00-FOUNDATION_DESIGN.md`](file:///c:/Users/Admin/Desktop/PHP/docs/agentic-ai/00-FOUNDATION_DESIGN.md) | Thiết kế nền tảng ExamOps Agent (APPROVED) |
-| [`12-API_DESIGN.md`](file:///c:/Users/Admin/Desktop/PHP/docs/03-architecture-api/12-API_DESIGN.md) | Đặc tả 23 API endpoints Exam Platform |
-| [`09-DATABASE_DESIGN.md`](file:///c:/Users/Admin/Desktop/PHP/docs/02-domain-database/09-DATABASE_DESIGN.md) | Thiết kế 13 bảng CSDL PostgreSQL |
-| [`23-IMPLEMENTATION_PLAN.md`](file:///c:/Users/Admin/Desktop/PHP/docs/07-testing-execution/23-IMPLEMENTATION_PLAN.md) | Lộ trình triển khai 12 Phase |
+| [`AGENTS.md`](../AGENTS.md) | Hiến pháp kỹ thuật — quy tắc vàng cho toàn bộ dự án |
+| [`00-FOUNDATION_DESIGN.md`](agentic-ai/00-FOUNDATION_DESIGN.md) | Thiết kế nền tảng ExamOps Agent (APPROVED) |
+| [`12-API_DESIGN.md`](03-architecture-api/12-API_DESIGN.md) | Đặc tả 23 API endpoints Exam Platform |
+| [`09-DATABASE_DESIGN.md`](02-domain-database/09-DATABASE_DESIGN.md) | Thiết kế 13 bảng CSDL PostgreSQL |
+| [`23-IMPLEMENTATION_PLAN.md`](07-testing-execution/23-IMPLEMENTATION_PLAN.md) | Lộ trình triển khai 12 Phase |
 
 ---
 

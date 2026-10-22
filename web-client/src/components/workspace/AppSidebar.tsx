@@ -71,6 +71,13 @@ const NAV_ITEMS: NavItem[] = [
     badge: "420",
   },
   {
+    label: "Trợ lý Soạn Đề AI",
+    href: "/teacher/ai-assistant",
+    icon: Sparkles,
+    role: "teacher",
+    badge: "AI 2.0",
+  },
+  {
     label: "Soạn Đề thi mẫu",
     href: "/teacher/exams",
     icon: FileText,

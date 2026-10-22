@@ -39,8 +39,14 @@ export default function TeacherDashboardPage() {
           </p>
         </div>
 
-        {/* Action button */}
+        {/* Action buttons */}
         <div className="flex items-center gap-2">
+          <Link href="/teacher/ai-assistant">
+            <ThiSmartCtaButton variant="secondary" size="md">
+              <Sparkles className="w-4 h-4 mr-1.5 text-indigo-600" />
+              Trợ lý Soạn Đề AI
+            </ThiSmartCtaButton>
+          </Link>
           <Link href="/teacher/questions/new">
             <ThiSmartCtaButton variant="primary" size="md">
               <Plus className="w-4 h-4 mr-1.5" />

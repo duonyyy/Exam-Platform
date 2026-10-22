@@ -219,26 +219,26 @@ Không làm dàn trải, chúng ta sẽ thực hiện tuần tự từng bước
 ```
 
 ### Bước 1: Nền Tảng Hình Học & Màu Sắc (Thực hiện trong 1 ngày)
-- Chỉnh sửa [`tokens.css`](file:///c:/Users/Admin/Desktop/PHP/web-client/src/styles/tokens.css) và [`tailwind.config.ts`](file:///c:/Users/Admin/Desktop/PHP/web-client/tailwind.config.ts):
+- Chỉnh sửa [`tokens.css`](../../web-client/src/styles/tokens.css) và [`tailwind.config.ts`](../../web-client/tailwind.config.ts):
   - Đưa bo góc về chuẩn `4px – 6px – 8px`.
   - Thiết lập viền `border-slate-200/90` cứng cáp.
   - Áp dụng font số cố định `tabular-nums` cho đồng hồ và số liệu.
 
 ### Bước 2: Phòng Thi & Biên Nhận Khảo Thí (Ưu tiên cao nhất)
-- Cập nhật [`src/app/exam/[attemptId]/page.tsx`](file:///c:/Users/Admin/Desktop/PHP/web-client/src/app/exam/[attemptId]/page.tsx):
+- Cập nhật [`src/app/exam/[attemptId]/page.tsx`](../../web-client/src/app/exam/[attemptId]/page.tsx):
   - Thanh đỉnh tối giản với đồng hồ rõ nét và thông báo "✓ Đã tự động lưu".
   - Thẻ câu hỏi và phương án A, B, C, D dạng phím cơ học dứt khoát.
   - Lưới số câu hỏi 32×32px sắc nét.
-- Cập nhật [`src/app/exam/[attemptId]/receipt/page.tsx`](file:///c:/Users/Admin/Desktop/PHP/web-client/src/app/exam/[attemptId]/receipt/page.tsx):
+- Cập nhật [`src/app/exam/[attemptId]/receipt/page.tsx`](../../web-client/src/app/exam/[attemptId]/receipt/page.tsx):
   - Phiếu nộp bài chính thức, có mã tra cứu ngắn gọn, mã QR và nút in chứng nhận.
 
 ### Bước 3: Bàn Làm Việc Cán Bộ Coi Thi
-- Cập nhật [`src/app/(workspace)/teacher/sessions/[id]/monitor/page.tsx`](file:///c:/Users/Admin/Desktop/PHP/web-client/src/app/(workspace)/teacher/sessions/[id]/monitor/page.tsx):
+- Cập nhật [`src/app/(workspace)/teacher/sessions/[id]/monitor/page.tsx`](../../web-client/src/app/(workspace)/teacher/sessions/[id]/monitor/page.tsx):
   - Chuyển đổi hiển thị sang dạng thẻ/bảng dễ nhìn với nhãn màu cảnh báo rõ ràng (*Chuyển tab, Mất kết nối*).
 
 ### Bước 4: Soạn Đề Thi & Quản Trị Hệ Thống
-- Nâng cấp [`QuestionEditorForm.tsx`](file:///c:/Users/Admin/Desktop/PHP/web-client/src/components/teacher/QuestionEditorForm.tsx) sang dạng chia đôi màn hình có xem trước tức thì.
-- Làm sạch bảng Admin tại [`admin/page.tsx`](file:///c:/Users/Admin/Desktop/PHP/web-client/src/app/(workspace)/admin/page.tsx).
+- Nâng cấp [`QuestionEditorForm.tsx`](../../web-client/src/components/teacher/QuestionEditorForm.tsx) sang dạng chia đôi màn hình có xem trước tức thì.
+- Làm sạch bảng Admin tại [`admin/page.tsx`](../../web-client/src/app/(workspace)/admin/page.tsx).
 
 ---
 
