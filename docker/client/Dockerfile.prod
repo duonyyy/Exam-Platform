@@ -1,0 +1,68 @@
+# ==============================================================================
+# Production Dockerfile for Web Client (Next.js 15+ App Router Standalone)
+# Monorepo context: Root of PHP/
+# Reference: docs/06-operations-devops/21-DEPLOYMENT.md
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Stage 1: Install Dependencies
+# ------------------------------------------------------------------------------
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Copy dependency definition files
+COPY web-client/package.json web-client/package-lock.json* ./
+RUN npm ci
+
+# ------------------------------------------------------------------------------
+# Stage 2: Build Application
+# ------------------------------------------------------------------------------
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies from stage 1
+COPY --from=deps /app/node_modules ./node_modules
+COPY web-client/ ./
+
+# Disable Next.js telemetry during build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# Define Build Arguments / Env Vars
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+RUN npm run build
+
+# ------------------------------------------------------------------------------
+# Stage 3: Production Runner (Ultra-lean Standalone)
+# ------------------------------------------------------------------------------
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Create unprivileged user & group
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy static assets and public folder
+COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/auth/me || exit 0
+
+CMD ["node", "server.js"]

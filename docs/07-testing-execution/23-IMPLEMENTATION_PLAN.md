@@ -170,6 +170,26 @@
 ---
 
 ### Phase 12 — Chuẩn hóa Production & CI/CD (Production Hardening)
-- **Mục tiêu**: Thiết lập pipeline GitHub Actions, tối ưu Dockerfile multi-stage, kiểm tra an ninh toàn diện.
+- **Tiến độ**: Hoàn thành (Completed 2026-10-22).
+- **Mục tiêu**: Thiết lập pipeline GitHub Actions, tối ưu Dockerfile multi-stage, cấu hình Supervisor worker pool, Nginx Reverse Proxy Production, bảo mật toàn diện.
 - **Phụ thuộc**: Phase 11.
-- **DoD**: 100% tests PASS trên CI; Docker build thành công; bản thiết kế sẵn sàng bàn giao cho người dùng.
+- **Tệp tin ảnh hưởng / khởi tạo**:
+  - `docker/php/Dockerfile.prod`: Multi-stage PHP 8.3-FPM Alpine với OPcache tuned, non-root user `www-data`, và đầy đủ extensions (PostgreSQL, Redis, PCNTL, BCMath).
+  - `docker/php/supervisord.conf`: Quản lý 2 Laravel Queue Workers độc lập với auto-restart và log rotation.
+  - `docker/nginx/default.prod.conf`: Nginx reverse proxy với HTTP Security Headers (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`), Rate Limiting 60r/s (API) và 10r/m (Auth), Gzip compression, fastcgi buffer tuning.
+  - `docker/client/Dockerfile.prod`: Multi-stage Next.js 15 Standalone Runner với kích thước tối ưu (~120MB), user unprivileged `nextjs:nodejs`.
+  - `docker-compose.prod.yml`: Bộ orchestration 6 dịch vụ hoàn chỉnh (`app`, `queue`, `web`, `client`, `postgres`, `redis`) với network segmentation và volume persistence.
+  - `web-client/next.config.ts`: Cấu hình `output: 'standalone'` và reverse proxy `/api/backend/` chống CORS.
+  - `.github/workflows/ci.yml`: Bổ sung job `docker-ci` kiểm tra tính hợp lệ của Docker Compose và cú pháp Dockerfiles.
+- **Kiểm soát An ninh**:
+  - Restrict Scramble/Swagger API docs qua `Gate::define('viewApiDocs')` chỉ cho phép môi trường `local` và `testing`.
+  - Giấu hoàn toàn công nghệ backend (`expose_php=Off`, `server_tokens off`, `fastcgi_hide_header X-Powered-By`).
+  - Phân vùng mạng (Network Segmentation): Client không thể kết nối trực tiếp đến PostgreSQL hay Redis.
+  - Thí sinh không thể truy cập tài nguyên của thí sinh khác (IDOR defense đa tầng).
+- **Tests & Quality Assurance**:
+  - Backend: 159 Feature & Unit tests PASS 100% (1136 assertions).
+  - Code Style: Laravel Pint clean (`pint --test` passed).
+  - Phân tích tĩnh: Larastan Level 5 analyzed 87 files (`[OK] No errors`).
+  - Frontend: `tsc --noEmit` clean, Next.js 15.5.27 build pass 100% (25/25 static & dynamic pages).
+- **DoD**: 100% tests PASS trên cả Backend và Frontend; Container images được cấu hình chuẩn production multi-stage; Docker Compose production hoàn thiện; Sẵn sàng bàn giao vận hành!
+
