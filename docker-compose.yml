@@ -56,6 +56,8 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - INTERNAL_EXAMOPS_URL=http://agent:8001
+      - EXAMOPS_API_KEY=test-agent-key
       - HOSTNAME=0.0.0.0
       - PORT=3000
     command: sh -c "if [ -f package.json ]; then npm run dev -- -H 0.0.0.0; else sleep infinity; fi"
@@ -82,6 +84,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - exam_network
+
+  # -------------------------------------------------------------
+  # 5. AI ORCHESTRATION AGENT (FastAPI / LangGraph)
+  # -------------------------------------------------------------
+  agent:
+    build:
+      context: ./agentic-system
+      dockerfile: Dockerfile
+    container_name: exam_platform_agent
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - APP_ENV=development
+      - API_HOST=0.0.0.0
+      - API_PORT=8001
+      - API_KEY=test-agent-key
+      - EXAM_PLATFORM_BASE_URL=http://web:80/api/v1
+      - EXAM_PLATFORM_MOCK=true
+    volumes:
+      - ./agentic-system/data:/app/data
     networks:
       - exam_network
 
