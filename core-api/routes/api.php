@@ -79,6 +79,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         // Exam Taking & Autosave (Phase 8)
         Route::post('/exam-sessions/{exam_session}/attempts', [ExamAttemptController::class, 'start'])->name('api.v1.exam-sessions.attempts.start');
         Route::patch('/exam-attempts/{exam_attempt}/answers', [ExamAttemptController::class, 'saveAnswer'])->name('api.v1.exam-attempts.answers.save');
+        // Submit & Scoring (Phase 9)
+        Route::post('/exam-attempts/{exam_attempt}/submit', [ExamAttemptController::class, 'submit'])->name('api.v1.exam-attempts.submit');
     });
 
     // Attempt room view (Student owner, Teacher, Admin - protected by ExamAttemptPolicy)

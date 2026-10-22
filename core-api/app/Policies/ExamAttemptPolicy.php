@@ -54,7 +54,6 @@ class ExamAttemptPolicy
     {
         return $user->is_active
             && $user->isStudent()
-            && $attempt->student_id === $user->id
-            && $attempt->status === ExamAttemptStatus::IN_PROGRESS;
+            && $attempt->student_id === $user->id;
     }
 }

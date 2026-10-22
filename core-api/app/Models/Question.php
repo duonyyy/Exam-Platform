@@ -6,6 +6,7 @@ use App\Enums\QuestionStatus;
 use App\Enums\QuestionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property QuestionStatus $status
  * @property string $source
  * @property string|null $rejection_reason
- * @property-read \Illuminate\Database\Eloquent\Relations\Pivot|null $pivot
+ * @property-read Pivot|null $pivot
  */
 class Question extends Model
 {

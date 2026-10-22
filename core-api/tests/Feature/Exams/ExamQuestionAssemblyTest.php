@@ -214,6 +214,10 @@ class ExamQuestionAssemblyTest extends TestCase
             ['question_id' => $question->id, 'order' => 1, 'points' => 1],
         ]])->assertOk();
 
+        if (DB::getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('PostgreSQL-specific constraint test.');
+        }
+
         foreach ([
             fn () => DB::table('exam_questions')->where('exam_id', $id)->update(['points' => 0]),
             fn () => DB::table('exam_questions')->where('exam_id', $id)->update(['order' => 0]),

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestampTz('end_at');
             $table->unsignedInteger('allow_late_minutes')->default(15);
             $table->unsignedInteger('max_attempts')->default(1);
+            $table->boolean('show_result_immediately')->default(true);
             $table->timestamps();
 
             $table->index(['status', 'start_at', 'end_at'], 'idx_exam_sessions_status_time');

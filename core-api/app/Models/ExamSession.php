@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonInterface $end_at
  * @property int $allow_late_minutes
  * @property int $max_attempts
+ * @property bool $show_result_immediately
  * @property CarbonInterface|null $created_at
  * @property CarbonInterface|null $updated_at
  * @property-read Exam|null $exam
@@ -35,6 +36,7 @@ class ExamSession extends Model
         'end_at',
         'allow_late_minutes',
         'max_attempts',
+        'show_result_immediately',
     ];
 
     /**
@@ -48,6 +50,7 @@ class ExamSession extends Model
             'end_at' => 'immutable_datetime',
             'allow_late_minutes' => 'integer',
             'max_attempts' => 'integer',
+            'show_result_immediately' => 'boolean',
         ];
     }
 

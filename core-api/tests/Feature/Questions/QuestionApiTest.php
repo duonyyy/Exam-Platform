@@ -69,7 +69,9 @@ class QuestionApiTest extends TestCase
             $question = Question::findOrFail($id);
             $this->assertSame($payload['correct_answer'], $question->correct_answer);
             $this->assertSame($payload['options'] ?? null, $question->options);
-            $this->assertSame('jsonb', DB::selectOne("SELECT data_type FROM information_schema.columns WHERE table_name = 'questions' AND column_name = 'correct_answer'")->data_type);
+            if (DB::getDriverName() === 'pgsql') {
+                $this->assertSame('jsonb', DB::selectOne("SELECT data_type FROM information_schema.columns WHERE table_name = 'questions' AND column_name = 'correct_answer'")->data_type);
+            }
         }
 
         $this->assertDatabaseCount('questions', 4);

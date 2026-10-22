@@ -19,6 +19,10 @@ class ExamQuestionConcurrencyTest extends TestCase
 
     public function test_disabling_question_wins_race_against_concurrent_attach(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('Concurrent process test requires a persistent shared database (PostgreSQL).');
+        }
+
         $admin = User::factory()->admin()->create();
         $subject = new Subject(['code' => 'RACE', 'name' => 'Race']);
         $subject->created_by = $admin->id;
