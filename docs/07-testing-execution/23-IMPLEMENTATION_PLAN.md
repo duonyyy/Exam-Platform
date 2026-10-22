@@ -147,14 +147,15 @@
 ---
 
 ### Phase 10 — Giám sát Phòng thi (Proctoring & Anomaly Detection)
+- **Tiến độ**: Hoàn thành (Completed 2026-10-22).
 - **Mục tiêu**: Tiếp nhận tín hiệu từ trình duyệt thí sinh, đánh giá rủi ro, cung cấp màn hình giám sát cho giám thị.
 - **Phụ thuộc**: Phase 9.
-- **Tệp tin ảnh hưởng**: `app/Models/ProctoringEvent.php`, `app/Http/Controllers/Api/V1/ProctoringEventController.php`.
-- **Thay đổi CSDL**: Tạo bảng `proctoring_events`.
-- **Endpoints**: `POST /api/v1/exam-attempts/{id}/proctoring-events`, `GET /api/v1/exam-sessions/{id}/proctoring-summary`.
-- **Kiểm soát An ninh**: Rate Limiting 30 requests/phút/thí sinh; server tự gán severity.
-- **Tests**: `tests/Feature/Proctoring/RecordProctoringEventTest.php`.
-- **DoD**: Tín hiệu vi phạm được lưu trữ và hiển thị trên bảng điều khiển giám thị.
+- **Tệp tin ảnh hưởng**: `app/Models/ProctoringEvent.php`, `app/Enums/ProctoringEventType.php`, `app/Enums/ProctoringSeverity.php`, `app/Services/Proctoring/ProctoringSeverityResolver.php`, `app/Actions/Proctoring/RecordProctoringEventAction.php`, `app/Http/Controllers/Api/V1/ProctoringEventController.php`, `app/Http/Requests/Proctoring/RecordProctoringEventRequest.php`, `app/Http/Resources/ProctoringEventResource.php`, `app/Http/Resources/ProctoringSummaryResource.php`.
+- **Thay đổi CSDL**: Tạo bảng `proctoring_events` (FK `attempt_id` CASCADE, composite index `idx_proctoring_attempt_severity`).
+- **Endpoints**: `POST /api/v1/exam-attempts/{id}/proctoring-events`, `GET /api/v1/exam-sessions/{id}/proctoring-summary`, `GET /api/v1/exam-sessions/{id}/proctoring-events`.
+- **Kiểm soát An ninh**: Rate Limiting 30 requests/phút/thí sinh; server tự gán severity; chống IDOR qua ExamAttemptPolicy và ExamSessionPolicy.
+- **Tests**: `tests/Unit/Proctoring/ProctoringSeverityResolverTest.php`, `tests/Feature/Proctoring/RecordProctoringEventTest.php`, `tests/Feature/Proctoring/ProctoringSummaryTest.php` (19 tests, 48 assertions, 100% PASS).
+- **DoD**: Tín hiệu vi phạm được lưu trữ, server tự tính mức độ nghiêm trọng; hiển thị tóm tắt và chi tiết vi phạm cho giám thị; Frontend tích hợp collector; Pint & Larastan level 5 clean.
 
 ---
 

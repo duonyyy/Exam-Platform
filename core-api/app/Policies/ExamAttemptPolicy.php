@@ -56,4 +56,12 @@ class ExamAttemptPolicy
             && $user->isStudent()
             && $attempt->student_id === $user->id;
     }
+
+    public function recordProctoring(User $user, ExamAttempt $attempt): bool
+    {
+        return $user->is_active
+            && $user->isStudent()
+            && $attempt->student_id === $user->id
+            && $attempt->status === ExamAttemptStatus::IN_PROGRESS;
+    }
 }

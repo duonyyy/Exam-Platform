@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\ExamAttemptController;
 use App\Http\Controllers\Api\V1\ExamController;
 use App\Http\Controllers\Api\V1\ExamSessionController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\ProctoringEventController;
 use App\Http\Controllers\Api\V1\QuestionController;
 use App\Http\Controllers\Api\V1\StudentExamSessionController;
 use App\Http\Controllers\Api\V1\SubjectController;
@@ -70,9 +71,12 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         // Student Assignments & Teacher Invigilation (Phase 7)
         Route::post('/exam-sessions/{exam_session}/assign-students', [ExamSessionController::class, 'assignStudents'])->name('api.v1.exam-sessions.assign-students');
         Route::post('/exam-sessions/{exam_session}/assign-teachers', [ExamSessionController::class, 'assignTeachers'])->name('api.v1.exam-sessions.assign-teachers');
+        // Live Proctoring & Violation Summary (Phase 10)
+        Route::get('/exam-sessions/{exam_session}/proctoring-summary', [ProctoringEventController::class, 'summary'])->name('api.v1.exam-sessions.proctoring-summary');
+        Route::get('/exam-sessions/{exam_session}/proctoring-events', [ProctoringEventController::class, 'index'])->name('api.v1.exam-sessions.proctoring-events.index');
     });
 
-    // Student routes & Attempt Lifecycle (Phase 8)
+    // Student routes & Attempt Lifecycle (Phase 8, 9, 10)
     Route::middleware(['role:student'])->group(function () {
         // Assigned sessions list (Phase 7)
         Route::get('/student/assigned-sessions', [StudentExamSessionController::class, 'index'])->name('api.v1.student.assigned-sessions');
@@ -81,6 +85,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::patch('/exam-attempts/{exam_attempt}/answers', [ExamAttemptController::class, 'saveAnswer'])->name('api.v1.exam-attempts.answers.save');
         // Submit & Scoring (Phase 9)
         Route::post('/exam-attempts/{exam_attempt}/submit', [ExamAttemptController::class, 'submit'])->name('api.v1.exam-attempts.submit');
+        // Record Proctoring Events (Phase 10 - Rate limited 30 req/min)
+        Route::post('/exam-attempts/{exam_attempt}/proctoring-events', [ProctoringEventController::class, 'record'])
+            ->middleware('throttle:30,1')
+            ->name('api.v1.exam-attempts.proctoring-events.record');
     });
 
     // Attempt room view (Student owner, Teacher, Admin - protected by ExamAttemptPolicy)

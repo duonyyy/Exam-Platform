@@ -71,6 +71,12 @@ class ExamAttempt extends Model
         return $this->hasMany(AttemptAnswer::class, 'attempt_id');
     }
 
+    /** @return HasMany<ProctoringEvent, $this> */
+    public function proctoringEvents(): HasMany
+    {
+        return $this->hasMany(ProctoringEvent::class, 'attempt_id');
+    }
+
     public function isInProgress(): bool
     {
         return $this->status === ExamAttemptStatus::IN_PROGRESS;

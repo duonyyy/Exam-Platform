@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * @property int $id
@@ -98,6 +99,12 @@ class ExamSession extends Model
     public function attempts(): HasMany
     {
         return $this->hasMany(ExamAttempt::class, 'exam_session_id');
+    }
+
+    /** @return HasManyThrough<ProctoringEvent, ExamAttempt, $this> */
+    public function proctoringEvents(): HasManyThrough
+    {
+        return $this->hasManyThrough(ProctoringEvent::class, ExamAttempt::class, 'exam_session_id', 'attempt_id');
     }
 
     public function isDraft(): bool
