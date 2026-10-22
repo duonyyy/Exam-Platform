@@ -17,6 +17,8 @@ import {
 import { ThiSmartCtaButton } from "@/components/motion/ThiSmartCtaButton";
 import { ThiSmartFeatureCard } from "@/components/motion/ThiSmartFeatureCard";
 import { ThiSmartPattern } from "@/components/patterns/ThiSmartPattern";
+import { useAssignedSessions } from "@/features/student/hooks/useAssignedSessions";
+import { AssignedSession } from "@/features/student/types";
 
 interface ExamSessionItem {
   id: string;
@@ -90,10 +92,50 @@ const MOCK_EXAMS: ExamSessionItem[] = [
 
 export default function StudentExamsPage() {
   const [activeTab, setActiveTab] = useState<"all" | "active" | "upcoming" | "completed">("all");
+  const { data: response, isLoading, isError } = useAssignedSessions();
 
-  const activeExam = MOCK_EXAMS.find((e) => e.status === "active_now");
+  const now = new Date();
 
-  const filteredExams = MOCK_EXAMS.filter((exam) => {
+  // Map real backend sessions or fallback to mock if empty/error
+  const sessions: ExamSessionItem[] = (response?.data && response.data.length > 0)
+    ? response.data.map((s: AssignedSession) => {
+        const start = new Date(s.start_at);
+        const end = new Date(s.end_at);
+        const isActive = s.status === "published" && now >= start && now <= end;
+        const isUpcoming = s.status === "published" && now < start;
+        const isCompleted = s.status === "closed" || now > end;
+
+        const statusMapped: "active_now" | "upcoming" | "completed" = isActive
+          ? "active_now"
+          : isUpcoming
+          ? "upcoming"
+          : "completed";
+
+        return {
+          id: String(s.id),
+          subjectCode: s.exam?.subject?.code || "SUBJ",
+          subjectName: s.exam?.subject?.name || "Môn học",
+          title: s.title || s.exam?.title || "Ca thi chính thức",
+          durationMinutes: s.exam?.duration_minutes || 60,
+          totalQuestions: 40,
+          startAt: start.toLocaleDateString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }),
+          endAt: end.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+          instructor: "Cán bộ coi thi",
+          status: statusMapped,
+          maxScore: parseFloat(s.exam?.total_points || "10.0"),
+        };
+      })
+    : MOCK_EXAMS;
+
+  const activeExam = sessions.find((e) => e.status === "active_now");
+
+  const filteredExams = sessions.filter((exam) => {
     if (activeTab === "active") return exam.status === "active_now";
     if (activeTab === "upcoming") return exam.status === "upcoming";
     if (activeTab === "completed") return exam.status === "completed";

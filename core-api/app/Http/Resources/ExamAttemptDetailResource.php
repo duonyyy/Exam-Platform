@@ -51,6 +51,10 @@ class ExamAttemptDetailResource extends JsonResource
         })->values()->all();
 
         $remainingSeconds = $this->calculateRemainingSeconds();
+        $showResult = (bool) ($session ? $session->show_result_immediately : true);
+        $scoreFloat = $this->score !== null ? (float) $this->score : null;
+        $passScore = $exam ? (float) $exam->pass_score : 0.0;
+        $isPassed = ($scoreFloat !== null && $passScore > 0) ? ($scoreFloat >= $passScore) : ($scoreFloat !== null);
 
         return [
             'id' => $this->id,
@@ -60,6 +64,9 @@ class ExamAttemptDetailResource extends JsonResource
             'started_at' => $this->started_at->toISOString(),
             'submitted_at' => $this->submitted_at?->toISOString(),
             'remaining_seconds' => $remainingSeconds,
+            'score' => $showResult ? ($scoreFloat !== null ? round($scoreFloat, 2) : null) : null,
+            'total_points' => $showResult ? ($this->total_points !== null ? round((float) $this->total_points, 2) : ($exam ? (float) $exam->total_points : null)) : null,
+            'is_passed' => $showResult ? $isPassed : null,
             'attempt' => [
                 'id' => $this->id,
                 'status' => $this->status->value,

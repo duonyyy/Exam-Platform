@@ -15,24 +15,28 @@ import {
   Mail,
   ArrowLeft,
   CheckCircle2,
+  AlertTriangle,
   Sparkles,
   KeyRound,
   Clock,
 } from "lucide-react";
 import { BrandDotPattern } from "@/components/patterns/BrandDotPattern";
 import { ThiSmartPattern } from "@/components/patterns/ThiSmartPattern";
+import { useLogin } from "@/features/auth/hooks/useAuth";
 
 export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin">("student");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("student@university.edu.vn");
   const [password, setPassword] = useState("Student@123");
-  const [rememberMe, setRememberMe] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loginMessage, setLoginMessage] = useState<string | null>(null);
+  const loginMutation = useLogin();
 
   const handleRoleSelect = (role: "student" | "teacher" | "admin") => {
     setSelectedRole(role);
+    setErrorMessage(null);
     if (role === "student") {
       setEmail("student@university.edu.vn");
       setPassword("Student@123");
@@ -47,18 +51,24 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setErrorMessage(null);
     setLoginMessage(null);
 
-    // Simulate authenticating against backend /api/v1/auth/login
-    setTimeout(() => {
-      setIsLoading(false);
-      setLoginMessage(
-        `Đã mô phỏng đăng nhập thành công với vai trò ${
-          selectedRole === "student" ? "Thí sinh" : selectedRole === "teacher" ? "Giảng viên" : "Quản trị viên"
-        }. Bạn có thể trải nghiệm ngay Phòng Thi Focus Mode bên dưới!`
-      );
-    }, 600);
+    loginMutation.mutate(
+      { email, password },
+      {
+        onError: (err: any) => {
+          setErrorMessage(
+            err?.message || "Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin."
+          );
+        },
+        onSuccess: (data) => {
+          setLoginMessage(
+            `Đăng nhập thành công! Đang chuyển hướng đến không gian làm việc của ${data.data.user.name}...`
+          );
+        },
+      }
+    );
   };
 
   return (
@@ -212,6 +222,13 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {errorMessage && (
+              <div className="mb-6 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                <div>{errorMessage}</div>
+              </div>
+            )}
+
             {loginMessage && (
               <div className="mb-6 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-start gap-2.5">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
@@ -294,10 +311,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loginMutation.isPending}
                 className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
               >
-                {isLoading ? (
+                {loginMutation.isPending ? (
                   <span>Đang xác thực...</span>
                 ) : (
                   <>

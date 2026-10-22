@@ -21,6 +21,10 @@ import {
 } from "lucide-react";
 import { ThiSmartCtaButton } from "@/components/motion/ThiSmartCtaButton";
 import { ThiSmartPattern } from "@/components/patterns/ThiSmartPattern";
+import { useExamAttempt } from "@/features/exam-taking/hooks/useExamAttempt";
+import { useSaveAnswer } from "@/features/exam-taking/hooks/useSaveAnswer";
+import { useSubmitAttempt } from "@/features/exam-taking/hooks/useSubmitAttempt";
+import { useCurrentUser } from "@/features/auth/hooks/useAuth";
 
 interface Question {
   id: number;
@@ -126,30 +130,72 @@ export default function FocusExamRoomPage() {
   const params = useParams();
   const attemptId = params?.attemptId || "attempt-842";
 
+  // Parse numeric attempt ID
+  const rawAttemptId = typeof attemptId === "string" ? attemptId : String(attemptId);
+  const numericAttemptId = !isNaN(Number(rawAttemptId))
+    ? Number(rawAttemptId)
+    : !isNaN(Number(rawAttemptId.replace("attempt-", "")))
+    ? Number(rawAttemptId.replace("attempt-", ""))
+    : undefined;
+
+  const { data: attemptDetail, isLoading: isAttemptLoading } = useExamAttempt(numericAttemptId);
+  const { data: currentUser } = useCurrentUser();
+  const saveAnswerMutation = useSaveAnswer(numericAttemptId);
+  const submitAttemptMutation = useSubmitAttempt(numericAttemptId);
+
+  // Dynamic Questions from server or fallback to mock
+  const questions: Question[] =
+    attemptDetail?.questions && attemptDetail.questions.length > 0
+      ? attemptDetail.questions.map((q) => ({
+          id: q.id,
+          statement: q.question_text,
+          points: q.points,
+          type: q.question_type,
+          options: q.options?.map((opt) => ({
+            id: opt.id,
+            text: opt.content,
+          })),
+        }))
+      : MOCK_QUESTIONS;
+
   // Navigation State
   const [currentIndex, setCurrentIndex] = useState(0);
-  const currentQuestion = MOCK_QUESTIONS[currentIndex];
+  const currentQuestion = questions[currentIndex] || questions[0];
 
   // Answers State: map questionId -> selectedOptionId | string | string[]
-  const [answers, setAnswers] = useState<Record<number, any>>({
-    1: "B",
-    2: "A",
-  });
+  const [answers, setAnswers] = useState<Record<number, any>>({});
+
+  // Sync existing answers from server attempt
+  useEffect(() => {
+    if (attemptDetail?.answers && attemptDetail.answers.length > 0) {
+      const initial: Record<number, any> = {};
+      attemptDetail.answers.forEach((ans) => {
+        initial[ans.question_id] = ans.selected_options;
+      });
+      setAnswers((prev) => ({ ...initial, ...prev }));
+    }
+  }, [attemptDetail?.answers]);
 
   // Flagged for review questions
-  const [flagged, setFlagged] = useState<Record<number, boolean>>({
-    3: true,
-  });
+  const [flagged, setFlagged] = useState<Record<number, boolean>>({});
 
   // Autosave status
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "offline">("saved");
 
-  // Timer State (Server countdown ~45:00)
-  const [secondsRemaining, setSecondsRemaining] = useState(2695);
+  // Timer State (Server countdown)
+  const [secondsRemaining, setSecondsRemaining] = useState(attemptDetail?.remaining_seconds ?? 2700);
+
+  // Sync timer when server provides authoritative remaining seconds
+  useEffect(() => {
+    if (attemptDetail?.remaining_seconds !== undefined) {
+      setSecondsRemaining(attemptDetail.remaining_seconds);
+    }
+  }, [attemptDetail?.remaining_seconds]);
 
   // Submit Modal
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Proctoring Toast Alert
   const [proctoringAlert, setProctoringAlert] = useState<string | null>(null);
@@ -157,11 +203,26 @@ export default function FocusExamRoomPage() {
   // Submit handler wrapped in useCallback for timer dependency
   const handleSubmitExam = useCallback(() => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      // Redirect to submission receipt screen
-      router.push(`/exam/${attemptId}/receipt`);
-    }, 800);
-  }, [attemptId, router]);
+    setSubmitError(null);
+
+    if (numericAttemptId) {
+      submitAttemptMutation.mutate(undefined, {
+        onSuccess: () => {
+          router.push(`/exam/${attemptId}/receipt`);
+        },
+        onError: (err: any) => {
+          setIsSubmitting(false);
+          setSubmitError(
+            err?.message || "Không thể nộp bài thi. Vui lòng kiểm tra lại kết nối mạng."
+          );
+        },
+      });
+    } else {
+      setTimeout(() => {
+        router.push(`/exam/${attemptId}/receipt`);
+      }, 800);
+    }
+  }, [numericAttemptId, attemptId, router, submitAttemptMutation]);
 
   // Live Timer Countdown
   useEffect(() => {
@@ -193,15 +254,24 @@ export default function FocusExamRoomPage() {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
-  // Answer selection with debounced autosave simulation
+  // Answer selection with real debounced server autosave
   const handleSelectOption = (questionId: number, value: any) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
     setSaveStatus("saving");
 
-    // Simulate 500ms debounced server persistence
-    setTimeout(() => {
-      setSaveStatus("saved");
-    }, 500);
+    if (numericAttemptId) {
+      saveAnswerMutation.mutate(
+        { question_id: questionId, selected_options: value },
+        {
+          onSuccess: () => setSaveStatus("saved"),
+          onError: () => setSaveStatus("offline"),
+        }
+      );
+    } else {
+      setTimeout(() => {
+        setSaveStatus("saved");
+      }, 500);
+    }
   };
 
   const handleToggleMultipleOption = (questionId: number, optionId: string) => {
@@ -222,8 +292,14 @@ export default function FocusExamRoomPage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const totalAnswered = Object.keys(answers).length;
-  const progressPercent = Math.round((totalAnswered / MOCK_QUESTIONS.length) * 100);
+  const totalAnswered = questions.filter((q) => {
+    const val = answers[q.id];
+    if (val === undefined || val === null) return false;
+    if (Array.isArray(val) && val.length === 0) return false;
+    if (typeof val === "string" && val.trim() === "") return false;
+    return true;
+  }).length;
+  const progressPercent = Math.round((totalAnswered / questions.length) * 100);
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col justify-between text-slate-900 select-none relative overflow-hidden">
@@ -254,10 +330,10 @@ export default function FocusExamRoomPage() {
             />
             <div>
               <div className="text-xs font-bold text-slate-900 leading-tight">
-                Lập trình Web Nâng Cao (IT4409)
+                {attemptDetail?.exam?.title || "Phòng Thi Trực Tuyến"}
               </div>
               <div className="text-[11px] text-slate-500 leading-tight">
-                Thí sinh: <strong>Nguyễn Văn A</strong> • Mã SV: <strong>SV101</strong>
+                Thí sinh: <strong>{currentUser?.name || "Thí sinh"}</strong> • Mã SV: <strong>{currentUser?.code || "SV"}</strong>
               </div>
             </div>
           </div>
@@ -518,14 +594,17 @@ export default function FocusExamRoomPage() {
                 Bảng điều hướng câu hỏi
               </span>
               <span className="text-xs text-slate-500">
-                Đã làm: <strong>{totalAnswered}</strong>/{MOCK_QUESTIONS.length}
+                Đã làm: <strong>{totalAnswered}</strong>/{questions.length}
               </span>
             </div>
 
             {/* Question Buttons Matrix */}
-            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-              {MOCK_QUESTIONS.map((q, idx) => {
-                const isAnswered = answers[q.id] !== undefined && answers[q.id] !== "";
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-[360px] overflow-y-auto pr-1">
+              {questions.map((q, idx) => {
+                const isAnswered =
+                  answers[q.id] !== undefined &&
+                  answers[q.id] !== "" &&
+                  (!Array.isArray(answers[q.id]) || answers[q.id].length > 0);
                 const isCurrent = idx === currentIndex;
                 const isFlagged = flagged[q.id];
 
@@ -542,7 +621,7 @@ export default function FocusExamRoomPage() {
                         : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
                     }`}
                   >
-                    <span>{q.id.toString().padStart(2, "0")}</span>
+                    <span>{(idx + 1).toString().padStart(2, "0")}</span>
                     {isFlagged && (
                       <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500" />
                     )}
@@ -603,6 +682,12 @@ export default function FocusExamRoomPage() {
               </p>
             </div>
 
+            {submitError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-left">
+                <strong>Lỗi nộp bài:</strong> {submitError}
+              </div>
+            )}
+
             {/* Summary Stats */}
             <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
               <div>
@@ -612,7 +697,7 @@ export default function FocusExamRoomPage() {
               <div className="border-x border-slate-200">
                 <span className="text-slate-400 block text-[10px] font-bold">CHƯA LÀM</span>
                 <span className="font-extrabold text-slate-700 text-base">
-                  {MOCK_QUESTIONS.length - totalAnswered}
+                  {questions.length - totalAnswered}
                 </span>
               </div>
               <div>
@@ -627,7 +712,7 @@ export default function FocusExamRoomPage() {
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button
                 type="button"
-                disabled={isSubmitting}
+                disabled={isSubmitting || submitAttemptMutation.isPending}
                 onClick={() => setSubmitModalOpen(false)}
                 className="py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
               >
@@ -635,11 +720,11 @@ export default function FocusExamRoomPage() {
               </button>
               <button
                 type="button"
-                disabled={isSubmitting}
+                disabled={isSubmitting || submitAttemptMutation.isPending}
                 onClick={handleSubmitExam}
-                className="py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-md"
+                className="py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-md disabled:opacity-70"
               >
-                {isSubmitting ? (
+                {isSubmitting || submitAttemptMutation.isPending ? (
                   <span>Đang ghi nhận...</span>
                 ) : (
                   <>

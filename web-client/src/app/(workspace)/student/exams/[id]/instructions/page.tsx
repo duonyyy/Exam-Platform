@@ -18,23 +18,35 @@ import {
 } from "lucide-react";
 import { ThiSmartCtaButton } from "@/components/motion/ThiSmartCtaButton";
 
+import { useStartAttempt } from "@/features/student/hooks/useStartAttempt";
+
 export default function ExamInstructionsPage() {
   const router = useRouter();
   const params = useParams();
   const examId = params?.id || "session-101";
 
   const [agreed, setAgreed] = useState(false);
-  const [isStarting, setIsStarting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const startAttemptMutation = useStartAttempt();
 
   const handleStartExam = () => {
     if (!agreed) return;
-    setIsStarting(true);
+    setErrorMessage(null);
 
-    // Simulate requesting backend POST /api/v1/exam-sessions/{id}/attempts
-    setTimeout(() => {
-      // Direct student straight into the Focus Exam Room
-      router.push(`/exam/attempt-${examId}`);
-    }, 600);
+    // If numeric session ID from backend
+    if (!isNaN(Number(examId))) {
+      startAttemptMutation.mutate(Number(examId), {
+        onError: (err: any) => {
+          setErrorMessage(
+            err?.message || "Không thể khởi tạo ca thi. Vui lòng kiểm tra lại thời gian hoặc liên hệ cán bộ coi thi."
+          );
+        },
+      });
+      return;
+    }
+
+    // Demo/Mock fallback
+    router.push(`/exam/attempt-${examId}`);
   };
 
   return (
@@ -50,6 +62,16 @@ export default function ExamInstructionsPage() {
 
       {/* Main Container */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-sm space-y-8">
+        {errorMessage && (
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Không thể bắt đầu làm bài</p>
+              <p className="text-xs text-rose-700 mt-0.5">{errorMessage}</p>
+            </div>
+          </div>
+        )}
+
         {/* Title & 3D Illustration */}
         <div className="border-b border-slate-100 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -190,11 +212,11 @@ export default function ExamInstructionsPage() {
             Hủy và quay lại
           </Link>
           <ThiSmartCtaButton
-            disabled={!agreed || isStarting}
+            disabled={!agreed || startAttemptMutation.isPending}
             onClick={handleStartExam}
             className="w-full sm:w-auto text-sm py-3 px-8 justify-center shadow-lg"
           >
-            <span>{isStarting ? "Đang mở phòng thi..." : "Bắt đầu làm bài thi"}</span>
+            <span>{startAttemptMutation.isPending ? "Đang mở phòng thi..." : "Bắt đầu làm bài thi"}</span>
             <ArrowRight className="w-4 h-4" />
           </ThiSmartCtaButton>
         </div>
