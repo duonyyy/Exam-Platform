@@ -74,6 +74,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         // Live Proctoring & Violation Summary (Phase 10)
         Route::get('/exam-sessions/{exam_session}/proctoring-summary', [ProctoringEventController::class, 'summary'])->name('api.v1.exam-sessions.proctoring-summary');
         Route::get('/exam-sessions/{exam_session}/proctoring-events', [ProctoringEventController::class, 'index'])->name('api.v1.exam-sessions.proctoring-events.index');
+        // Results & Analytics (Phase 11)
+        Route::get('/exam-sessions/{exam_session}/results', [ExamSessionController::class, 'results'])->name('api.v1.exam-sessions.results');
     });
 
     // Student routes & Attempt Lifecycle (Phase 8, 9, 10)

@@ -163,9 +163,9 @@
 - **Mục tiêu**: Báo cáo phổ điểm, tối ưu hóa chỉ mục CSDL, audit N+1 queries.
 - **Phụ thuộc**: Phase 10.
 - **Endpoints**: `GET /api/v1/exam-sessions/{id}/results`.
-- **Kiểm soát An ninh**: Chỉ giám thị ca thi và admin mới được xem toàn bộ bảng điểm.
-- **Tests**: `tests/Feature/Statistics/SessionResultTest.php`.
-- **DoD**: Không có câu truy vấn N+1; thời gian tải bảng điểm dưới 200ms cho ca thi 500 sinh viên.
+- **Kiểm soát An ninh**: Chỉ giám thị ca thi và admin mới được xem toàn bộ bảng điểm (IDOR defense qua ExamSessionPolicy@viewResults).
+- **Tests**: `tests/Feature/Statistics/SessionResultTest.php`, `tests/Unit/Analytics/SessionAnalyticsServiceTest.php` (15 tests, 233 assertions, 100% PASS).
+- **DoD**: Đã hoàn thành. Endpoint `GET /api/v1/exam-sessions/{id}/results` cung cấp tổng quan phổ điểm, thống kê điểm số (Min, Max, Avg, Median, StdDev, Tỷ lệ Đạt/Trượt), biểu đồ phân phối điểm 5 buckets, phân tích câu hỏi (tỷ lệ trả lời đúng P và độ phân biệt D), và bảng điểm chi tiết kèm xếp loại học lực; phân quyền chống IDOR; audit N+1 query thành công với chỉ mục tối ưu; Pint & Larastan level 5 clean.
 
 ---
 

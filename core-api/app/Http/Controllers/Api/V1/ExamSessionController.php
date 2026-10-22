@@ -10,12 +10,15 @@ use App\Enums\ExamSessionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExamSessions\AssignStudentsRequest;
 use App\Http\Requests\ExamSessions\AssignTeachersRequest;
+use App\Http\Requests\ExamSessions\GetExamSessionResultsRequest;
 use App\Http\Requests\ExamSessions\ListExamSessionsRequest;
 use App\Http\Requests\ExamSessions\StoreExamSessionRequest;
 use App\Http\Resources\ExamSessionResource;
+use App\Http\Resources\ExamSessionResultResource;
 use App\Models\Exam;
 use App\Models\ExamSession;
 use App\Models\User;
+use App\Services\Analytics\SessionAnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -150,5 +153,20 @@ class ExamSessionController extends Controller
             'message' => 'Phân công cán bộ coi thi thành công.',
             'data' => $result,
         ], Response::HTTP_OK);
+    }
+
+    public function results(
+        GetExamSessionResultsRequest $request,
+        ExamSession $examSession,
+        SessionAnalyticsService $analyticsService
+    ): JsonResponse {
+        $examSession->load(['exam.subject', 'sessionTeachers']);
+        Gate::authorize('viewResults', $examSession);
+
+        $report = $analyticsService->generateReport($examSession, $request->validated());
+
+        return (new ExamSessionResultResource($report))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 }

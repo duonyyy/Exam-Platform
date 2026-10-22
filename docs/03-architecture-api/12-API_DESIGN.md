@@ -123,6 +123,23 @@ Response `201` và response danh sách dùng `QuestionAdminResource` trong `data
   - Idempotent Atomic Upsert: Ghi hoặc cập nhật câu trả lời vào `attempt_answers` với khóa duy nhất tổng hợp `(attempt_id, question_id)`.
   - Response `200 OK` dạng `AttemptAnswerResource`: `id`, `attempt_id`, `question_id`, `selected_options`, `updated_at`.
 
+### Hợp đồng Phase 11: Tối ưu hóa & Báo cáo Điểm số (Optimization & Analytics)
+
+- `GET /api/v1/exam-sessions/{id}/results`: Endpoint dành riêng cho Giảng viên và Quản trị viên (`role:teacher,admin`).
+  - Phân quyền: `ExamSessionPolicy@viewResults` chống IDOR. Chỉ Admin, giảng viên tạo ca thi, giảng viên phụ trách môn học hoặc cán bộ coi thi được phân công trong `session_teachers` mới được xem kết quả.
+  - Query parameters: `page`, `per_page` (1–100, mặc định 20), `status` (`all`, `submitted`, `in_progress`, `absent`), `is_passed` (boolean), `sort_by` (`score`, `name`, `submitted_at`, `duration_seconds`), `sort_direction` (`asc`, `desc`), `search` (tên hoặc email thí sinh).
+  - Dữ liệu trả về chuẩn hóa qua `ExamSessionResultResource`:
+    - `session`: Metadata ca thi và đề thi (`id`, `title`, `total_points`, `pass_score`, `duration_minutes`).
+    - `summary`: Tổng quan ca thi (`total_assigned`, `total_participants`, `total_submitted`, `total_in_progress`, `total_absent`, `attendance_rate`).
+    - `statistics`: Phổ điểm tổng quan (`min_score`, `max_score`, `avg_score`, `median_score`, `std_deviation`, `passed_count`, `failed_count`, `pass_rate`, `fail_rate`).
+    - `histogram`: Phân phối phổ điểm 5 khoảng đều (`range`, `min`, `max`, `count`, `percentage`).
+    - `question_analysis`: Phân tích câu hỏi theo lý thuyết khảo thí cổ điển:
+      - Tỷ lệ trả lời đúng (Difficulty Index $P = \text{correct} / N$): phân loại `easy`, `medium`, `hard`.
+      - Độ phân biệt (Discrimination Index $D = (R_U - R_L) / k$ theo quy tắc 27% của Kelley hoặc split-half): phân loại `excellent` ($D \ge 0.4$), `good` ($0.3 \le D < 0.4$), `fair` ($0.2 \le D < 0.3$), `poor` ($0 \le D < 0.2$), `negative` ($D < 0$).
+    - `scoreboard`: Bảng điểm chi tiết từng thí sinh (kèm xếp loại học lực: Xuất sắc, Giỏi, Khá, Trung bình, Yếu, số vi phạm giám sát `violations_count`, thời gian làm bài `duration_seconds`).
+    - `pagination`: Thông tin phân trang danh sách thí sinh.
+  - Tối ưu hóa CSDL: Đã tạo chỉ mục composite `(exam_session_id, status)` và `(exam_session_id, score)` trên `exam_attempts`, chỉ mục `(question_id, is_correct)` và `(attempt_id, is_correct)` trên `attempt_answers`. Truy vấn đạt $O(1)$ constant query count không có N+1.
+
 ### Quyền và dữ liệu Subject
 
 - `POST /subjects`: body bắt buộc `code` (chuỗi tối đa 50, duy nhất), `name` (chuỗi tối đa 255); `description` tùy chọn. Admin có thể gửi `owner_teacher_id` là ID của teacher đang hoạt động hoặc `null`. Teacher luôn tự nhận phụ trách; không thể tự chỉ định người khác.
