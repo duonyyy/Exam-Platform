@@ -12,7 +12,7 @@
 Hệ thống cung cấp khả năng tự động sinh, cập nhật và mở các sơ đồ kỹ thuật chuyên nghiệp phục vụ cho **báo cáo kỹ thuật, đồ án tốt nghiệp, thuyết trình kiến trúc, và hồ sơ an ninh**:
 
 - 🏛️ **Kiến trúc hệ thống**: System Context Diagram (C4 Level 1), Container Diagram (C4 Level 2), Component Diagram (C4 Level 3).
-- 🗄️ **Cơ sở dữ liệu**: Sơ đồ thực thể quan hệ ERD (13 bảng, PK, FK, Cardinality 1:N / N:N, Ràng buộc).
+- 🗄️ **Cơ sở dữ liệu**: Sơ đồ thực thể quan hệ ERD (14 bảng, PK, FK, Cardinality 1:N / N:N, Ràng buộc).
 - 🔄 **Quy trình & Nghiệp vụ**: Use Case Diagram, Sequence Diagram (Luồng sinh tử nộp bài), State Machine (FSM câu hỏi, ca thi, attempt).
 - 🤖 **Agentic AI & ExamOps**: Đồ thị luồng Agent Workflow (LangGraph), Tool / Skill Architecture, Vòng lặp phản biện.
 - 🚀 **Hạ tầng & Vận hành**: Deployment Diagram (Docker / Production ALB), CI/CD Pipeline Flow, Security / Trust Boundary Diagram, Threat Model.
@@ -124,7 +124,7 @@ Toàn bộ sơ đồ được quản lý tập trung tại `docs/diagrams/`:
 docs/diagrams/
 ├── architecture/         # Sơ đồ C4, Container, Luồng phân tầng
 │   └── test_pipeline.drawio   # Sơ đồ mẫu kiểm chứng MCP
-├── database/             # Sơ đồ ERD 13 bảng CSDL, quan hệ khóa ngoại
+├── database/             # Sơ đồ ERD 14 bảng CSDL, quan hệ khóa ngoại
 ├── workflows/            # Sơ đồ tuần tự nộp bài, FSM ca thi, attempt
 ├── security/             # Mô hình STRIDE, ranh giới an ninh, chống IDOR
 ├── deployment/           # Mô hình Docker Compose, hạ tầng production

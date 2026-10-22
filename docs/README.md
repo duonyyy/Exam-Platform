@@ -24,7 +24,7 @@ docs/
 │   ├── README.md                       # Mục lục & vai trò tài liệu nhóm 02
 │   ├── 06-DOMAIN_MODEL.md              # Sơ đồ Domain Model & trách nhiệm thực thể
 │   ├── 07-STATE_MACHINES.md            # Máy trạng thái (FSM) Question, Session, Attempt
-│   ├── 09-DATABASE_DESIGN.md           # Thiết kế CSDL chi tiết, 13 bảng quan hệ, Migration mẫu
+│   ├── 09-DATABASE_DESIGN.md           # Thiết kế CSDL chi tiết, 14 bảng quan hệ, Migration mẫu
 │   ├── 10-ERD.md                       # Sơ đồ Mermaid ERD và bản số quan hệ
 │   └── 11-DATA_CLASSIFICATION.md       # Phân loại dữ liệu & quy tắc thanh lọc nhật ký
 │
@@ -66,7 +66,7 @@ docs/
 ├── 07-testing-execution/               # [VAI TRÒ: KIỂM THỬ TỰ ĐỘNG & KẾ HOẠCH THỰC THI]
 │   ├── README.md                       # Mục lục & vai trò tài liệu nhóm 07
 │   ├── 19-TEST_STRATEGY.md             # Chiến lược kiểm thử tự động, Feature Tests, Ma trận RTM
-│   └── 23-IMPLEMENTATION_PLAN.md       # Lộ trình triển khai 12 Phase kèm Definition of Done (DoD)
+│   └── 23-IMPLEMENTATION_PLAN.md       # Lộ trình triển khai 13 Phase kèm Definition of Done (DoD)
 │
 └── 08-guidelines/                      # [VAI TRÒ: QUY CHUẨN LẬP TRÌNH & ĐÀO TẠO KỸ SƯ]
     ├── README.md                       # Mục lục & vai trò tài liệu nhóm 08
@@ -89,5 +89,5 @@ docs/
 | **Giao diện Web Client & Brand ThiSmart** | [`05-frontend/`](05-frontend/README.md) | [THISMART_BRAND_GUIDELINES.md](05-frontend/THISMART_BRAND_GUIDELINES.md), [17-FRONTEND_DESIGN.md](05-frontend/17-FRONTEND_DESIGN.md) & [SCREEN_SPECIFICATIONS.md](05-frontend/SCREEN_SPECIFICATIONS.md) |
 | **Giám sát Observability & Triển khai Docker** | [`06-operations-devops/`](06-operations-devops/README.md) | [18-OBSERVABILITY.md](06-operations-devops/18-OBSERVABILITY.md) & [21-DEPLOYMENT.md](06-operations-devops/21-DEPLOYMENT.md) |
 | **Cách viết Feature Test kiểm chứng** | [`07-testing-execution/`](07-testing-execution/README.md) | [19-TEST_STRATEGY.md](07-testing-execution/19-TEST_STRATEGY.md) |
-| **Lộ trình từng bước khi code (Phase 1 $\rightarrow$ 12)** | [`07-testing-execution/`](07-testing-execution/README.md) | [23-IMPLEMENTATION_PLAN.md](07-testing-execution/23-IMPLEMENTATION_PLAN.md) |
+| **Lộ trình từng bước khi code (Phase 1 $\rightarrow$ 13)** | [`07-testing-execution/`](07-testing-execution/README.md) | [23-IMPLEMENTATION_PLAN.md](07-testing-execution/23-IMPLEMENTATION_PLAN.md) |
 | **Quy chuẩn Code PHP, Commit & Cẩm nang học tập** | [`08-guidelines/`](08-guidelines/README.md) | [CODING_STANDARDS.md](08-guidelines/CODING_STANDARDS.md), [COMMIT_STANDARDS.md](08-guidelines/COMMIT_STANDARDS.md) & [LEARNING_GUIDE.md](08-guidelines/LEARNING_GUIDE.md) |

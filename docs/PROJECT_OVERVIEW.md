@@ -62,7 +62,7 @@ flowchart LR
 
 ### 2.4. Mô hình miền (Domain Model)
 
-Hệ thống quản lý **13 bảng CSDL** với các thực thể chính:
+Hệ thống quản lý **14 bảng CSDL** với các thực thể chính:
 
 ```mermaid
 erDiagram
@@ -78,6 +78,8 @@ erDiagram
     ExamAttempt ||--o{ ProctoringEvent : monitored_by
     User ||--o{ ExamAttempt : takes
     User ||--o{ SessionAssignment : enrolled_in
+    User ||--o{ AiGenerationLog : reviews_and_applies
+    Exam |o--o{ AiGenerationLog : originated_from
 ```
 
 **4 loại câu hỏi:** `single_choice`, `multiple_choice`, `true_false`, `short_answer`
@@ -293,8 +295,8 @@ docs/
 | [`AGENTS.md`](../AGENTS.md) | Hiến pháp kỹ thuật — quy tắc vàng cho toàn bộ dự án |
 | [`00-FOUNDATION_DESIGN.md`](agentic-ai/00-FOUNDATION_DESIGN.md) | Thiết kế nền tảng ExamOps Agent (APPROVED) |
 | [`12-API_DESIGN.md`](03-architecture-api/12-API_DESIGN.md) | Đặc tả 23 API endpoints Exam Platform |
-| [`09-DATABASE_DESIGN.md`](02-domain-database/09-DATABASE_DESIGN.md) | Thiết kế 13 bảng CSDL PostgreSQL |
-| [`23-IMPLEMENTATION_PLAN.md`](07-testing-execution/23-IMPLEMENTATION_PLAN.md) | Lộ trình triển khai 12 Phase |
+| [`09-DATABASE_DESIGN.md`](02-domain-database/09-DATABASE_DESIGN.md) | Thiết kế 14 bảng CSDL PostgreSQL |
+| [`23-IMPLEMENTATION_PLAN.md`](07-testing-execution/23-IMPLEMENTATION_PLAN.md) | Lộ trình triển khai 13 Phase |
 
 ---
 
@@ -345,19 +347,18 @@ pie title Tiến Độ Tổng Thể
 
 | Giai đoạn | Trạng thái | Ghi chú |
 |---|---|---|
-| 📄 Tài liệu thiết kế | ✅ **~85% hoàn thành** | 40+ files, đầy đủ requirements, domain, API, security, testing |
-| 🐳 Docker Compose | ✅ **Sẵn sàng** | 4 services đã cấu hình |
-| 🔧 Backend (Laravel) | ⬜ **Chưa bắt đầu** | Cần scaffold Laravel, migrations, routes, controllers |
-| 🎨 Frontend (Next.js) | ⬜ **Chưa bắt đầu** | Chỉ có config files |
-| 🤖 ExamOps Agent | ✅ **Đã hoàn thành cấu trúc & harness** | Foundation Scaffolding, 6-Node Loop, Mypy strict & 33 tests PASS |
-| 🧪 Testing | ⬜ **Chưa bắt đầu** | Chiến lược đã thiết kế, chưa viết test |
+| 📄 Tài liệu thiết kế | ✅ **100% hoàn thành** | 40+ files, đầy đủ requirements, domain, API, security, testing |
+| 🐳 Docker Compose | ✅ **Production Ready** | Dev + Production multi-stage containers (`app`, `queue`, `web`, `client`, `agent`, `postgres`, `redis`) |
+| 🔧 Backend (Laravel) | ✅ **Phase 1–12 Completed** | 159 Feature tests PASS 100%, Larastan Level 5 clean, Pint clean |
+| 🎨 Frontend (Next.js) | ✅ **Phase 1–12 Completed** | Dual shell, Focus Exam Room, 25/25 routes standalone build pass |
+| 🤖 ExamOps Agent | ✅ **Đã hoàn thành cấu trúc & Docker** | 6-Node Loop, Mypy strict & 34 tests PASS, hỗ trợ Gemini & Ollama |
+| 🚀 Phase 13 | 🟡 **SPEC APPROVED** | Lớp điều phối AI Copilot & Blueprint Integration sẵn sàng thi công |
 
 ### Bước tiếp theo ưu tiên
 
-1. **Scaffold Laravel** trong `core-api/` và tạo migrations cho 13 bảng
-2. **Implement API endpoints** theo thứ tự dependencies (Users → Subjects → Topics → Questions → ...)
-3. **Triển khai mã nguồn `agentic-system/`** (FastAPI, State, LangGraph, Tools, Skills) theo Foundation Design
-4. **Viết Feature Tests** song song với implementation
+1. **Thi công Phase 13 Backend**: Migration bảng `ai_generation_logs`, Model `AiGenerationLog`, Action `GenerateExamFromBlueprintAction`, Endpoints `/exams/from-blueprint` & `/exams/{id}/readiness-review`
+2. **Thi công Phase 13 Frontend**: Màn hình Teacher AI Assistant kết nối trực tiếp với Agent và Human Review Gate
+3. **End-to-end Integration Test**: Kiểm thử luồng trọn vẹn từ prompt giảng viên → Agent proposal → Duyệt → CSDL Core API
 
 ---
 

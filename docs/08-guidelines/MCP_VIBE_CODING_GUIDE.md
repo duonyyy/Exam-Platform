@@ -29,7 +29,7 @@ Tệp cấu hình tại `C:\Users\Admin\.gemini\config\mcp_config.json` đã đ�
 | :--- | :--- | :--- |
 | 🧠 **`sequential-thinking`** | `npx -y @modelcontextprotocol/server-sequential-thinking` | **Tư duy phản biện đa tầng**: AI tự động chia nhỏ bài toán, kiểm tra giả định, phân tích race conditions (double submit, lock ordering) trước khi gõ code. |
 | 🌐 **`fetch`** | `uvx mcp-server-fetch` | **Tra cứu tài liệu trực tuyến**: AI tự kéo nội dung từ các trang tài liệu Next.js 15, Laravel 13, RFC 9110, hoặc GitHub release notes mà không cần rời IDE. |
-| 🗄️ **`postgres`** | `npx -y @modelcontextprotocol/server-postgres` | **Kết nối trực tiếp CSDL PostgreSQL**: AI có thể tự inspect schema 13 bảng của Exam Platform, kiểm tra khóa ngoại, chạy `EXPLAIN ANALYZE` và debug truy vấn. |
+| 🗄️ **`postgres`** | `npx -y @modelcontextprotocol/server-postgres` | **Kết nối trực tiếp CSDL PostgreSQL**: AI có thể tự inspect schema 14 bảng của Exam Platform, kiểm tra khóa ngoại, chạy `EXPLAIN ANALYZE` và debug truy vấn. |
 | 🌿 **`git`** | `uvx mcp-server-git` | **Thao tác Git nguyên bản**: AI kiểm tra `git diff`, xem log, commit chuẩn Conventional Commits mà không làm xáo trộn working tree. |
 | 💾 **`memory`** | `npx -y @modelcontextprotocol/server-memory` | **Đồ thị tri thức (Knowledge Graph)**: Ghi nhớ các quyết định kiến trúc, quy tắc miền nghiệp vụ, và phong cách code ưa thích của bạn qua nhiều phiên chat. |
 | 📊 **`excel-reader`** | `uvx excel-vision-mcp` | **Trích xuất ngân hàng câu hỏi**: Đọc trực tiếp các tệp đề thi Excel, trích xuất bảng biểu và ảnh để nạp vào ngân hàng câu hỏi tự động. |

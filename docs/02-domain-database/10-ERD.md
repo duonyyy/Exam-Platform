@@ -38,6 +38,9 @@ erDiagram
 
     exam_attempts ||--o{ proctoring_events : "triggers"
 
+    users ||--o{ ai_generation_logs : "reviews and applies"
+    exams |o--o{ ai_generation_logs : "originated from proposal"
+
     users {
         bigint id PK
         varchar name
@@ -180,6 +183,19 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+
+    ai_generation_logs {
+        bigint id PK
+        varchar thread_id
+        bigint actor_id FK
+        varchar prompt_hash
+        varchar proposal_hash UK
+        bigint generated_exam_id FK "nullable"
+        varchar status "applied, rejected, failed"
+        jsonb metadata "blueprint params, validation report"
+        timestamp created_at
+        timestamp updated_at
+    }
 ```
 
 ---
@@ -197,3 +213,5 @@ erDiagram
 | `exam_sessions` $\rightarrow$ `exam_attempts` | **1 : N** | Một ca thi chứa tất cả các lượt làm bài của các thí sinh tham gia. |
 | `exam_attempts` $\rightarrow$ `attempt_answers` | **1 : N** | Mỗi lượt làm bài chứa danh sách các câu trả lời tương ứng với các câu hỏi trong đề. |
 | `exam_attempts` $\rightarrow$ `proctoring_events` | **1 : N** | Mỗi lượt làm bài lưu trữ chuỗi các sự kiện vi phạm giám sát do trình duyệt gửi lên. |
+| `users (teachers)` $\rightarrow$ `ai_generation_logs` | **1 : N** | Một giảng viên có thể tương tác nhiều phiên sinh đề thi với ExamOps Agent. |
+| `exams` $\leftarrow$ `ai_generation_logs` | **0..1 : N** | Đề thi mẫu có thể được tạo tự động từ proposal của Agent hoặc tạo thủ công. |

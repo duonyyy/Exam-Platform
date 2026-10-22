@@ -144,7 +144,7 @@ Bản thiết kế kiến trúc đã hoàn tất thẩm định và đạt đủ
 1. **Quyết định 1 (Phạm vi Foundation):** Chấp nhận phạm vi **Local/Mock-only** với `MockExamPlatformAdapter` gắn nhãn `source="MOCK"` minh bạch trong suốt giai đoạn thiết kế và kiểm thử cho tới khi Laravel Core API hoàn thiện các endpoint thực thi.
 2. **Quyết định 2 (Xác thực Caller & Approver):** Giai đoạn phát triển áp dụng cơ chế xác thực API Key dịch vụ qua header `X-API-Key`. Endpoint `POST /resume` đối chiếu chặt chẽ quyền của người phê duyệt với task owner, chỉ lắng nghe tại `localhost`.
 3. **Quyết định 3 (Chiến lược Model Provider):** Áp dụng kiến trúc Hybrid qua `ModelProvider` Protocol: mặc định dùng `MockModelProvider` hermetic để kiểm thử không phụ thuộc mạng/chi phí, đồng thời tích hợp sẵn adapter cho Google Gemini và OpenAI-compatible cấu hình qua `.env`.
-4. **Quyết định 4 (Thống nhất mô hình miền):** Thống nhất chuẩn theo Database Design: **4 loại câu hỏi** (`single_choice`, `multiple_choice`, `true_false`, `fill_in_the_blank`), **13 bảng CSDL**, và mặc định **1 lượt thi** cho kỳ thi chính thức (`max_attempts = 1`).
+4. **Quyết định 4 (Thống nhất mô hình miền):** Thống nhất chuẩn theo Database Design: **4 loại câu hỏi** (`single_choice`, `multiple_choice`, `true_false`, `short_answer`), **14 bảng CSDL** (bao gồm bảng `ai_generation_logs` phục vụ truy vết proposal của Agent), và mặc định **1 lượt thi** cho kỳ thi chính thức (`max_attempts = 1`).
 
 Toàn bộ ranh giới an ninh, tính toán deterministic toán học và nguyên tắc phân tầng đã được bảo đảm. Bản thiết kế chính thức được phê duyệt để làm cơ sở triển khai.
 

@@ -21,7 +21,7 @@ Hội đồng Kiến trúc đã thực hiện rà soát nghiêm ngặt 22 hạng
 - [x] **Domain model reviewed**: Sơ đồ lớp miền, phân biệt Exam vs Session, Assignment vs Attempt tại `06-DOMAIN_MODEL.md`.
 - [x] **State machines reviewed**: 3 FSM (Question, Session, Attempt) với các bước chuyển bị cấm tuyệt đối tại `07-STATE_MACHINES.md`.
 - [x] **Architecture reviewed**: C4 Level 1 (System Context), C4 Level 2 (Container), Deployment Diagram tại `08-ARCHITECTURE.md`.
-- [x] **Database reviewed**: Đặc tả 13 bảng quan hệ, hành vi tham chiếu FK RESTRICT, Composite Uniques tại `09-DATABASE_DESIGN.md`.
+- [x] **Database reviewed**: Đặc tả 14 bảng quan hệ, hành vi tham chiếu FK RESTRICT, Composite Uniques tại `09-DATABASE_DESIGN.md`.
 - [x] **ERD reviewed**: Sơ đồ Mermaid ERD hoàn chỉnh toàn bộ bảng và bản số quan hệ tại `10-ERD.md`.
 - [x] **Data classification reviewed**: 4 cấp độ dữ liệu (Public, Internal, Sensitive, Highly Sensitive) tại `11-DATA_CLASSIFICATION.md`.
 - [x] **API contract reviewed**: API Inventory, schemas, envelope, status codes chuẩn hóa tại `12-API_DESIGN.md`.
@@ -37,7 +37,7 @@ Hội đồng Kiến trúc đã thực hiện rà soát nghiêm ngặt 22 hạng
 - [x] **Deployment reviewed**: Ma trận môi trường, CI/CD GitHub Actions, Zero-downtime migration tại `21-DEPLOYMENT.md`.
 - [x] **ADRs written**: 6 bản ghi quyết định kiến trúc (`ADR-001` đến `ADR-006`) tại `docs/03-architecture-api/adr/`.
 - [x] **Risks documented**: Bảng đăng ký rủi ro (Risk Register) toàn diện tại `22-RISK_REGISTER.md`.
-- [x] **Implementation plan structured**: Kế hoạch 12 phase chi tiết với DoD nghiêm ngặt tại `23-IMPLEMENTATION_PLAN.md`.
+- [x] **Implementation plan structured**: Kế hoạch 13 phase chi tiết với DoD nghiêm ngặt tại `23-IMPLEMENTATION_PLAN.md`.
 
 ---
 

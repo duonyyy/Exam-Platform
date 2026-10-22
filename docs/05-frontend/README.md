@@ -99,7 +99,7 @@ graph TD
 
 ## 🗺️ 5. Ma Trận 17 Màn Hình Hệ Thống (Master Screen Matrix)
 
-Hệ thống được thiết kế hoàn chỉnh gồm **17 màn hình chức năng**, ánh xạ trực tiếp từ 13 bảng CSDL PostgreSQL và các RESTful Endpoints `/api/v1`:
+Hệ thống được thiết kế hoàn chỉnh gồm **17 màn hình chức năng**, ánh xạ trực tiếp từ 14 bảng CSDL PostgreSQL và các RESTful Endpoints `/api/v1`:
 
 | Mã Màn Hình | Tên Màn Hình & Chức Năng | Route Đường Dẫn | Vai Trò (Actor) | Bảng CSDL Chính | Endpoint RESTful `/api/v1` |
 | :--- | :--- | :--- | :---: | :--- | :--- |
@@ -207,7 +207,7 @@ Khi lập trình hoặc review mã nguồn, luôn tham chiếu chéo với các 
 - [01-PROBLEM_AND_SCOPE.md](../01-requirements/01-PROBLEM_AND_SCOPE.md): Bối cảnh bài toán và phạm vi khảo thí.
 - [04-USE_CASES.md](../01-requirements/04-USE_CASES.md): Danh mục các Use Case nghiệp vụ (`UC-*`).
 - [05-BUSINESS_RULES.md](../01-requirements/05-BUSINESS_RULES.md): 16 Quy tắc nghiệp vụ bất biến (`BR-*`).
-- [09-DATABASE_DESIGN.md](../02-domain-database/09-DATABASE_DESIGN.md): Thiết kế 13 bảng CSDL PostgreSQL.
+- [09-DATABASE_DESIGN.md](../02-domain-database/09-DATABASE_DESIGN.md): Thiết kế 14 bảng CSDL PostgreSQL.
 - [07-STATE_MACHINES.md](../02-domain-database/07-STATE_MACHINES.md): Máy trạng thái FSM Question, Session, Attempt.
 - [12-API_DESIGN.md](../03-architecture-api/12-API_DESIGN.md): Hợp đồng giao tiếp API RESTful backend `/api/v1`.
 - [13-AUTH_AND_ACCESS_CONTROL.md](../04-security-concurrency/13-AUTH_AND_ACCESS_CONTROL.md): Xác thực Sanctum Cookie Proxy và Policy chống IDOR.

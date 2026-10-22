@@ -6,7 +6,7 @@
 **Slogan**: *Thi thông minh. Đánh giá chính xác.*  
 **Căn cứ thiết kế**:
 - **Backend Architecture & APIs**: `docs/03-architecture-api/12-API_DESIGN.md`
-- **Cơ sở dữ liệu 13 bảng**: `docs/02-domain-database/09-DATABASE_DESIGN.md` & `07-STATE_MACHINES.md`
+- **Cơ sở dữ liệu 14 bảng**: `docs/02-domain-database/09-DATABASE_DESIGN.md` & `07-STATE_MACHINES.md`
 - **Use Cases & Business Rules**: `docs/01-requirements/04-USE_CASES.md` & `05-BUSINESS_RULES.md`
 - **Frontend Architecture**: `docs/05-frontend/17-FRONTEND_DESIGN.md`
 - **Brand Guidelines & Tokens**: `docs/05-frontend/THISMART_BRAND_GUIDELINES.md` (`web-client/public/brand/`)

@@ -8,7 +8,7 @@
 
 ## 1. Bảng Tổng hợp Toàn bộ Các Bảng Cơ sở Dữ liệu (Schema Inventory)
 
-Hệ thống được chuẩn hóa trên cơ sở dữ liệu quan hệ **PostgreSQL 16**, bao gồm 13 bảng nghiệp vụ chính thức:
+Hệ thống được chuẩn hóa trên cơ sở dữ liệu quan hệ **PostgreSQL 16**, bao gồm 14 bảng nghiệp vụ chính thức:
 
 | Tên bảng (Table) | Mục đích nghiệp vụ (Purpose) | Khóa chính (PK) | Khóa ngoại (FK) | Ràng buộc duy nhất (Unique) | Chỉ mục quan trọng (Indexes) | Cột dữ liệu cốt lõi (Core Columns) |
 | :--- | :--- | :---: | :--- | :--- | :--- | :--- |
@@ -24,6 +24,7 @@ Hệ thống được chuẩn hóa trên cơ sở dữ liệu quan hệ **Postgr
 | **`exam_attempts`** | Lượt làm bài thực tế của thí sinh | `id` | `exam_session_id`, `student_id` | `(exam_session_id, student_id, attempt_number)` | `exam_session_id`, `student_id`, `status` | `attempt_number`, `status`, `started_at`, `submitted_at`, `score`, `total_points` |
 | **`attempt_answers`** | Câu trả lời chi tiết của thí sinh cho từng câu | `id` | `attempt_id`, `question_id` | `(attempt_id, question_id)` | `attempt_id`, `question_id` | `selected_options (JSONB)`, `awarded_points`, `is_correct` |
 | **`proctoring_events`** | Nhật ký các sự kiện vi phạm từ trình duyệt | `id` | `attempt_id` | Không | `attempt_id`, `event_type`, `severity` | `event_type`, `severity`, `occurred_at`, `metadata (JSONB)` |
+| **`ai_generation_logs`** | Nhật ký truy vết phiên sinh đề thi từ ExamOps Agent | `id` | `actor_id`, `generated_exam_id` (nullable) | `(thread_id, proposal_hash)` | `(actor_id, thread_id)`, `proposal_hash` | `thread_id`, `actor_id`, `prompt_hash`, `proposal_hash`, `generated_exam_id`, `status`, `metadata (JSONB)` |
 | **`personal_access_tokens`**| Bảng quản lý Sanctum Token truy cập API | `id` | Polymorphic `tokenable` | `token` | `tokenable_type + tokenable_id` | `name`, `token`, `abilities`, `last_used_at`, `expires_at` |
 
 ---
@@ -43,6 +44,8 @@ Việc lựa chọn hành động tham chiếu khóa ngoại (`ON DELETE`) quy�
 | `exam_attempts.student_id` | `exam_attempts` $\rightarrow$ `users` | **`RESTRICT`** | Không được xóa tài khoản Sinh viên nếu sinh viên đó đã có lịch sử làm bài và điểm số trong hệ thống. |
 | `attempt_answers.attempt_id` | `attempt_answers` $\rightarrow$ `exam_attempts` | **`CASCADE`** | Nếu một lượt làm bài nháp bị xóa trong giai đoạn dọn dẹp kiểm thử, các câu trả lời thuộc lượt làm bài đó sẽ tự động bị xóa theo. |
 | `proctoring_events.attempt_id` | `proctoring_events` $\rightarrow$ `exam_attempts` | **`CASCADE`** | Log giám sát đi liền với vòng đời của lượt thi. |
+| `ai_generation_logs.actor_id` | `ai_generation_logs` $\rightarrow$ `users` | **`RESTRICT`** | Lưu vết danh tính giảng viên đã duyệt sinh đề; không xóa tài khoản khi còn lịch sử audit log. |
+| `ai_generation_logs.generated_exam_id` | `ai_generation_logs` $\rightarrow$ `exams` | **`SET NULL`** | Nếu đề thi mẫu thử nghiệm bị xóa trong giai đoạn dọn dẹp, vẫn giữ lại bản ghi audit log của Agent. |
 
 ---
 
@@ -73,6 +76,10 @@ Các ràng buộc này được thực thi ở mức nhân CSDL (PostgreSQL Engi
 6. **Ràng buộc điểm câu hỏi dương**:
    ```sql
    ALTER TABLE exam_questions ADD CONSTRAINT chk_exam_question_points CHECK (points > 0);
+   ```
+7. **Ràng buộc chống ghi trùng proposal Agent (Idempotent Blueprint Application)**:
+   ```sql
+   ALTER TABLE ai_generation_logs ADD CONSTRAINT uq_ai_logs_thread_proposal UNIQUE (thread_id, proposal_hash);
    ```
 
 ---
@@ -139,6 +146,9 @@ CREATE INDEX idx_attempt_answers_attempt ON attempt_answers(attempt_id);
 
 -- 6. Tối ưu tra cứu log vi phạm của ca thi theo mức độ nghiêm trọng
 CREATE INDEX idx_proctoring_attempt_severity ON proctoring_events(attempt_id, severity);
+
+-- 7. Tối ưu tra cứu phiên sinh đề thi của giảng viên theo thread
+CREATE INDEX idx_ai_generation_logs_actor_thread ON ai_generation_logs(actor_id, thread_id);
 ```
 
 ---
@@ -221,6 +231,42 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('exam_attempts');
+    }
+};
+```
+
+### 7.3. Migration Bảng `ai_generation_logs` (Phase 13)
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('ai_generation_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('thread_id', 64);
+            $table->foreignId('actor_id')->constrained('users')->restrictOnDelete();
+            $table->string('prompt_hash', 64);
+            $table->string('proposal_hash', 64);
+            $table->foreignId('generated_exam_id')->nullable()->constrained('exams')->nullOnDelete();
+            $table->string('status', 32)->default('applied'); // applied, rejected, failed
+            $table->jsonb('metadata')->nullable();
+            $table->timestamps();
+
+            $table->unique(['thread_id', 'proposal_hash'], 'uq_ai_logs_thread_proposal');
+            $table->index(['actor_id', 'thread_id'], 'idx_ai_logs_actor_thread');
+            $table->index('proposal_hash', 'idx_ai_logs_proposal_hash');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('ai_generation_logs');
     }
 };
 ```

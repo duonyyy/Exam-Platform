@@ -455,7 +455,7 @@ src/
 - [SCREEN_SPECIFICATIONS.md](SCREEN_SPECIFICATIONS.md): Danh mục và ma trận 17 màn hình toàn hệ thống ánh xạ CSDL & RESTful API `/api/v1`.
 - [wireframe/](wireframe/): Hồ sơ wireframe chi tiết từng phân hệ (`01-AUTH`, `02-STUDENT`, `03-TEACHER`, `04-ADMIN`, `05-FOCUS-EXAM-ROOM-SPEC`).
 - [12-API_DESIGN.md](../../03-architecture-api/12-API_DESIGN.md): Hợp đồng giao tiếp API RESTful Backend Laravel `/api/v1`.
-- [09-DATABASE_DESIGN.md](../../02-domain-database/09-DATABASE_DESIGN.md): Thiết kế CSDL 13 bảng quan hệ PostgreSQL 16.
+- [09-DATABASE_DESIGN.md](../../02-domain-database/09-DATABASE_DESIGN.md): Thiết kế CSDL 14 bảng quan hệ PostgreSQL 16.
 - [16-CONSISTENCY_AND_CONCURRENCY.md](../../04-security-concurrency/16-CONSISTENCY_AND_CONCURRENCY.md): Xử lý tranh chấp đồng thời, khóa bi quan nộp bài và Idempotency.
 
 **Lưu ý:** Prototype HTML đi kèm (`wireframe/wireframe-preview.html` và `exam-platform-ui-preview.html`) mô phỏng UI và lưu đáp án cục bộ bằng JavaScript với độ trễ giả lập; không chứa backend, auth, tự động lưu thật, điểm thi thật hoặc chống gian lận thật. Không sử dụng prototype này làm phòng thi production khi chưa triển khai các contract và kiểm thử nêu trên.

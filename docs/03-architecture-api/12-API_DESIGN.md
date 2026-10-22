@@ -49,6 +49,8 @@
 | `/api/v1/exams` | `GET` | Teacher, Admin | Bearer | Danh sách đề thi mẫu | `200 OK` |
 | `/api/v1/exams` | `POST` | Teacher, Admin | Bearer | Tạo mẫu đề thi mới | `201 Created` |
 | `/api/v1/exams/{id}/questions` | `POST` | Teacher, Admin | Bearer | Gán câu hỏi vào đề và gán điểm số | `200 OK` |
+| `/api/v1/exams/from-blueprint` | `POST` | Teacher, Admin | Bearer | Tạo Exam từ proposal của AI Copilot (Human Review Gate) | `201 Created` |
+| `/api/v1/exams/{id}/readiness-review` | `GET` | Teacher, Admin | Bearer | Thẩm định độ sẵn sàng và phân bố độ khó đề thi | `200 OK` |
 | `/api/v1/exam-sessions` | `GET` | Teacher, Admin | Bearer | Danh sách ca thi có phân trang và lọc theo trạng thái | `200 OK` |
 | `/api/v1/exam-sessions` | `POST` | Teacher, Admin | Bearer | Tạo ca thi cụ thể theo lịch trình | `201 Created` |
 | `/api/v1/exam-sessions/{id}` | `GET` | Teacher, Admin | Bearer | Xem thông tin chi tiết ca thi | `200 OK` |
@@ -139,6 +141,46 @@ Response `201` và response danh sách dùng `QuestionAdminResource` trong `data
     - `scoreboard`: Bảng điểm chi tiết từng thí sinh (kèm xếp loại học lực: Xuất sắc, Giỏi, Khá, Trung bình, Yếu, số vi phạm giám sát `violations_count`, thời gian làm bài `duration_seconds`).
     - `pagination`: Thông tin phân trang danh sách thí sinh.
   - Tối ưu hóa CSDL: Đã tạo chỉ mục composite `(exam_session_id, status)` và `(exam_session_id, score)` trên `exam_attempts`, chỉ mục `(question_id, is_correct)` và `(attempt_id, is_correct)` trên `attempt_answers`. Truy vấn đạt $O(1)$ constant query count không có N+1.
+
+### Hợp đồng Phase 13: Điều phối AI ExamOps & Tự động Hóa Soạn Đề (ExamOps AI Copilot & Blueprint Integration)
+
+- `POST /api/v1/exams/from-blueprint`: Endpoint tiếp nhận bản đề xuất cấu trúc đề thi đã được Giảng viên phê duyệt tại Human Review Gate trên UI Next.js.
+  - Phân quyền: `SubjectPolicy@createInSubject` chống IDOR. Giảng viên chỉ được tạo đề thi cho môn học mà mình đang là `owner_teacher_id` (Admin có quyền tạo trên mọi môn).
+  - Headers bắt buộc: `Authorization: Bearer <token>`, `Content-Type: application/json`.
+  - Body bắt buộc (`StoreExamFromBlueprintRequest`):
+    - `thread_id`: chuỗi string (1–64 ký tự), định danh phiên hội thoại của Agent.
+    - `prompt_hash`: chuỗi hex SHA-256 (64 ký tự), băm yêu cầu ban đầu của Giảng viên.
+    - `proposal_hash`: chuỗi hex SHA-256 (64 ký tự), chữ ký số băm của proposal cấu trúc đề thi.
+    - `subject_id`: integer, ID môn học tồn tại.
+    - `title`: chuỗi string (1–255 ký tự).
+    - `duration_minutes`: integer (1–10080).
+    - `pass_score`: số thực không âm ($\ge 0$).
+    - `shuffle_questions`: boolean.
+    - `shuffle_options`: boolean.
+    - `questions`: mảng 1–100 phần tử, mỗi phần tử gồm:
+      - `question_id`: integer dương, câu hỏi phải tồn tại, thuộc `subject_id`, chưa bị xóa mềm, và có `status = 'ready'`.
+      - `order`: integer dương, duy nhất trong mảng.
+      - `points`: số thực dương ($> 0$), tối đa 2 chữ số thập phân.
+  - Transaction Boundary & Concurrency:
+    - Mở `DB::transaction()`:
+      1. Khóa kiểm tra chống ghi trùng `ai_generation_logs` với `(thread_id, proposal_hash)`. Nếu đã tồn tại, trả về `409 DUPLICATE_PROPOSAL_APPLIED`.
+      2. Khóa Subject để xác thực quyền giảng viên phụ trách.
+      3. Khóa và kiểm tra toàn bộ `questions` theo thứ tự ID tăng dần (ngăn deadlock).
+      4. Tạo bản ghi `exams` với `total_points = SUM(points)`.
+      5. Gán hàng loạt vào `exam_questions`.
+      6. Ghi nhận `ai_generation_logs` với `status = 'applied'`, `actor_id = Auth::id()`, `generated_exam_id = exam.id`, metadata lưu tóm tắt ma trận Bloom & phân bổ độ khó.
+  - Response `201 Created`: Trả về `ExamResource` kèm đối tượng `ai_generation_log` metadata.
+
+- `GET /api/v1/exams/{id}/readiness-review`: Endpoint thẩm định độ sẵn sàng tổ chức thi của một đề thi mẫu (sử dụng cho Giảng viên trên Web Client hoặc công cụ kiểm định của Agent).
+  - Phân quyền: `ExamPolicy@view`.
+  - Kiểm tra các tiêu chuẩn khảo thí:
+    - Tổng số câu hỏi đã gán (`questions_count`).
+    - Tổng điểm và điểm sàn (`total_points`, `pass_score`), cảnh báo nếu `pass_score > total_points`.
+    - Phân bổ độ khó: số lượng và tỷ lệ % của từng mức `easy`, `medium`, `hard`.
+    - Độ bao phủ chủ đề: số lượng chủ đề (`topics`) có câu hỏi trong đề thi so với tổng số chủ đề của môn học.
+    - Trạng thái sẵn sàng: cờ `is_ready_for_session` (true nếu $\ge 1$ câu hỏi và mọi câu hỏi đều ở trạng thái `ready`).
+  - Response `200 OK`: `{"data": {"exam_id": 1, "title": "Đề thi Giữa kỳ", "is_ready_for_session": true, "total_questions": 40, "total_points": 10.0, "difficulty_distribution": {"easy": {"count": 16, "percentage": 40.0}, "medium": {"count": 16, "percentage": 40.0}, "hard": {"count": 8, "percentage": 20.0}}, "topics_covered": [...]}}`.
+
 
 ### Quyền và dữ liệu Subject
 

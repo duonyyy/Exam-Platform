@@ -41,7 +41,7 @@
           <mxGeometry x="360" y="230" width="380" height="120" as="geometry" />
         </mxCell>
 
-        <mxCell id="db_postgres" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;PostgreSQL 16 Database&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;13 Bảng CSDL ACID, JSONB Questions&lt;br&gt;Pessimistic Locking (lockForUpdate)&lt;br&gt;Composite Indexes, Foreign Key Constraints&lt;br&gt;&lt;b&gt;Port: 5432&lt;/b&gt;&lt;/span&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;" vertex="1" parent="container_boundary">
+        <mxCell id="db_postgres" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;PostgreSQL 16 Database&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;14 Bảng CSDL ACID, JSONB Questions&lt;br&gt;Pessimistic Locking (lockForUpdate)&lt;br&gt;Composite Indexes, Foreign Key Constraints&lt;br&gt;&lt;b&gt;Port: 5432&lt;/b&gt;&lt;/span&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;" vertex="1" parent="container_boundary">
           <mxGeometry x="220" y="380" width="300" height="110" as="geometry" />
         </mxCell>
 

@@ -58,4 +58,4 @@ Mọi giao diện trong hệ thống được phân lập thành 2 loại Shell 
 - [17-FRONTEND_DESIGN.md](../17-FRONTEND_DESIGN.md): Đặc tả kiến trúc Next.js App Router, TanStack Query và State Ownership.
 - [SCREEN_SPECIFICATIONS.md](../SCREEN_SPECIFICATIONS.md): Danh mục 17 màn hình chi tiết và ma trận logic CSDL/API.
 - [12-API_DESIGN.md](../../03-architecture-api/12-API_DESIGN.md): Hợp đồng giao tiếp API RESTful backend `/api/v1`.
-- [09-DATABASE_DESIGN.md](../../02-domain-database/09-DATABASE_DESIGN.md): Lược đồ 13 bảng CSDL PostgreSQL.
+- [09-DATABASE_DESIGN.md](../../02-domain-database/09-DATABASE_DESIGN.md): Lược đồ 14 bảng CSDL PostgreSQL.
