@@ -56,4 +56,10 @@ class Exam extends Model
     {
         return $this->hasMany(ExamSession::class);
     }
+
+    /** @return HasMany<AiGenerationLog, $this> */
+    public function aiGenerationLogs(): HasMany
+    {
+        return $this->hasMany(AiGenerationLog::class, 'generated_exam_id');
+    }
 }

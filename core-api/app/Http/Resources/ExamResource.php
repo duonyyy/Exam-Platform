@@ -22,6 +22,22 @@ class ExamResource extends JsonResource
             'shuffle_questions' => $this->shuffle_questions,
             'shuffle_options' => $this->shuffle_options,
             'questions_count' => $this->whenCounted('questions'),
+            'ai_generation_log' => $this->whenLoaded('aiGenerationLogs', function () {
+                $log = $this->aiGenerationLogs->first();
+                if ($log === null) {
+                    return null;
+                }
+
+                return [
+                    'id' => $log->id,
+                    'thread_id' => $log->thread_id,
+                    'prompt_hash' => $log->prompt_hash,
+                    'proposal_hash' => $log->proposal_hash,
+                    'status' => $log->status,
+                    'metadata' => $log->metadata,
+                    'created_at' => $log->created_at?->toIso8601String(),
+                ];
+            }),
             'created_by' => $this->created_by,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
