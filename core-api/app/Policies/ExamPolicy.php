@@ -24,6 +24,12 @@ class ExamPolicy
             && ($user->isAdmin() || $subject->owner_teacher_id === $user->id);
     }
 
+    public function view(User $user, Exam $exam): bool
+    {
+        return $this->viewAny($user)
+            && ($user->isAdmin() || $exam->subject->owner_teacher_id === $user->id);
+    }
+
     public function update(User $user, Exam $exam): bool
     {
         return $this->viewAny($user)

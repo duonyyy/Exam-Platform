@@ -58,9 +58,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/questions', [QuestionController::class, 'store'])->name('api.v1.questions.store');
         Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('api.v1.questions.update');
         Route::patch('/questions/{question}/status', [QuestionController::class, 'changeStatus'])->name('api.v1.questions.status');
-        // Exam Templates & Assembly (Phase 5)
+        // Exam Templates & Assembly (Phase 5) & AI Copilot Blueprint (Phase 13)
         Route::get('/exams', [ExamController::class, 'index'])->name('api.v1.exams.index');
         Route::post('/exams', [ExamController::class, 'store'])->name('api.v1.exams.store');
+        Route::post('/exams/from-blueprint', [ExamController::class, 'storeFromBlueprint'])->name('api.v1.exams.from-blueprint');
+        Route::get('/exams/{exam}/readiness-review', [ExamController::class, 'readinessReview'])->name('api.v1.exams.readiness-review');
         Route::post('/exams/{exam}/questions', [ExamController::class, 'attachQuestions'])->name('api.v1.exams.questions.store');
         // Exam Sessions Lifecycle (Phase 6)
         Route::get('/exam-sessions', [ExamSessionController::class, 'index'])->name('api.v1.exam-sessions.index');
