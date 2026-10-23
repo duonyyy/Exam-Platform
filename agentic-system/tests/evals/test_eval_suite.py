@@ -156,3 +156,47 @@ def test_eval_scenario_6_network_timeout() -> None:
         with pytest.raises(ExamPlatformClientError) as exc_info:
             client.list_subjects()
         assert "HTTP error" in str(exc_info.value)
+
+
+# ── Scenario 7: Materialize Blueprint via Platform Client ──────
+def test_eval_scenario_7_client_create_exam_from_blueprint() -> None:
+    from examops.config import Settings
+    from examops.platform_client import ExamPlatformClient
+
+    client = ExamPlatformClient(Settings(EXAM_PLATFORM_MOCK=True))
+    payload = {
+        "thread_id": "thread_eval_07",
+        "prompt_hash": "a" * 64,
+        "proposal_hash": "b" * 64,
+        "subject_id": 1,
+        "title": "Evaluated Blueprint Exam",
+        "duration_minutes": 60,
+        "pass_score": 5.0,
+        "shuffle_questions": True,
+        "shuffle_options": True,
+        "questions": [
+            {"question_id": 10, "order": 1, "points": 5.0},
+            {"question_id": 11, "order": 2, "points": 5.0},
+        ],
+    }
+
+    result = client.create_exam_from_blueprint(payload)
+    assert result["source"] == "MOCK"
+    assert result["data"]["id"] == 101
+    assert result["data"]["total_points"] == 10.0
+    assert result["data"]["questions_count"] == 2
+
+
+# ── Scenario 8: Audit Exam Readiness via Platform Client ───────
+def test_eval_scenario_8_client_get_exam_readiness_review() -> None:
+    from examops.config import Settings
+    from examops.platform_client import ExamPlatformClient
+
+    client = ExamPlatformClient(Settings(EXAM_PLATFORM_MOCK=True))
+    result = client.get_exam_readiness_review(101)
+
+    assert result["source"] == "MOCK"
+    assert result["data"]["is_ready_for_session"] is True
+    assert result["data"]["total_questions"] == 40
+    assert result["data"]["difficulty_distribution"]["easy"]["percentage"] == 40.0
+

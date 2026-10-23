@@ -172,3 +172,67 @@ class ExamPlatformClient:
         except httpx.HTTPError as err:
             logger.error("Failed to fetch session: %s", err)
             raise ExamPlatformClientError(f"HTTP error fetching session: {err}") from err
+
+    def create_exam_from_blueprint(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Materialize approved blueprint proposal into Exam Platform Core API."""
+        if self.is_mock:
+            questions = payload.get("questions", [])
+            total_points = sum(float(q.get("points", 1.0)) for q in questions)
+            return {
+                "source": "MOCK",
+                "data": {
+                    "id": 101,
+                    "title": payload.get("title", "Exam from Blueprint"),
+                    "subject_id": payload.get("subject_id", 1),
+                    "total_points": total_points,
+                    "questions_count": len(questions),
+                    "ai_generation_log": {
+                        "thread_id": payload.get("thread_id", "mock-thread"),
+                        "proposal_hash": payload.get("proposal_hash", "mock-hash"),
+                        "status": "applied",
+                    },
+                },
+            }
+
+        try:
+            resp = self._client.post("/exams/from-blueprint", json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            return {"source": "LIVE", "data": data.get("data", data)}
+        except httpx.HTTPError as err:
+            logger.error("Failed to create exam from blueprint: %s", err)
+            raise ExamPlatformClientError(f"HTTP error creating exam from blueprint: {err}") from err
+
+    def get_exam_readiness_review(self, exam_id: str | int) -> dict[str, Any]:
+        """Fetch exam readiness review metrics from Core API."""
+        if self.is_mock:
+            return {
+                "source": "MOCK",
+                "data": {
+                    "exam_id": exam_id,
+                    "title": "Mock Exam Readiness",
+                    "is_ready_for_session": True,
+                    "total_questions": 40,
+                    "total_points": 10.0,
+                    "pass_score": 5.0,
+                    "difficulty_distribution": {
+                        "easy": {"count": 16, "percentage": 40.0},
+                        "medium": {"count": 16, "percentage": 40.0},
+                        "hard": {"count": 8, "percentage": 20.0},
+                    },
+                    "topics_covered": [
+                        {"topic_id": 1, "topic_name": "Core Syntax", "question_count": 20, "percentage": 50.0},
+                        {"topic_id": 2, "topic_name": "Algorithms", "question_count": 20, "percentage": 50.0},
+                    ],
+                    "warnings": [],
+                },
+            }
+
+        try:
+            resp = self._client.get(f"/exams/{exam_id}/readiness-review")
+            resp.raise_for_status()
+            data = resp.json()
+            return {"source": "LIVE", "data": data.get("data", data)}
+        except httpx.HTTPError as err:
+            logger.error("Failed to fetch exam readiness review: %s", err)
+            raise ExamPlatformClientError(f"HTTP error fetching readiness review: {err}") from err
