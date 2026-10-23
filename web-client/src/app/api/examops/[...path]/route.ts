@@ -166,7 +166,10 @@ function handleSimulatedResponse(subPath: string, method: string, body: any) {
           total_points: totalPoints,
           pass_score: passScore,
         },
-        proposal_hash: `sha256_${Math.random().toString(36).substring(2, 12)}`,
+        proposal_hash: require("crypto")
+          .createHash("sha256")
+          .update(JSON.stringify({ subject, title: blueprint.title, totalQuestions, durationMinutes }))
+          .digest("hex"),
         proposed_by: "ExamOps-Agent-v0.1.0",
         reason: `Giảng viên đã yêu cầu ghi đề thi vào Exam Platform. Theo Hiến pháp AGENTS.md, thao tác ghi vào SoR bắt buộc phải có sự phê duyệt của Giảng viên.`,
       };

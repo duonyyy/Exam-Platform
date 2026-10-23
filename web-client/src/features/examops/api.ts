@@ -82,3 +82,56 @@ export async function getAgentHealth(): Promise<AgentHealthResponse> {
 
   return response.json();
 }
+
+/**
+ * Materialize approved blueprint into Core API database (/api/proxy/exams/from-blueprint)
+ */
+export async function createExamFromBlueprint(
+  payload: import("./types").StoreExamFromBlueprintPayload
+): Promise<{ data: import("./types").GeneratedExamData }> {
+  const response = await fetch("/api/proxy/exams/from-blueprint", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.message ||
+        errorData?.detail ||
+        "Không thể tạo đề thi từ bản đề xuất blueprint."
+    );
+  }
+
+  return response.json();
+}
+
+/**
+ * Audit readiness of an exam from Core API (/api/proxy/exams/{id}/readiness-review)
+ */
+export async function getExamReadinessReview(
+  examId: number
+): Promise<{ data: import("./types").ExamReadinessReviewData }> {
+  const response = await fetch(`/api/proxy/exams/${examId}/readiness-review`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.message ||
+        errorData?.detail ||
+        "Không thể thẩm định độ sẵn sàng của đề thi."
+    );
+  }
+
+  return response.json();
+}
+

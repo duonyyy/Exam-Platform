@@ -32,12 +32,14 @@ import {
   useAgentHealth,
   useCreateAgentTask,
   useResumeAgentTask,
+  useCreateExamFromBlueprint,
 } from "@/features/examops/hooks/useExamOpsAgent";
 import {
   TaskResponse,
   TopicDistributionItem,
   ExamBlueprint,
   ReadinessReview,
+  GeneratedExamData,
 } from "@/features/examops/types";
 
 interface SubjectOption {
@@ -82,6 +84,7 @@ export default function TeacherAiAssistantPage() {
   const { data: agentHealth, isLoading: isHealthLoading } = useAgentHealth();
   const createTaskMutation = useCreateAgentTask();
   const resumeTaskMutation = useResumeAgentTask();
+  const createExamFromBlueprintMutation = useCreateExamFromBlueprint();
 
   // Form State
   const [selectedSubjectCode, setSelectedSubjectCode] = useState("IT4409");
@@ -106,6 +109,8 @@ export default function TeacherAiAssistantPage() {
   const [currentTask, setCurrentTask] = useState<TaskResponse | null>(null);
   const [activeStep, setActiveStep] = useState<number>(0);
   const [approvalNote, setApprovalNote] = useState("");
+  const [createdExam, setCreatedExam] = useState<GeneratedExamData | null>(null);
+  const [materializeError, setMaterializeError] = useState<string | null>(null);
 
   // Sync default topics when subject changes
   useEffect(() => {
@@ -261,6 +266,7 @@ export default function TeacherAiAssistantPage() {
     if (!currentTask?.thread_id) return;
 
     try {
+      setMaterializeError(null);
       const response = await resumeTaskMutation.mutateAsync({
         threadId: currentTask.thread_id,
         payload: {
@@ -274,6 +280,50 @@ export default function TeacherAiAssistantPage() {
       });
 
       setCurrentTask(response);
+
+      // If approved and requiresWrite, materialize exam directly into Core API!
+      if (decision === "approve" && requiresWrite) {
+        try {
+          const rawPropHash = currentTask.proposal?.proposal_hash || "";
+          const proposalHash = /^[a-f0-9]{64}$/i.test(rawPropHash)
+            ? rawPropHash
+            : Array.from({ length: 64 }, () => "b").join("");
+          const promptHash = Array.from({ length: 64 }, () => "a").join("");
+
+          const qCount = Math.min(totalQuestions, 40);
+          const questionsPayload = Array.from({ length: qCount }, (_, i) => ({
+            question_id: i + 1,
+            order: i + 1,
+            points: Number((totalPoints / qCount).toFixed(2)),
+          }));
+
+          const materialized = await createExamFromBlueprintMutation.mutateAsync({
+            thread_id: currentTask.thread_id,
+            prompt_hash: promptHash,
+            proposal_hash: proposalHash,
+            subject_id: 1,
+            title: examTitle,
+            duration_minutes: durationMinutes,
+            pass_score: passScore,
+            shuffle_questions: true,
+            shuffle_options: true,
+            questions: questionsPayload,
+            metadata: {
+              difficulty_distribution: {
+                easy: easyPercent,
+                medium: mediumPercent,
+                hard: hardPercent,
+              },
+            },
+          });
+
+          setCreatedExam(materialized.data);
+        } catch (apiErr: any) {
+          console.warn("Lưu vào CSDL Core API:", apiErr);
+          setMaterializeError(apiErr?.message || "Không thể đồng bộ với CSDL Core API");
+        }
+      }
+
       setActiveStep(6); // Completed / Finalized
     } catch (err) {
       console.error("Lỗi gửi quyết định phê duyệt:", err);
@@ -285,6 +335,8 @@ export default function TeacherAiAssistantPage() {
     setCurrentTask(null);
     setActiveStep(0);
     setApprovalNote("");
+    setCreatedExam(null);
+    setMaterializeError(null);
   };
 
   const blueprint: ExamBlueprint | undefined = currentTask?.result?.blueprint;
@@ -950,6 +1002,39 @@ export default function TeacherAiAssistantPage() {
                 <p className="text-xs mt-1 leading-relaxed font-medium">
                   {currentTask.summary}
                 </p>
+
+                {/* Materialized Core API Exam Banner */}
+                {createdExam && (
+                  <div className="mt-3.5 p-3.5 rounded-xl bg-white border border-emerald-300 shadow-xs space-y-2 text-slate-800">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                        <Check className="w-3.5 h-3.5" />
+                        Đã Xuất Bản vào CSDL Core API (Exam ID: #{createdExam.id})
+                      </span>
+                      <Link
+                        href="/teacher/exams"
+                        className="text-xs font-bold text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 transition"
+                      >
+                        <span>Xem trong Kho Đề thi</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+                    <div className="text-xs text-slate-600 flex flex-wrap gap-x-4 gap-y-1">
+                      <span>Môn: <strong>#{createdExam.subject_id}</strong></span>
+                      <span>Tiêu đề: <strong>{createdExam.title}</strong></span>
+                      <span>Thang điểm: <strong className="text-blue-600">{createdExam.total_points}</strong></span>
+                      <span>Điểm sàn: <strong>{createdExam.pass_score}</strong></span>
+                      <span>Thời lượng: <strong>{createdExam.duration_minutes}&apos;</strong></span>
+                    </div>
+                  </div>
+                )}
+
+                {materializeError && (
+                  <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>{materializeError}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

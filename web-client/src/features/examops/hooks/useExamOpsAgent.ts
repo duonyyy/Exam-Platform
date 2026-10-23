@@ -6,12 +6,19 @@ import {
   getAgentTask,
   resumeAgentTask,
   getAgentHealth,
+  createExamFromBlueprint,
+  getExamReadinessReview,
 } from "../api";
-import { TaskCreateRequest, TaskResumeRequest } from "../types";
+import {
+  TaskCreateRequest,
+  TaskResumeRequest,
+  StoreExamFromBlueprintPayload,
+} from "../types";
 
 export const EXAM_OPS_QUERY_KEYS = {
   health: ["examops", "health"] as const,
   task: (threadId: string | null) => ["examops", "task", threadId] as const,
+  readiness: (examId: number | null) => ["examops", "readiness", examId] as const,
 };
 
 export function useAgentHealth() {
@@ -61,3 +68,23 @@ export function useResumeAgentTask() {
     },
   });
 }
+
+export function useCreateExamFromBlueprint() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: StoreExamFromBlueprintPayload) => createExamFromBlueprint(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["exams"] });
+    },
+  });
+}
+
+export function useExamReadinessReview(examId: number | null) {
+  return useQuery({
+    queryKey: EXAM_OPS_QUERY_KEYS.readiness(examId),
+    queryFn: () => (examId ? getExamReadinessReview(examId) : Promise.reject("No examId")),
+    enabled: !!examId,
+  });
+}
+

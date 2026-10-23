@@ -110,3 +110,66 @@ export interface AgentHealthResponse {
   model_provider: string;
   mode?: "live" | "simulated";
 }
+
+export interface ExamBlueprintQuestionItem {
+  question_id: number;
+  order: number;
+  points: number;
+}
+
+export interface StoreExamFromBlueprintPayload {
+  thread_id: string;
+  prompt_hash: string;
+  proposal_hash: string;
+  subject_id: number;
+  title: string;
+  duration_minutes: number;
+  pass_score: number;
+  shuffle_questions: boolean;
+  shuffle_options: boolean;
+  questions: ExamBlueprintQuestionItem[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface GeneratedExamData {
+  id: number;
+  subject_id: number;
+  title: string;
+  duration_minutes: number;
+  pass_score: string;
+  total_points: string;
+  shuffle_questions: boolean;
+  shuffle_options: boolean;
+  questions_count?: number;
+  ai_generation_log?: {
+    id: number;
+    thread_id: string;
+    prompt_hash: string;
+    proposal_hash: string;
+    status: string;
+    metadata?: Record<string, unknown>;
+    created_at?: string;
+  };
+}
+
+export interface ExamReadinessReviewData {
+  exam_id: number;
+  title: string;
+  is_ready_for_session: boolean;
+  total_questions: number;
+  total_points: number;
+  pass_score: number;
+  difficulty_distribution: {
+    easy: { count: number; percentage: number };
+    medium: { count: number; percentage: number };
+    hard: { count: number; percentage: number };
+  };
+  topics_covered: Array<{
+    topic_id: number;
+    topic_name: string;
+    question_count: number;
+    percentage: number;
+  }>;
+  warnings: string[];
+}
+
