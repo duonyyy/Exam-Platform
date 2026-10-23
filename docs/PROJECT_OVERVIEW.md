@@ -349,17 +349,16 @@ pie title Tiến Độ Tổng Thể
 |---|---|---|
 | 📄 Tài liệu thiết kế | ✅ **100% hoàn thành** | 40+ files, đầy đủ requirements, domain, API, security, testing |
 | 🐳 Docker Compose | ✅ **Production Ready** | Dev + Production multi-stage containers (`app`, `queue`, `web`, `client`, `agent`, `postgres`, `redis`) |
-| 🔧 Backend (Laravel) | ✅ **Phase 1–12 Completed** | 159 Feature tests PASS 100%, Larastan Level 5 clean, Pint clean |
-| 🎨 Frontend (Next.js) | ✅ **Phase 1–12 Completed** | Dual shell, Focus Exam Room, 25/25 routes standalone build pass |
-| 🤖 ExamOps Agent | ✅ **Đã hoàn thành cấu trúc & Docker** | 6-Node Loop, Mypy strict & 34 tests PASS, hỗ trợ Gemini & Ollama |
-| 🚀 Phase 13 | 🟡 **SPEC APPROVED** | Lớp điều phối AI Copilot & Blueprint Integration sẵn sàng thi công |
+| 🔧 Backend (Laravel) | ✅ **Phase 1–13 Completed** | 170 Feature tests PASS 100%, Larastan Level 5 clean, Pint clean |
+| 🎨 Frontend (Next.js) | ✅ **Phase 1–13 Completed** | Dual shell, Focus Exam Room, Teacher AI Assistant, 26/26 routes standalone build pass |
+| 🤖 ExamOps Agent | ✅ **Đã hoàn thành cấu trúc & Docker** | 6-Node Loop, Mypy strict & 36 tests PASS, hỗ trợ Gemini & Ollama |
+| 🚀 Phase 13 | ✅ **Completed** | Lớp điều phối AI Copilot & Blueprint Integration hoàn tất (Core API + Web Client + Agent) |
 | 📊 Phase 14 | 🟡 **SPEC APPROVED** | Nhập câu hỏi hàng loạt (Excel) & Xuất bảng điểm, báo cáo (Excel/PDF) |
 
 ### Bước tiếp theo ưu tiên
 
-1. **Thi công Phase 13 Backend**: Migration bảng `ai_generation_logs`, Model `AiGenerationLog`, Action `GenerateExamFromBlueprintAction`, Endpoints `/exams/from-blueprint` & `/exams/{id}/readiness-review`
-2. **Thi công Phase 14 Core Khảo Thí**: Services nhập câu hỏi Excel (`QuestionImportService`), xuất bảng điểm ca thi Excel/PDF, xuất đề thi PDF
-3. **End-to-end Integration Test**: Kiểm thử luồng trọn vẹn từ nhập ngân hàng câu hỏi, tạo đề, thi, đến xuất bảng điểm chính thức
+1. **Thi công Phase 14 Core Khảo Thí**: Services nhập câu hỏi Excel (`QuestionImportService`), xuất bảng điểm ca thi Excel/PDF, xuất đề thi PDF
+2. **End-to-end Integration Test**: Kiểm thử luồng trọn vẹn từ nhập ngân hàng câu hỏi, tạo đề, thi, đến xuất bảng điểm chính thức
 
 ---
 

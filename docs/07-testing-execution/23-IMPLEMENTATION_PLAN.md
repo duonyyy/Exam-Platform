@@ -196,14 +196,15 @@
 ---
 
 ### Phase 13 — Lớp Điều phối AI ExamOps & Tự động Hóa Soạn Đề (ExamOps AI Copilot & Blueprint Integration)
-- **Tiến độ**: Đã phê duyệt đặc tả (SPEC APPROVED) — Sẵn sàng thi công.
+- **Tiến độ**: Hoàn thành (COMPLETED) — Full-stack Verification Clean.
 - **Mục tiêu**: Tích hợp sâu chu trình điều phối AI 6 bước của `agentic-system` với `core-api/` và `web-client/`. Cho phép Giảng viên nhập mục tiêu sư phạm (Bloom, tỷ lệ độ khó, phân bổ chủ đề) $\rightarrow$ Agent sinh ma trận đề thi $\rightarrow$ Thẩm định số học $\rightarrow$ Dừng tại cổng duyệt Human-in-the-Loop (`WAITING_FOR_APPROVAL`) $\rightarrow$ Khi giảng viên Approve, tự động xuất bản đề thi mẫu (`Exam`) và gán câu hỏi trực tiếp vào CSDL `core-api`.
 - **Phụ thuộc**: Phase 5, Phase 12, `agentic-system/`.
 - **Tệp tin ảnh hưởng**:
-  - `agentic-system/src/examops/skills.py`, `agentic-system/src/examops/platform_client.py`, `agentic-system/src/examops/graph.py`
-  - `web-client/src/features/examops/*`, `web-client/src/app/(workspace)/teacher/ai-assistant/page.tsx`
-  - `core-api/app/Actions/Exams/GenerateExamFromBlueprintAction.php`, `core-api/app/Http/Controllers/Api/V1/ExamController.php`, `core-api/routes/api.php`
-- **Thay đổi CSDL**: Bổ sung bảng `ai_generation_logs` (`id`, `thread_id`, `actor_id`, `prompt_hash`, `proposal_hash`, `generated_exam_id`, `status`, `metadata` JSONB, index `idx_ai_logs_actor_thread`).
+  - `agentic-system/src/examops/platform_client.py`, `agentic-system/tests/evals/test_eval_suite.py`
+  - `web-client/src/features/examops/*`, `web-client/src/app/(workspace)/teacher/ai-assistant/page.tsx`, `web-client/src/app/api/examops/[...path]/route.ts`
+  - `core-api/database/migrations/2026_10_23_000001_create_ai_generation_logs_table.php`, `core-api/app/Models/AiGenerationLog.php`, `core-api/app/Models/Exam.php`
+  - `core-api/app/Actions/Exams/GenerateExamFromBlueprintAction.php`, `core-api/app/Http/Controllers/Api/V1/ExamController.php`, `core-api/app/Http/Requests/Exams/StoreExamFromBlueprintRequest.php`, `core-api/app/Http/Resources/ExamResource.php`, `core-api/app/Policies/ExamPolicy.php`, `core-api/routes/api.php`
+- **Thay đổi CSDL**: Bổ sung bảng `ai_generation_logs` (`id`, `thread_id`, `actor_id`, `prompt_hash`, `proposal_hash`, `generated_exam_id`, `status`, `metadata` JSONB, index `idx_ai_logs_actor_thread`, unique index `unique_thread_proposal` chống replay).
 - **Endpoints**:
   - `POST /api/v1/exams/from-blueprint` (Tiếp nhận proposal đã duyệt từ Human Review Gate để sinh Exam thật trong CSDL)
   - `GET /api/v1/exams/{id}/readiness-review` (Thẩm định độ sẵn sàng của đề thi hiện hữu qua Agent Tool)
@@ -211,7 +212,12 @@
   - Giảng viên chỉ được tạo đề cho môn học mình phụ trách (kiểm tra `SubjectPolicy@createInSubject`).
   - Xác thực chữ ký số học `proposal_hash` SHA-256 bất biến ngăn chặn thay đổi nội dung giữa bước duyệt và bước ghi.
   - Fail-closed: AI tuyệt đối không có quyền truy cập trực tiếp database PostgreSQL, mọi thao tác ghi đều thông qua REST API có xác thực Sanctum Token của Giảng viên.
-- **Tests**: `tests/Feature/Exams/GenerateExamFromBlueprintTest.php`, `tests/evals/test_eval_suite.py` trong `agentic-system`.
+  - Chống deadlock bằng cách sắp xếp và khóa câu hỏi theo thứ tự ID tăng dần (`Question::whereIn('id', $ids)->orderBy('id')->lockForUpdate()`).
+  - Chống replay bằng khóa bi quan `AiGenerationLog` và ràng buộc `unique_thread_proposal` $\rightarrow$ 409 Conflict.
+- **Tests**:
+  - Backend: `GenerateExamFromBlueprintTest.php` (11 tests pass 100%), tổng 170 feature tests pass (1186 assertions).
+  - Agentic System: `test_eval_suite.py` (36 tests pass 100% in 0.75s), mypy strict & ruff clean.
+  - Frontend: `tsc --noEmit` clean 0 errors, Next.js production build pass (26/26 pages).
 - **DoD**: Giảng viên bấm Approve trên giao diện Next.js $\rightarrow$ Đề thi mới xuất hiện ngay trong CSDL Core API với đầy đủ câu hỏi và thang điểm chính xác; 100% tests PASS; Larastan Level 5 clean.
 
 ---
