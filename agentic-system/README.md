@@ -1,6 +1,8 @@
 # ExamOps Agent — Intelligent Orchestration Layer
 
-Dịch vụ AI Agent điều phối thông minh cho Hệ thống Thi Trực Tuyến (**Exam Platform**), xây dựng bằng **Python 3.11+**, **FastAPI**, **LangGraph**, và **Pydantic**.
+Dịch vụ AI Agent điều phối thông minh cho Hệ thống Thi Trực Tuyến (**Exam Platform**), xây dựng bằng **Python 3.11+**, **FastAPI**, **LangGraph**, và **Pydantic v2**. 
+
+Dự án áp dụng kiến trúc phân tầng sạch (**Clean Layered Architecture**) kết hợp khung quản trị kỹ thuật chuẩn công nghiệp (**BMAD & Production AI Agent Template**).
 
 ---
 
@@ -45,105 +47,111 @@ flowchart TD
   I --> G
 ```
 
-1. **Intake**: Phân tích cú pháp, trích xuất `AgentGoal`, kiểm tra quyền của `actor`.
-2. **Plan**: Xác định kỹ năng miền (`exam-blueprint` hoặc `exam-readiness-review`) và danh mục công cụ cho phép.
-3. **Execute**: Thực thi tác vụ nguyên tử hoặc truy vấn dữ liệu từ API.
-4. **Verify**: Thẩm định toán học (tổng tỷ lệ % = 100%, số câu nguyên dương, deduplication, status approved).
-5. **Human Review**: Cổng ngắt (`interrupt`) tự động khi có đề xuất ghi dữ liệu hoặc tác động phòng thi.
-6. **Finalize**: Đóng gói `FinalResult` kèm bằng chứng xác thực (`VerificationResult`) và cập nhật trạng thái terminal.
+1. **Intake (`nodes/intake.py`)**: Phân tích cú pháp, trích xuất `AgentGoal`, kiểm tra quyền của `actor`.
+2. **Plan (`nodes/plan.py`)**: Xác định kỹ năng miền (`exam-blueprint` hoặc `exam-readiness-review`) và danh mục công cụ cho phép.
+3. **Execute (`nodes/execute.py`)**: Thực thi tác vụ nguyên tử hoặc truy vấn dữ liệu từ API.
+4. **Verify (`nodes/verify.py`)**: Thẩm định toán học (tổng tỷ lệ % = 100%, số câu nguyên dương, deduplication, status approved).
+5. **Human Review (`nodes/approval.py`)**: Cổng ngắt (`interrupt`) tự động khi có đề xuất ghi dữ liệu hoặc tác động phòng thi.
+6. **Finalize (`nodes/finalize.py`)**: Đóng gói `FinalResult` kèm bằng chứng xác thực (`VerificationResult`) và cập nhật trạng thái terminal.
 
 ---
 
-## 📂 3. Cấu Trúc Thư Mục Chuẩn (Directory Layout)
+## 📂 3. Cấu Trúc Phân Lớp Đã Tái Cấu Trúc (Refactored Directory Layout)
 
 ```text
 agentic-system/
-├── pyproject.toml              # Cấu hình dự án Python & dependencies (uv)
+├── ARCHITECTURE.md             # Tài liệu thiết kế hệ thống chi tiết & sơ đồ Mermaid
+├── JOURNAL.md                  # Nhật ký kỹ thuật và học tập hàng tuần
+├── WORKLOG.md                  # Bảng phân công tác vụ và theo dõi tiến độ
+├── SECURITY.md                 # Chính sách an toàn & quy trình ứng phó lộ khóa
+├── Makefile                    # Phím tắt tự động hóa: run, test, eval, lint, format
+├── pyproject.toml              # Cấu hình dự án Python & dependencies
 ├── .env.example                # Biến môi trường mẫu
-├── .gitignore                  # Bỏ qua venv, cache, database checkpoints
-├── README.md                   # Tài liệu hướng dẫn này
+├── .gitignore                  # Cấu hình bỏ qua venv, cache, checkpoints
 ├── data/                       # Thư mục lưu trữ SQLite checkpoints cục bộ
-│   └── .gitignore
-├── src/examops/                # Mã nguồn chính
-│   ├── __init__.py
-│   ├── main.py                 # FastAPI application & REST endpoints
+├── src/examops/                # Mã nguồn chính phân lớp chuẩn công nghiệp
+│   ├── api/                    # Tầng giao tiếp REST API
+│   │   ├── __init__.py
+│   │   └── routes.py           # Endpoints: /tasks, /tasks/{id}, /resume, /health
+│   ├── nodes/                  # 6 Nodes điều phối của LangGraph StateGraph
+│   │   ├── __init__.py
+│   │   ├── intake.py           # Node 1: Intake & Actor validation
+│   │   ├── plan.py             # Node 2: Planning & tool allowlisting
+│   │   ├── execute.py          # Node 3: Skill & platform execution
+│   │   ├── verify.py           # Node 4: Math & Bloom verification
+│   │   ├── approval.py         # Node 5a & 5b: Human-in-the-Loop Gate
+│   │   └── finalize.py         # Node 6: Finalize terminal state
+│   ├── tools/                  # Tầng công cụ (Least-Privilege Tool Registry)
+│   │   ├── __init__.py
+│   │   ├── contracts.py        # ToolContract & RegisteredTool wrapper
+│   │   └── registry.py         # Registry thực thi chính sách đặc quyền tối thiểu
+│   ├── services/               # Tầng dịch vụ hạ tầng
+│   │   ├── __init__.py
+│   │   ├── llm.py              # LLM Model Provider factory (Mock, Gemini, OpenAI)
+│   │   └── platform.py         # ExamPlatformClient (HTTPX client)
+│   ├── models/                 # Tầng dữ liệu & Pydantic Schemas
+│   │   ├── __init__.py
+│   │   └── schemas.py          # DTOs, Blueprints, ReadinessReview models
 │   ├── config.py               # Cấu hình Pydantic Settings
-│   ├── schemas.py              # Pydantic Schemas & DTOs
-│   ├── state.py                # AgentState 18 trường dữ liệu
-│   ├── graph.py                # LangGraph StateGraph builder & router
-│   ├── model.py                # ModelProvider Protocol (Mock, Gemini, OpenAI)
-│   ├── platform_client.py      # HTTPX safe client gọi core-api
-│   ├── tools.py                # Tool Registry & typed contracts
-│   ├── skills.py               # Kỹ năng miền (Blueprint, Readiness Review)
-│   ├── verification.py         # Thẩm định deterministic & toán học
-│   ├── permissions.py          # Kiểm tra phân quyền Least-Privilege
-│   ├── persistence.py          # Quản lý vòng đời SQLite Checkpointer
-│   └── telemetry.py            # OpenTelemetry & Structured Audit Events
+│   ├── graph.py                # StateGraph assembler & compiler
+│   ├── main.py                 # FastAPI application root & middleware
+│   ├── model.py                # Model Provider protocol & adapters
+│   ├── permissions.py          # Ma trận quyền hạn Actor RBAC
+│   ├── persistence.py          # Quản lý SQLite Checkpointer
+│   ├── platform_client.py      # HTTPX client kết nối core-api
+│   ├── schemas.py              # Schema gốc
+│   ├── skills.py               # Kỹ năng miền (Blueprint & Readiness Review)
+│   ├── state.py                # AgentState schema
+│   ├── telemetry.py            # OpenTelemetry & Structured Audit Log
+│   └── verification.py         # Engine thẩm định toán học tất định
 ├── tests/                      # Bộ kiểm thử tự động
-│   ├── __init__.py
 │   ├── conftest.py             # Fixtures dùng chung
-│   ├── unit/                   # Kiểm thử đơn vị (Schemas, Skills, Verification...)
-│   ├── integration/            # Kiểm thử tích hợp (API, Graph flow, Checkpoints)
-│   └── evals/                  # 6 kịch bản Evaluation Suite chuẩn mực
-└── docs/                       # Tài liệu kỹ thuật chi tiết
-    ├── 01-ARCHITECTURE.md
-    ├── 02-AGENT-LOOP.md
-    ├── 03-TOOL-AND-SKILL-CONTRACTS.md
-    └── 04-SECURITY-AND-VERIFICATION.md
+│   ├── unit/                   # Kiểm thử đơn vị (Schemas, Skills, Verification, Tools)
+│   ├── integration/            # Kiểm thử tích hợp (API, Graph flow, Persistence)
+│   └── evals/                  # Bộ lượng giá 8 kịch bản nghiệp vụ khảo thí
+├── docs/                       # Tài liệu kỹ thuật dự án
+│   ├── 01-ARCHITECTURE.md
+│   ├── 02-AGENT-LOOP.md
+│   ├── 03-TOOL-AND-SKILL-CONTRACTS.md
+│   ├── 04-SECURITY-AND-VERIFICATION.md
+│   └── guide/                  # Bộ Technical Guidebook 10 chương chuyên sâu
+├── eval/                       # Báo cáo đánh giá định lượng chất lượng Agent
+│   └── results/report.md
+├── presentation/               # Slide deck & kịch bản demo trực tiếp
+└── scripts/                    # Scripts tự động thiết lập môi trường
+    ├── setup.sh                # Linux / macOS / WSL
+    └── setup.ps1               # Windows PowerShell
 ```
 
 ---
 
-## 🚀 4. Hướng Dẫn Cài Đặt & Khởi Chạy
+## 🚀 4. Hướng Dẫn Vận Hành & Lệnh Makefile
 
-### Yêu cầu tiên quyết:
-- **Python**: `>= 3.11` (khuyên dùng Python 3.11 - 3.13)
-- **uv**: Trình quản lý gói & môi trường Python siêu tốc
-
-### Các bước cài đặt:
-
+### Khởi chạy môi trường ảo:
 ```bash
-# 1. Di chuyển vào thư mục agentic-system
-cd agentic-system
+# Windows
+.\scripts\setup.ps1
 
-# 2. Khởi tạo môi trường ảo và cài đặt dependencies
-uv sync --all-extras
-
-# 3. Sao chép cấu hình môi trường
-cp .env.example .env
-
-# 4. Khởi chạy máy chủ phát triển (Port 8001 đồng bộ với Web Client Proxy và tránh xung đột Core API 8000)
-uv run uvicorn examops.main:app --reload --host 127.0.0.1 --port 8001
+# Linux / macOS
+chmod +x scripts/setup.sh && ./scripts/setup.sh
 ```
 
-### Chạy kiểm thử tự động (Test Suite):
-
+### Các lệnh tắt với `make`:
 ```bash
-# Chạy toàn bộ Unit, Integration và Eval tests
-uv run pytest -v
-
-# Chạy kiểm tra định dạng và linter
-uv run ruff check .
-uv run ruff format --check .
-
-# Kiểm tra kiểu dữ liệu tĩnh (Static Type Check)
-uv run mypy src
+make run        # Khởi chạy server FastAPI tại http://localhost:8001
+make test       # Chạy toàn bộ 36 tests tự động với pytest
+make eval       # Chạy bộ lượng giá 8 kịch bản nghiệp vụ khảo thí
+make lint       # Kiểm tra chuẩn mã nguồn với ruff
+make format     # Tự động định dạng mã nguồn với ruff
+make typecheck  # Kiểm tra kiểu nghiêm ngặt với mypy (Level Strict)
+make check      # Chạy chuỗi lint + typecheck + test
+make clean      # Dọn dẹp cache và tệp tạm
 ```
 
 ---
 
-## 📡 5. API Endpoints
+## 🧪 5. Kết Quả Kiểm Thử & Lượng Giá
 
-| Phương thức | Endpoint | Mô tả |
-| :--- | :--- | :--- |
-| `GET` | `/health` | Kiểm tra tình trạng sức khỏe dịch vụ & phiên bản |
-| `POST` | `/api/v1/tasks` | Tiếp nhận và khởi tạo tác vụ điều phối mới |
-| `GET` | `/api/v1/tasks/{thread_id}` | Truy vấn trạng thái tác vụ và đề xuất phê duyệt |
-| `POST` | `/api/v1/tasks/{thread_id}/resume` | Gửi quyết định phê duyệt (`approve`/`reject`) để tiếp tục tác vụ |
-
----
-
-## 📚 6. Tài Liệu Tham Chiếu
-
-- [`docs/agentic-ai/00-FOUNDATION_DESIGN.md`](../docs/agentic-ai/00-FOUNDATION_DESIGN.md) — Bản thiết kế nền tảng đã được phê duyệt.
-- [`AGENTS.md`](../AGENTS.md) — Hiến pháp Kỹ thuật toàn dự án Exam Platform.
+- **Độ phủ test**: **36/36 tests PASS 100%** trong **0.35 giây**.
+- **Phân tích tĩnh**: **Mypy Strict PASS** trên toàn bộ 30 source files (0 lỗi).
+- **Chuẩn mã nguồn**: **Ruff Clean** trên toàn bộ 46 files.

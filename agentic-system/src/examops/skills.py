@@ -56,7 +56,9 @@ class ExamBlueprintSkill:
         if "difficulty_distribution" in constraints and constraints["difficulty_distribution"]:
             raw_diff = constraints["difficulty_distribution"]
             if isinstance(raw_diff, dict):
-                blueprint.difficulty_distribution = ExamDifficultyDistribution.model_validate(raw_diff)
+                blueprint.difficulty_distribution = ExamDifficultyDistribution.model_validate(
+                    raw_diff
+                )
             elif isinstance(raw_diff, ExamDifficultyDistribution):
                 blueprint.difficulty_distribution = raw_diff
 

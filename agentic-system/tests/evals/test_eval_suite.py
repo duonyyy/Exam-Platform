@@ -199,4 +199,3 @@ def test_eval_scenario_8_client_get_exam_readiness_review() -> None:
     assert result["data"]["is_ready_for_session"] is True
     assert result["data"]["total_questions"] == 40
     assert result["data"]["difficulty_distribution"]["easy"]["percentage"] == 40.0
-

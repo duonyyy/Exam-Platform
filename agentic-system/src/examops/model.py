@@ -218,8 +218,7 @@ class GeminiProvider:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         base_url = (
-            settings.model_base_url
-            or "https://generativelanguage.googleapis.com/v1beta"
+            settings.model_base_url or "https://generativelanguage.googleapis.com/v1beta"
         ).rstrip("/")
         self.base_url = base_url
         self.client = httpx.Client(timeout=30.0)

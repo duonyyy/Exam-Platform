@@ -201,7 +201,9 @@ class ExamPlatformClient:
             return {"source": "LIVE", "data": data.get("data", data)}
         except httpx.HTTPError as err:
             logger.error("Failed to create exam from blueprint: %s", err)
-            raise ExamPlatformClientError(f"HTTP error creating exam from blueprint: {err}") from err
+            raise ExamPlatformClientError(
+                f"HTTP error creating exam from blueprint: {err}"
+            ) from err
 
     def get_exam_readiness_review(self, exam_id: str | int) -> dict[str, Any]:
         """Fetch exam readiness review metrics from Core API."""
@@ -221,8 +223,18 @@ class ExamPlatformClient:
                         "hard": {"count": 8, "percentage": 20.0},
                     },
                     "topics_covered": [
-                        {"topic_id": 1, "topic_name": "Core Syntax", "question_count": 20, "percentage": 50.0},
-                        {"topic_id": 2, "topic_name": "Algorithms", "question_count": 20, "percentage": 50.0},
+                        {
+                            "topic_id": 1,
+                            "topic_name": "Core Syntax",
+                            "question_count": 20,
+                            "percentage": 50.0,
+                        },
+                        {
+                            "topic_id": 2,
+                            "topic_name": "Algorithms",
+                            "question_count": 20,
+                            "percentage": 50.0,
+                        },
                     ],
                     "warnings": [],
                 },
