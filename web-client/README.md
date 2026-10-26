@@ -1,101 +1,102 @@
 # 💻 ThiSmart — Web Client (Next.js 15+ App Router)
 
-> Giao diện Web Client cho hệ thống khảo thí trực tuyến **ThiSmart** (*Thi thông minh. Đánh giá chính xác.*), xây dựng trên nền tảng **Next.js 15+ (App Router)**, **React 19**, **TypeScript Strict Mode**, **Tailwind CSS**, và **TanStack Query v5**.
+> Modern Frontend Web Client for the **ThiSmart** (*Thi thông minh. Đánh giá chính xác.*) enterprise examination platform, engineered with **Next.js 15+ (App Router)**, **React 19**, **TypeScript Strict Mode**, **Tailwind CSS**, and **TanStack Query v5**.
 
-Tài liệu chi tiết về thiết kế hệ thống và thương hiệu, xem tại:
-- [docs/05-frontend/17-FRONTEND_DESIGN.md](../docs/05-frontend/17-FRONTEND_DESIGN.md) (Kiến trúc & UX)
-- [docs/05-frontend/THISMART_BRAND_GUIDELINES.md](../docs/05-frontend/THISMART_BRAND_GUIDELINES.md) (Nhận diện Thương hiệu & Logo Assets)
-- [docs/05-frontend/SCREEN_SPECIFICATIONS.md](../docs/05-frontend/SCREEN_SPECIFICATIONS.md) (Đặc tả 17 Màn hình)
-
----
-
-## 🏗️ 1. Yêu Cầu Môi Trường (System Requirements)
-
-- **Node.js:** `>= 20.x` (LTS khuyến nghị)
-- **Package Manager:** `pnpm >= 9.x` (hoặc `npm >= 10.x`)
-- **Backend Core API:** Đang chạy tại `http://localhost:8000/api/v1` (qua Docker Compose)
+Detailed frontend specifications, brand identity, and screen catalogs:
+- [Frontend Architecture & UX Design (docs/05-frontend/17-FRONTEND_DESIGN.md)](../docs/05-frontend/17-FRONTEND_DESIGN.md)
+- [Brand Identity & Creative Assets (docs/05-frontend/THISMART_BRAND_GUIDELINES.md)](../docs/05-frontend/THISMART_BRAND_GUIDELINES.md)
+- [17 Screen Specifications & Wireframes (docs/05-frontend/SCREEN_SPECIFICATIONS.md)](../docs/05-frontend/SCREEN_SPECIFICATIONS.md)
 
 ---
 
-## 🚀 2. Cài Đặt & Cấu Hình
+## 🏗️ 1. System Requirements & Prerequisites
 
-### 2.1. Cài đặt Dependencies
+- **Node.js**: `>= 20.x` (Active LTS recommended)
+- **Package Manager**: `pnpm >= 9.x` (or `npm >= 10.x`)
+- **Backend Core API**: Running at `http://localhost:8000/api/v1` (via Docker Compose)
+
+---
+
+## 🚀 2. Installation & Environment Configuration
+
+### 2.1. Install Dependencies
 ```bash
 cd web-client
 pnpm install
 ```
 
-### 2.2. Cấu hình Biến Môi trường
-Tạo file `.env.local` từ mẫu `.env.example`:
+### 2.2. Environment Variables Setup
+Create `.env.local` from `.env.example`:
 ```bash
 cp .env.example .env.local
 ```
 
-Nội dung `.env.local`:
+File content `.env.local`:
 ```env
-# Địa chỉ gốc của Laravel REST API
+# Base URL for Laravel REST API
 NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 
-# Tùy chọn debug môi trường
+# Environment mode
 NEXT_PUBLIC_APP_ENV=development
 ```
 
 ---
 
-## 🛠️ 3. Lệnh Phát Triển & Kiểm Tra Chất Lượng
+## 🛠️ 3. Development & Quality Assurance Commands
 
-| Lệnh | Mục đích |
+| Command | Technical Purpose |
 | :--- | :--- |
-| `pnpm dev` | Khởi chạy máy chủ phát triển (Port `3000`) với tính năng Fast Refresh |
-| `pnpm build` | Biên dịch ứng dụng tối ưu cho Production (kiểm tra type & static generation) |
-| `pnpm start` | Chạy ứng dụng đã build ở chế độ Production |
-| `pnpm lint` | Quét và kiểm tra quy chuẩn mã nguồn với ESLint |
-| `pnpm typecheck` | Kiểm tra tính an toàn kiểu dữ liệu với TypeScript (`tsc --noEmit`) |
-| `pnpm test` | Chạy bộ kiểm thử tự động (Component & Unit tests) |
+| `pnpm dev` | Start development server (Port `3000`) with Fast Refresh & Turbopack |
+| `pnpm build` | Production bundle compilation (Type checking & Static Generation) |
+| `pnpm start` | Run compiled production build |
+| `pnpm lint` | Static code analysis via ESLint |
+| `pnpm typecheck` | Type safety verification via TypeScript (`tsc --noEmit`) |
+| `pnpm test` | Automated Component & Unit test suite |
 
 ---
 
-## 📂 4. Cấu Trúc Thư Mục Chuẩn Monorepo (Feature-Driven)
+## 📂 4. Feature-Driven Monorepo Directory Layout
 
 ```text
 web-client/
 ├── public/
-│   └── brand/                               # Logo, icons, favicons chính thức (ThiSmart Concept 03)
+│   └── brand/                               # Official Brand Assets (ThiSmart Concept 03: logos, favicons)
 ├── src/
-│   ├── app/                                 # Next.js App Router (Routing & Composition)
-│   │   ├── (auth)/                          # Nhóm trang công khai (login, register, forgot-password)
-│   │   ├── (workspace)/                     # Nhóm trang có Navigation Sidebar & Topbar
-│   │   │   ├── admin/                       # Màn hình Admin (Quản trị User, Audit Logs, Settings)
-│   │   │   ├── teacher/                     # Màn hình Giảng viên (Môn học, Ngân hàng câu hỏi, Đề thi, Ca thi, Giám sát)
-│   │   │   └── student/                     # Màn hình Sinh viên (Dashboard, Lịch thi, Kết quả)
-│   │   ├── (focus)/                         # Phòng thi trực tuyến (Focus Layout, Timer, Autosave)
+│   ├── app/                                 # Next.js 15+ App Router (Routing, Layouts & Page Composition)
+│   │   ├── (auth)/                          # Public Auth Route Group (login, register, forgot-password)
+│   │   ├── (workspace)/                     # Authenticated Workspace Layout (Sidebar, Topbar)
+│   │   │   ├── admin/                       # Admin Portal (User Management, Audit Logs, Settings)
+│   │   │   ├── teacher/                     # Teacher Portal (Subjects, Question Bank, Exams, Sessions, Monitoring)
+│   │   │   └── student/                     # Student Portal (Dashboard, Assigned Sessions, Results)
+│   │   ├── (focus)/                         # Focus Exam Room (Distraction-Free Layout, Timer, Autosave)
 │   │   │   └── exam/[attemptId]/
-│   │   ├── forbidden/page.tsx               # 403 Forbidden
-│   │   ├── not-found.tsx                    # 404 Not Found
-│   │   └── layout.tsx                       # Root Layout (Providers, Fonts, Toaster)
+│   │   ├── forbidden/page.tsx               # 403 Forbidden Error Boundary
+│   │   ├── not-found.tsx                    # 404 Not Found Error Boundary
+│   │   └── layout.tsx                       # Root Layout (QueryClientProvider, Inter Font, Toaster)
 │   │
-│   ├── features/                            # Tự đóng gói logic nghiệp vụ theo tính năng
-│   │   ├── auth/                            # Đăng nhập, Profile, Guard
-│   │   ├── users/                           # Quản lý người dùng
-│   │   ├── subjects/                        # Môn học & Chủ đề
-│   │   ├── questions/                       # Ngân hàng câu hỏi (Options JSON, Duyệt/Từ chối)
-│   │   ├── exams/                           # Đề thi mẫu & Trình gắn câu hỏi
-│   │   ├── exam-sessions/                   # Ca thi, Lập lịch, Gán thí sinh
-│   │   ├── exam-taking/                     # Làm bài thi (Autosave, Timer, Proctoring Listener)
-│   │   └── results/                         # Bảng điểm & Phúc khảo
+│   ├── features/                            # Self-contained Business Feature Modules
+│   │   ├── auth/                            # Authentication, User Profile, Session Guards
+│   │   ├── users/                           # User Management & RBAC Administration
+│   │   ├── subjects/                        # Academic Taxonomy (Subjects & Topics)
+│   │   ├── questions/                       # Question Bank (4 Canonical Types, JSON Options, Bulk Excel Import)
+│   │   ├── exams/                           # Exam Templates & Question Pivot Composition
+│   │   ├── exam-sessions/                   # Session Scheduling, Proctoring, Candidate Assignment
+│   │   ├── exam-taking/                     # Focus Mode Taking (Debounced Autosave 500ms, Server Clock, Proctoring)
+│   │   ├── examops/                         # AI Copilot Integration (Blueprint Matrix, Human Review Gate)
+│   │   └── results/                         # Gradebook, Official Reports Export (PDF/Excel)
 │   │
-│   ├── components/                          # UI Components dùng chung
-│   │   ├── ui/                              # Button, Input, Select, Dialog, Card, Badge, Skeleton
+│   ├── components/                          # Shared UI Component Library
+│   │   ├── ui/                              # Atomic Primitives (Button, Input, Select, Dialog, Card, Badge, Skeleton)
 │   │   ├── layout/                          # AppSidebar, AppHeader, PageContainer
 │   │   └── feedback/                        # EmptyState, ErrorState, LoadingState
 │   │
-│   ├── lib/                                 # Cấu hình kỹ thuật
-│   │   ├── api/                             # HTTP Client (Ky/Axios Wrapper) & Error Handler
+│   ├── lib/                                 # Infrastructure & Technical Configurations
+│   │   ├── api/                             # Typed HTTP Client & Error Normalization
 │   │   ├── query/                           # TanStack Query Client & Query Keys Factory
-│   │   └── utils/                           # cn helper, formatters
+│   │   └── utils/                           # Tailwind clsx/tailwind-merge helper, Date formatters
 │   │
-│   ├── types/                               # Common DTOs, API envelopes, Pagination
-│   └── middleware.ts                        # Edge Middleware bảo vệ Route theo Role
+│   ├── types/                               # Canonical DTOs, API Envelopes, Pagination Metadata
+│   └── middleware.ts                        # Edge Middleware for Route Guarding
 ├── .env.example
 ├── package.json
 ├── tailwind.config.ts
@@ -104,46 +105,44 @@ web-client/
 
 ---
 
-## 🔌 5. Luồng Tích Hợp API (API Integration Pattern)
+## 🔌 5. Data Fetching & Server State Management Pattern
 
-Tuân thủ nguyên tắc **không viết fetch rải rác trong component**:
+Strict prohibition of ad-hoc `fetch()` calls inside UI components:
 
 ```text
-[Component UI]
+[UI Component]
       │
-      ▼ (gọi hook nghiệp vụ)
+      ▼ (invoke feature hook)
 [features/{domain}/hooks/useX.ts]
       │
-      ▼ (quản lý cache & server state)
+      ▼ (manage cache, optimistic updates & invalidation)
 [TanStack Query: useQuery / useMutation]
       │
-      ▼ (hàm gọi API thuần túy)
+      ▼ (typed API fetcher function)
 [features/{domain}/api/x.ts]
       │
-      ▼ (tự động gắn Bearer Token & bắt lỗi tập trung)
+      ▼ (inject Bearer Token & handle 401/403/422 envelopes)
 [lib/api/client.ts]
       │
       ▼ HTTP Request
-[Backend Laravel API: http://localhost:8000/api/v1]
+[Laravel Backend REST API: http://localhost:8000/api/v1]
 ```
 
 ---
 
-## 🔒 6. Nguyên Tắc An Ninh Bắt Buộc (Security Guidelines)
+## 🔒 6. Frontend Security & Defense-in-Depth
 
-1. **Tuyệt đối không lưu đáp án đúng (`correct_answer`)** trong bundle client hay local storage.
-2. **Không lưu token thô vào `localStorage`** (tránh tấn công XSS). Token được lưu an toàn qua **HTTP-only, Secure Cookie**.
-3. **Mọi form nhập liệu đều phải validate 2 lớp:**
-   - Lớp 1 (Client): Zod Schema giúp trải nghiệm mượt mà, phản hồi tức thì.
-   - Lớp 2 (Server): Laravel Form Request là chốt chặn cuối cùng; lỗi `422` được tự động map về input tương ứng.
-4. **Edge Route Protection:** File `src/middleware.ts` tự động chặn các truy cập trái phép cấp URL (ví dụ: Sinh viên cố tình vào `/admin/*`), nhưng vẫn coi Laravel Policy là lớp bảo vệ thực sự.
+1. **Zero-Leakage Policy**: Strictly no `correct_answer`, `explanation`, or scoring weights stored in client bundles or LocalStorage.
+2. **XSS Mitigation**: Sensitive auth tokens are never stored in plain `localStorage`. Secure communication uses **HttpOnly, Secure Cookies** with SameSite policy.
+3. **Dual-Layer Validation**:
+   - Layer 1 (Client-side): Zod Schema Validation for instant, interactive user feedback.
+   - Layer 2 (Server-side): Laravel Form Request serves as the authoritative boundary; `422 Unprocessable Content` errors are mapped back to form fields.
+4. **Edge Route Protection**: `src/middleware.ts` intercepts unauthorized role navigation at the edge (e.g. Student attempting `/admin/*`), backed by authoritative Laravel Policies on every API endpoint.
 
 ---
 
-## 🚀 7. Sẵn Sàng Triển Khai Lên Vercel (Vercel Ready)
+## 🚀 7. Production Deployment (Vercel Ready)
 
-Hệ thống được thiết kế hoàn toàn tương thích với kiến trúc serverless của **Vercel**:
-- **Cấu hình Monorepo**: Đã tích hợp sẵn [`vercel.json`](./vercel.json) với bộ tiêu đề bảo mật HTTP (Security Headers) và cấu hình pnpm.
-- **Reverse Proxy Chống CORS**: Tập tin [`next.config.ts`](./next.config.ts) định tuyến `/api/backend/*` sang Laravel Backend (`INTERNAL_BACKEND_URL`), đảm bảo cookies HttpOnly hoạt động hoàn hảo dưới dạng First-Party.
-- **Tự động hóa CI/CD**: Hỗ trợ Preview Deployments cho PRs và Production Deployments qua GitHub Actions (`.github/workflows/deploy-frontend-vercel.yml`) hoặc Vercel GitHub App.
-- Không sử dụng các module Node.js native nặng nề cấm kỵ; tách biệt rõ ràng biến môi trường build-time (`NEXT_PUBLIC_*`) và server-side (`INTERNAL_BACKEND_URL`).
+- **Monorepo Configuration**: Fully integrated [`vercel.json`](./vercel.json) specifying build commands, pnpm cache, and HTTP Security Headers.
+- **First-Party Cookie Reverse Proxy**: [`next.config.ts`](./next.config.ts) proxies `/api/backend/*` to Laravel Core API (`INTERNAL_BACKEND_URL`), ensuring First-Party HttpOnly Cookies work across domains without third-party cookie restrictions.
+- **Automated CI/CD**: Preview Deployments for Pull Requests and Production Deployments via GitHub Actions (`.github/workflows/deploy-frontend-vercel.yml`).

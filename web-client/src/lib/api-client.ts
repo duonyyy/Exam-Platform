@@ -31,11 +31,18 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     }
   }
 
+  const isFormData = typeof FormData !== "undefined" && customConfig.body instanceof FormData;
+  const headersInit: Record<string, string> = {
+    Accept: "application/json",
+  };
+  if (!isFormData) {
+    headersInit["Content-Type"] = "application/json";
+  }
+
   const config: RequestInit = {
     ...customConfig,
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      ...headersInit,
       ...headers,
     },
   };
@@ -57,4 +64,52 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
   }
 
   return data as T;
+}
+
+export async function downloadFileApi(
+  endpoint: string,
+  defaultFilename: string,
+  params?: Record<string, string | number | boolean | undefined>
+): Promise<void> {
+  let url = endpoint;
+  if (params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    if (queryString) {
+      url += (url.includes("?") ? "&" : "?") + queryString;
+    }
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    const errData = await response.json().catch(() => null);
+    throw new ApiError(
+      response.status,
+      errData?.message || "Không thể tải tệp tin từ hệ thống."
+    );
+  }
+
+  const contentDisposition = response.headers.get("Content-Disposition");
+  let filename = defaultFilename;
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^";]+)"?/);
+    if (match && match[1]) {
+      filename = match[1];
+    }
+  }
+
+  const blob = await response.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(downloadUrl);
 }

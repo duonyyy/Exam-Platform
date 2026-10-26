@@ -15,6 +15,7 @@ use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -86,7 +87,7 @@ class ExamController extends Controller
         Gate::forUser($actor)->authorize('view', $exam);
 
         $exam->load(['subject.topics', 'questions.topic']);
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Question> $questions */
+        /** @var Collection<int, Question> $questions */
         $questions = $exam->questions;
         $totalQuestions = $questions->count();
         $totalPoints = (float) $exam->total_points;

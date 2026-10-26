@@ -97,6 +97,7 @@ const config: Config = {
         "ts-gradient-cyan": "var(--ts-gradient-cyan)",
       },
       boxShadow: {
+        "ts-xs": "var(--ts-shadow-xs)",
         "ts-soft": "var(--ts-shadow-soft)",
         "ts-hover": "var(--ts-shadow-hover)",
         "ts-glow": "var(--ts-shadow-glow)",
@@ -106,6 +107,7 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        "ts-xs": "var(--ts-radius-xs)",
         "ts-sm": "var(--ts-radius-sm)",
         "ts-md": "var(--ts-radius-md)",
         "ts-lg": "var(--ts-radius-lg)",

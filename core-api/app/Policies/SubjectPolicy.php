@@ -38,4 +38,9 @@ class SubjectPolicy
     {
         return $this->update($user, $subject);
     }
+
+    public function importQuestions(User $user, Subject $subject): bool
+    {
+        return $this->update($user, $subject);
+    }
 }

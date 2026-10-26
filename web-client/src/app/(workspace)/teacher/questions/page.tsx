@@ -17,25 +17,11 @@ import {
   ChevronRight,
   X,
   FileText,
+  FileSpreadsheet,
 } from "lucide-react";
 import { ThiSmartCtaButton } from "@/components/motion/ThiSmartCtaButton";
+import { QuestionImportModal, QuestionItem } from "@/features/questions";
 
-interface QuestionItem {
-  id: string;
-  orderNumber: number;
-  subjectCode: string;
-  subjectName: string;
-  topicName: string;
-  content: string;
-  type: "single_choice" | "multiple_choice" | "true_false" | "short_answer";
-  difficulty: "easy" | "medium" | "hard";
-  status: "ready" | "disabled";
-  isUsedInExam: boolean; // BR-011 constraint
-  usedInExamCount: number;
-  options?: { key: string; text: string }[];
-  correctAnswer: string[];
-  explanation: string;
-}
 
 const MOCK_QUESTIONS: QuestionItem[] = [
   {
@@ -144,6 +130,7 @@ export default function QuestionsBankPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
 
   const [previewQuestion, setPreviewQuestion] = useState<QuestionItem | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const toggleQuestionStatus = (id: string) => {
     setQuestions((prev) =>
@@ -189,16 +176,26 @@ export default function QuestionsBankPage() {
           </p>
         </div>
 
-        <Link href="/teacher/questions/new">
-          <ThiSmartCtaButton variant="primary" size="md">
-            <Plus className="w-4 h-4 mr-1.5" />
-            Soạn câu hỏi mới
-          </ThiSmartCtaButton>
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsImportModalOpen(true)}
+            className="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-[8px] text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            Nhập Excel Hàng Loạt
+          </button>
+          <Link href="/teacher/questions/new">
+            <ThiSmartCtaButton variant="primary" size="md">
+              <Plus className="w-4 h-4 mr-1.5" />
+              Soạn câu hỏi mới
+            </ThiSmartCtaButton>
+          </Link>
+        </div>
       </div>
 
       {/* Multi-facet Filter Toolbar */}
-      <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
+      <div className="p-4 bg-white rounded-[8px] border border-slate-200/90 shadow-xs space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -207,7 +204,7 @@ export default function QuestionsBankPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm theo nội dung, mã câu hỏi (#1042)..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-[6px] border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
             />
           </div>
 
@@ -215,7 +212,7 @@ export default function QuestionsBankPage() {
             <select
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              className="px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
             >
               <option value="all">Tất cả Môn học</option>
               <option value="IT4409">IT4409 - Lập trình Web</option>
@@ -225,7 +222,7 @@ export default function QuestionsBankPage() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
             >
               <option value="all">Tất cả Loại câu</option>
               <option value="single_choice">Trắc nghiệm 1 đáp án</option>
@@ -237,7 +234,7 @@ export default function QuestionsBankPage() {
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
             >
               <option value="all">Mọi độ khó</option>
               <option value="easy">Dễ (Easy)</option>
@@ -248,7 +245,7 @@ export default function QuestionsBankPage() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
             >
               <option value="all">Tất cả Trạng thái</option>
               <option value="ready">Sẵn sàng (Ready)</option>
@@ -267,7 +264,7 @@ export default function QuestionsBankPage() {
         {filteredQuestions.map((q) => (
           <div
             key={q.id}
-            className={`p-5 rounded-2xl bg-white border transition shadow-xs hover:border-blue-300 ${
+            className={`p-5 rounded-[8px] bg-white border border-slate-200/90 transition shadow-xs hover:border-slate-300 ${
               q.status === "disabled" ? "opacity-75 bg-slate-50/50" : ""
             }`}
           >
@@ -275,18 +272,18 @@ export default function QuestionsBankPage() {
               <div className="space-y-2 flex-1">
                 {/* Badges Bar */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-black bg-slate-900 text-white">
+                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-black bg-slate-900 text-white">
                     #{q.orderNumber}
                   </span>
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
                     {q.subjectCode}
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
+                  <span className="text-xs text-slate-500 font-medium">
                     {q.topicName}
                   </span>
 
                   {/* Question Type Badge */}
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700">
+                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-semibold bg-slate-100 text-slate-700">
                     {q.type === "single_choice"
                       ? "1 Đáp án"
                       : q.type === "multiple_choice"
@@ -298,7 +295,7 @@ export default function QuestionsBankPage() {
 
                   {/* Difficulty Badge */}
                   <span
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-semibold ${
+                    className={`px-2 py-0.5 rounded-[4px] text-[11px] font-semibold ${
                       q.difficulty === "easy"
                         ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                         : q.difficulty === "medium"
@@ -311,7 +308,7 @@ export default function QuestionsBankPage() {
 
                   {/* Status Badge */}
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                    className={`px-2 py-0.5 rounded-[4px] text-[11px] font-bold ${
                       q.status === "ready"
                         ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                         : "bg-slate-100 text-slate-500 border border-slate-200"
@@ -322,7 +319,7 @@ export default function QuestionsBankPage() {
 
                   {/* In exam notice */}
                   {q.isUsedInExam && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-[4px] border border-indigo-200">
                       <Lock className="w-3 h-3" />
                       Nằm trong {q.usedInExamCount} đề thi
                     </span>
@@ -346,7 +343,7 @@ export default function QuestionsBankPage() {
                 <button
                   type="button"
                   onClick={() => setPreviewQuestion(q)}
-                  className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition"
+                  className="p-1.5 rounded-[6px] text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition border border-slate-200"
                   title="Xem trước câu hỏi"
                 >
                   <Eye className="w-4 h-4" />
@@ -354,10 +351,10 @@ export default function QuestionsBankPage() {
 
                 <Link
                   href={`/teacher/questions/${q.id}/edit`}
-                  className={`p-2 rounded-xl transition ${
+                  className={`p-1.5 rounded-[6px] transition border ${
                     q.isUsedInExam
-                      ? "text-slate-300 pointer-events-none"
-                      : "text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                      ? "text-slate-300 border-slate-100 pointer-events-none"
+                      : "text-slate-500 border-slate-200 hover:text-blue-600 hover:bg-blue-50"
                   }`}
                   title={q.isUsedInExam ? "BR-011: Không thể sửa khi đã nằm trong đề" : "Sửa câu hỏi"}
                 >
@@ -368,12 +365,12 @@ export default function QuestionsBankPage() {
                   type="button"
                   onClick={() => toggleQuestionStatus(q.id)}
                   disabled={q.isUsedInExam}
-                  className={`p-2 rounded-xl transition ${
+                  className={`p-1.5 rounded-[6px] transition border ${
                     q.isUsedInExam
-                      ? "text-slate-300 cursor-not-allowed"
+                      ? "text-slate-300 border-slate-100 cursor-not-allowed"
                       : q.status === "ready"
-                      ? "text-slate-500 hover:text-rose-600 hover:bg-rose-50"
-                      : "text-emerald-700 hover:bg-emerald-50"
+                      ? "text-slate-500 border-slate-200 hover:text-rose-600 hover:bg-rose-50"
+                      : "text-emerald-700 border-emerald-200 hover:bg-emerald-50"
                   }`}
                   title={
                     q.isUsedInExam
@@ -394,18 +391,18 @@ export default function QuestionsBankPage() {
       {/* Question Preview Modal */}
       {previewQuestion && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-[8px] max-w-xl w-full p-6 shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-xs font-black bg-blue-600 text-white">
+                <span className="px-2 py-0.5 rounded-[4px] text-xs font-black bg-blue-700 text-white">
                   #{previewQuestion.orderNumber}
                 </span>
-                <span className="text-xs font-bold text-slate-500">Xem trước hiển thị</span>
+                <span className="text-xs font-bold text-slate-600">Xem trước hiển thị</span>
               </div>
               <button
                 type="button"
                 onClick={() => setPreviewQuestion(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+                className="p-1 rounded-[4px] text-slate-400 hover:text-slate-600"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -423,7 +420,7 @@ export default function QuestionsBankPage() {
                     return (
                       <div
                         key={opt.key}
-                        className={`p-3 rounded-xl border text-xs font-medium flex items-center justify-between ${
+                        className={`p-3 rounded-[6px] border text-xs font-medium flex items-center justify-between ${
                           isCorrect
                             ? "border-emerald-500 bg-emerald-50/60 text-emerald-950 ring-1 ring-emerald-500/30"
                             : "border-slate-200 bg-white text-slate-700"
@@ -434,7 +431,7 @@ export default function QuestionsBankPage() {
                           <span>{opt.text}</span>
                         </div>
                         {isCorrect && (
-                          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded">
+                          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-[4px]">
                             Đáp án đúng
                           </span>
                         )}
@@ -444,7 +441,7 @@ export default function QuestionsBankPage() {
                 </div>
               )}
 
-              <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900">
+              <div className="p-3.5 rounded-[6px] bg-blue-50 border border-blue-200 text-xs text-blue-900">
                 <span className="font-bold">Giải thích đáp án: </span>
                 {previewQuestion.explanation}
               </div>
@@ -454,7 +451,7 @@ export default function QuestionsBankPage() {
               <button
                 type="button"
                 onClick={() => setPreviewQuestion(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200"
+                className="px-4 py-2 rounded-[6px] text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200"
               >
                 Đóng xem trước
               </button>
@@ -462,6 +459,15 @@ export default function QuestionsBankPage() {
           </div>
         </div>
       )}
+
+      {/* Question Import Modal */}
+      <QuestionImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={(count) => {
+          // Can refresh or alert
+        }}
+      />
     </div>
   );
 }

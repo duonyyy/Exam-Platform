@@ -33,7 +33,7 @@ export function HeroSection() {
 
   return (
     <section className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden bg-gradient-to-b from-blue-50/40 via-slate-50/80 to-white">
-      {/* 1. Vector Background Pattern: Answer Choice Grid (Đặc trưng khảo thí trắc nghiệm) */}
+      {/* 1. Vector Background Pattern: Answer Choice Grid */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none select-none overflow-hidden -z-10"
@@ -59,7 +59,7 @@ export function HeroSection() {
           {/* Left Column (7 cols): Headline, Storytelling & CTAs */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             {/* Category Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 text-blue-700 text-xs sm:text-sm font-semibold shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[4px] bg-blue-50/90 border border-blue-200/80 text-blue-700 text-xs sm:text-sm font-semibold shadow-xs">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
               <span>Hệ Thống Khảo Thí &amp; Giám Sát Trực Tuyến Chuẩn Mực</span>
             </div>
@@ -73,24 +73,24 @@ export function HeroSection() {
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
               Hệ thống khảo thí số tập trung, bảo vệ toàn vẹn bài làm của thí sinh và tự động hóa toàn diện quy trình tổ chức thi cho các trường đại học, viện đào tạo.
             </p>
 
             {/* Dual CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
               <Link
                 href="/exam/demo"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/25 transition-all duration-150 active:scale-[0.98] text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[6px] font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition active:scale-[0.99] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               >
-                <Timer className="w-5 h-5" />
+                <Timer className="w-4 h-4" />
                 <span>Trải nghiệm phòng thi ngay</span>
                 <ArrowRight className="w-4 h-4 ml-0.5" />
               </Link>
 
               <a
                 href="#product-preview"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition-all duration-150 active:scale-[0.98] text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[6px] font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 shadow-xs transition active:scale-[0.99] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               >
                 <span>Xem giao diện thực tế</span>
                 <ChevronDown className="w-4 h-4 text-slate-400" />
@@ -114,25 +114,25 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column (5 cols): Centerpiece 3D Illustration & Interactive Floating Badges */}
+          {/* Right Column (5 cols): Centerpiece Artwork & Interactive Floating Badges */}
           <div className="lg:col-span-5 relative flex items-center justify-center">
             {/* Ambient Backlight for Artwork */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-cyan-400/20 to-transparent rounded-3xl blur-2xl transform -rotate-3 scale-95 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-cyan-400/20 to-transparent rounded-[8px] blur-2xl transform -rotate-3 scale-95 pointer-events-none" />
 
             <div className="relative w-full max-w-[520px] aspect-[16/10] sm:aspect-[16/11] lg:aspect-auto flex items-center justify-center">
               {/* Official Master 3D Artwork */}
               <Image
                 src="/brand/illustrations/illustration-hero-3d-exam-orbit.webp"
-                alt="ThiSmart 3D Platform Centerpiece — Nền tảng khảo thí số & Quỹ đạo đề thi"
+                alt="ThiSmart Platform Centerpiece — Nền tảng khảo thí số & Quỹ đạo đề thi"
                 width={800}
                 height={450}
                 priority
-                className="w-full h-auto object-contain drop-shadow-2xl select-none transition-transform duration-500 hover:scale-[1.02]"
+                className="w-full h-auto object-contain drop-shadow-md select-none transition-transform duration-300 hover:scale-[1.01]"
               />
 
               {/* Floating Live Badge 1: Server-Authoritative Clock */}
-              <div className="absolute -top-3 -right-2 sm:-right-4 bg-slate-900/95 text-white p-3 rounded-xl border border-slate-800 shadow-xl backdrop-blur-md flex items-center gap-3 animate-in fade-in zoom-in-95 duration-500">
-                <div className="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-cyan-300">
+              <div className="absolute -top-3 -right-2 sm:-right-4 bg-slate-900/95 text-white p-3 rounded-[8px] border border-slate-800 shadow-md backdrop-blur-md flex items-center gap-3">
+                <div className="w-8 h-8 rounded-[4px] bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-cyan-300">
                   <Timer className="w-4 h-4" />
                 </div>
                 <div>
@@ -146,8 +146,8 @@ export function HeroSection() {
               </div>
 
               {/* Floating Live Badge 2: Autosave Status */}
-              <div className="absolute -bottom-3 -left-2 sm:-left-4 bg-white/95 text-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200/90 shadow-xl backdrop-blur-md flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+              <div className="absolute -bottom-3 -left-2 sm:-left-4 bg-white/95 text-slate-900 px-3.5 py-2.5 rounded-[8px] border border-slate-200/90 shadow-md backdrop-blur-md flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-[4px] bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div className="text-left">
@@ -155,7 +155,7 @@ export function HeroSection() {
                     Đã lưu trên máy chủ
                   </div>
                   <div className="text-[10px] text-slate-500 leading-tight">
-                    Idempotent Upsert (500ms)
+                    Đồng bộ tức thì (500ms)
                   </div>
                 </div>
               </div>

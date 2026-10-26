@@ -3,13 +3,11 @@
 namespace Tests\Feature\Exams;
 
 use App\Enums\QuestionStatus;
-use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Subject;
 use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GenerateExamFromBlueprintTest extends TestCase

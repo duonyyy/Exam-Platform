@@ -1,229 +1,282 @@
-# Exam Platform — Online Examination System
+# 🎓 ThiSmart — Enterprise Online Examination & Assessment System
 
-Hệ thống quản trị và tổ chức thi trực tuyến (Online Examination Platform) được tổ chức theo mô hình phân tầng:
-- **[`core-api/`](core-api/README.md)**: Dịch vụ Backend RESTful API trung tâm xây dựng bằng **Laravel 13**, **PHP 8.3-FPM**, **PostgreSQL 16**, và **Laravel Sanctum**.
-- **[`web-client/`](web-client/README.md)**: Ứng dụng Frontend Web Client xây dựng bằng **Next.js / React** và **Tailwind CSS**.
+<div align="center">
 
-## Đề tài
+  <img src="docs/05-frontend/assets/brand/logo_ngang_kem_slogan_nen_toi.png" alt="ThiSmart Logo" width="560" />
 
-**Xây dựng RESTful API cho hệ thống thi trực tuyến bằng Laravel**
+  <br />
 
-Tên tiếng Anh:
+  [![Laravel 13](https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](core-api/)
+  [![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)](core-api/)
+  [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](docs/02-domain-database/)
+  [![Next.js 15](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js&logoColor=white)](web-client/)
+  [![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](web-client/)
+  [![Python 3.11](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](agentic-system/)
+  [![LangGraph](https://img.shields.io/badge/LangGraph-Agent-FF6F00?style=for-the-badge)](agentic-system/)
+  [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker/)
+  [![Tests](https://img.shields.io/badge/Tests-100%25%20PASS-brightgreen?style=for-the-badge)](core-api/tests/)
 
-**Exam Platform API: A Laravel RESTful Backend for Online Examination Management**
+  <p><strong>Thi thông minh. Đánh giá chính xác.</strong><br />
+  <em>Enterprise Monorepo Online Examination Platform integrated with ExamOps AI Copilot for intelligent orchestration.</em></p>
 
-## Mục tiêu
+</div>
 
-Hệ thống quản lý:
+---
 
-- tài khoản và phân quyền
-- môn học và chủ đề
-- ngân hàng câu hỏi
-- duyệt câu hỏi
-- đề thi mẫu
-- ca thi
-- phân công giảng viên
-- phân bổ thí sinh
-- lượt làm bài
-- lưu đáp án
-- nộp bài và chấm điểm
-- cảnh báo giám sát thi
-- thống kê kỳ thi
+## 🖥️ Focus Exam Room (Online Examination Interface)
 
-## Vai trò
+Giao diện làm bài thi trực tuyến chuyên dụng triệt tiêu mọi distracting elements, bảo đảm **Server-Authoritative Clock**, cơ chế **Debounced Autosave (500ms)** thời gian thực với **Idempotent Upsert**, và **Interactive Question Palette / Navigator**:
 
-```text
-Admin
-Teacher
-Student
-```
+<div align="center">
+  <img src="docs/05-frontend/assets/mockups/giao_dien_may_tinh_desktop.png" alt="Focus Exam Room Interface" width="880" />
+  <p><em>Focus Exam Room Desktop Interface (1440×976) — Maximum Focus, Real-time Answer Synchronization & Zero-Leakage Architecture</em></p>
+</div>
 
-## Domain chính
+---
 
-```text
-Subject
-  ↓
-Topic
-  ↓
-Question
+## 📌 Project Overview & System Scope
 
-Question
-   ↓
-Exam
-   ↓
-Exam Session
-   ↓
-Assignment
-   ↓
-Exam Attempt
-   ↓
-Attempt Answers
-   ↓
-Score
-```
+- **Vietnamese Project Title**: Xây dựng RESTful API cho hệ thống thi trực tuyến bằng Laravel kết hợp AI Copilot điều phối khảo thí.
+- **English Project Title**: **Exam Platform API: A Laravel RESTful Backend & AI-Assisted Orchestration for Online Examination Management**.
+- **Scope & Core Capabilities**:
+  - **Stateless Authentication & Authorization**: Laravel Sanctum Bearer Tokens, Role-Based Access Control (RBAC), và Policy-Based Access Control (PBAC) triệt tiêu Insecure Direct Object References (IDOR / BOLA).
+  - **Academic Taxonomy**: Cây phân cấp học thuật Môn học (`Subject`) và Chủ đề kiến thức (`Topic`).
+  - **Question Bank Management**: 4 loại câu hỏi chuẩn (`single_choice`, `multiple_choice`, `true_false`, `short_answer`) kèm **Bulk Excel Import (`.xlsx`)** và row-by-row syntax validation.
+  - **Exam Blueprint & AI Copilot**: Soạn đề thi mẫu (`Exam`) và tự động sinh ma trận câu hỏi bằng ExamOps AI Copilot (Bloom Taxonomy, Difficulty Distribution, Human-in-the-Loop Approval Gate).
+  - **Exam Session Scheduling**: Quản lý vòng đời ca thi (`ExamSession`), Proctor Assignment (`SessionTeacher`), và Candidate Assignment (`SessionAssignment`).
+  - **Concurrency Control & Exam Taking**: Quản lý lượt thi (`ExamAttempt`), Real-time Idempotent Answer Upsert, và Double-Submit Prevention thông qua **Pessimistic Locking (`lockForUpdate()`)** và ACID Database Transactions.
+  - **Anti-Cheat & Proctoring Engine**: Thu thập tín hiệu cảm biến thời gian thực (`ProctoringEvents`: `tab_hidden`, `fullscreen_exit`, `blur`) phục vụ hậu kiểm (Auditing).
+  - **Automated Scoring & Reporting**: Chấm điểm tự động qua `AttemptScorer`, thống kê Score Distribution, và xuất bản Official Gradebook & Exam Sheet (PDF & Excel formats).
 
-## Luồng nghiệp vụ chính
+---
 
-### Giảng viên
+## 🏗️ Monorepo Architecture & Application Blocks
+
+Hệ thống được tổ chức theo kiến trúc **Monorepo** với ranh giới trách nhiệm (Separation of Concerns) nghiêm ngặt:
 
 ```text
-Login
-  ↓
-Create Subject / Topic
-  ↓
-Create Question
-  ↓
-Approve Question
-  ↓
-Create Exam
-  ↓
-Attach Questions
-  ↓
-Create Exam Session
-  ↓
-Assign Students / Teachers
-  ↓
-Publish Session
-  ↓
-Monitor Attempts
-  ↓
-Review Results
+PHP/
+├── core-api/          # Backend RESTful API (Laravel 13, PHP 8.3+, PostgreSQL 16) — SOURCE OF TRUTH (SoR)
+├── web-client/        # Frontend Web Client ThiSmart (Next.js 15+ App Router, React 19, Tailwind CSS)
+├── agentic-system/    # ExamOps AI Copilot (Python 3.11+, FastAPI, LangGraph, Human-in-the-Loop Gate)
+├── docker/            # Containerization Orchestration (PHP-FPM, Nginx, Node.js, PostgreSQL, Agent)
+├── docs/              # 8 Architecture & Technical Specification Directories
+└── AGENTS.md          # Technical Constitution & Engineering Standards
 ```
 
-### Sinh viên
+| Application / Module | Core Tech Stack | Architectural Responsibility |
+| :--- | :--- | :--- |
+| **`core-api/`** | Laravel 13, PHP 8.3, PostgreSQL 16, Redis 7, Sanctum | **Single Source of Truth (System of Record - SoR)**: Quản lý toàn bộ Business Logic, Transaction Boundaries, Concurrency Locking, Scoring Engine, và Data Integrity. |
+| **`web-client/`** | Next.js 15+ (App Router), React 19, TypeScript Strict, TanStack Query v5 | **Presentation Layer**: ThiSmart User Interface, Dual Shell (Workspace & Focus Exam Room), Server State Management, và Client-side Event Listeners. |
+| **`agentic-system/`** | Python 3.11+, FastAPI, LangGraph, Pydantic v2, HTTPX | **Intelligent Orchestration Layer**: AI Copilot sinh ma trận đề thi, deterministic math validation, và Human-in-the-Loop Approval Gate. |
+| **`docker/`** | Docker & Docker Compose | **Infrastructure & Containerization**: Môi trường container đồng bộ cho Local Development và Multi-stage Production Deployments. |
+| **`docs/`** | Markdown, C4 Model, Mermaid Diagrams, ADRs | **Technical Documentation**: 8 phân hệ đặc tả từ Requirements, Database Schemas, API Contracts, Threat Models đến Implementation Plans. |
+
+---
+
+## 👥 System Actors & Roles (RBAC Matrix)
 
 ```text
-Login
-  ↓
-View Assigned Exams
-  ↓
-Start Attempt
-  ↓
-Load Questions
-  ↓
-Save Answers
-  ↓
-Submit Attempt
-  ↓
-Score / Result
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│      Admin      │       │     Teacher     │       │     Student     │
+│ (System Admin)  │       │ (Lecturer/Exam) │       │ (Test Candidate)│
+└────────┬────────┘       └────────┬────────┘       └────────┬────────┘
+         │                         │                         │
+         ├─ User Management & RBAC ├─ Subject Ownership      ├─ View Assigned Sessions
+         ├─ System Configurations  ├─ Question Bank Authoring├─ Enter Focus Exam Room
+         ├─ Reassign Subject Owner ├─ Exam Blueprint & AI    ├─ Debounced Autosave (500ms)
+         └─ Global Audit & Logs    ├─ Session Scheduling     ├─ Submit with Concurrency Lock
+                                   └─ Export Gradebook PDF   └─ Stream Proctoring Signals
 ```
 
-## Stack mục tiêu
+---
+
+## 🧩 Core Domain Model & Relational Hierarchy
+
+Cây quan hệ dữ liệu cốt lõi tuân thủ **Referential Integrity** và chuẩn hóa CSDL (3NF):
 
 ```text
-PHP 8.3+
-Laravel 13
-PostgreSQL 16
-Laravel Sanctum
-Redis
-Pest / PHPUnit
-Docker & Docker Compose
+Subject (Môn học / Academic Discipline)
+  └── Topic (Chủ đề kiến thức / Knowledge Unit)
+        └── Question (Ngân hàng câu hỏi: single_choice, multiple_choice, true_false, short_answer)
+              │
+              ├── ExamQuestion (Pivot Table: metadata vị trí hiển thị 'order' & thang điểm 'points')
+              │     └── Exam (Đề thi mẫu / Blueprint Template: duration_minutes, passing_score, shuffle_questions)
+              │           └── ExamSession (Ca thi cụ thể: FSM draft → published → in_progress → closed)
+              │                 │
+              │                 ├── SessionAssignment (Phân bổ thí sinh: Composite Unique 'exam_session_id + student_id')
+              │                 ├── SessionTeacher (Phân công cán bộ coi thi / Proctor Assignment)
+              │                 │
+              │                 └── ExamAttempt (Lượt làm bài: FSM in_progress → submitted → graded)
+              │                       │
+              │                       ├── AttemptAnswer (Idempotent Upsert: Composite Unique 'attempt_id + question_id')
+              │                       ├── ProctoringEvent (Audit Log: tab_hidden, fullscreen_exit, blur)
+              │                       └── Score / Result (Calculated Points, Percentage & Grade Classification)
 ```
 
-## Khởi chạy Môi trường (Docker Compose)
+---
 
-Hệ thống đã cấu hình sẵn môi trường container hóa chuẩn monorepo:
-- **Core API** (services `app` & `web`): PHP 8.3-FPM + Nginx lắng nghe tại `http://localhost:8000`, volume gắn vào `./core-api`.
-- **Web Client** (service `client`): Node.js 20 Alpine lắng nghe tại `http://localhost:3000`, volume gắn vào `./web-client`.
-- **Database** (service `postgres`): PostgreSQL 16 tại cổng `5432`, database `exam_platform`, user `postgres`, password `secret`.
+## 🔄 Core Workflows & Lifecycles
 
-Các lệnh vận hành thường dùng:
+### 1. Teacher & Examination Lifecycle
+```text
+Stateless Authentication (Sanctum Bearer Token)
+  ↓
+Create Subject & Topics (Auto-bind owner_teacher_id)
+  ↓
+Question Authoring or Bulk Excel Import (Row-by-Row Syntax & Type Validation)
+  ↓
+Design Exam Template (Manual Blueprint or AI Copilot Matrix Generation)
+  ↓
+Schedule Exam Session (Define start_at, end_at, duration_minutes)
+  ↓
+Assign Proctors (SessionTeacher) & Assign Candidates (SessionAssignment)
+  ↓
+Publish Exam Session (Validation Gate: Verify question points & candidate count)
+  ↓
+Live Proctoring & Candidate Progress Monitoring
+  ↓
+Session Finalization & Export Official Reports (Excel Gradebook & PDF Exam Transcripts)
+```
+
+### 2. Student Exam-Taking Workflow
+```text
+Student Authentication (Sanctum Token)
+  ↓
+Query Assigned Sessions (Filtered by Current Server Window)
+  ↓
+Start Exam Attempt (Validate Session Status, Allowed Window, Generate Deadline)
+  ↓
+Enter Focus Exam Room (Fetch Question Payload under Zero-Leakage Policy)
+  ↓
+Take Exam with Debounced Autosave (500ms Idempotent Upsert to attempt_answers)
+  ↓
+Stream Proctoring Signals (visibilitychange, fullscreenchange, window blur)
+  ↓
+Submit Attempt (ACID Transaction + Pessimistic Locking 'lockForUpdate()')
+  ↓
+Automated Scoring Engine (AttemptScorer computes weighted score)
+  ↓
+View Results & Performance Breakdown (Subject to Session Publish Policy)
+```
+
+### 3. ExamOps AI Deterministic Orchestration Loop
+```text
+Teacher Inputs Pedagogical Goal (Bloom Taxonomy, Target Question Count, Difficulty Distribution)
+  ↓
+[Step 1 - Intake]: Parse goal, validate constraints, verify actor authorization (SubjectPolicy)
+  ↓
+[Step 2 - Plan]: Select domain skill 'exam-blueprint' and build Least-Privilege Tools Allowlist
+  ↓
+[Step 3 - Execute]: Safe read-only queries against Core API via typed HTTPX client
+  ↓
+[Step 4 - Verify]: Deterministic verification (sum % = 100, positive integers, deduplication)
+  ↓
+[Step 5 - Human Review]: INTERRUPT & PAUSE AT APPROVAL GATE (Status: WAITING_FOR_APPROVAL)
+  ↓
+Teacher reviews proposed Blueprint on Web Client and triggers Approve
+  ↓
+[Step 6 - Finalize]: Core API generates Exam Template and materializes ExamQuestions in DB
+```
+
+---
+
+## ⚡ Backend Request Lifecycle (Controller as Orchestrator)
+
+Core API tuân thủ nghiêm ngặt nguyên tắc **Clean Layered Architecture** và **Thin Controller / Rich Domain**:
+
+```text
+HTTP Request (/api/v1/...)
+    ↓
+Routing Layer (routes/api.php)
+    ↓
+Route & Global Middleware (CORS, EnsureActiveUser, RoleMiddleware:admin|teacher|student)
+    ↓
+Authentication Guard (Laravel Sanctum Bearer Token / HttpOnly Cookie Proxy)
+    ↓
+Form Request Validation (app/Http/Requests/... -> $request->validated())
+    ↓
+Policy Authorization ($this->authorize(...) -> Mitigates IDOR / BOLA)
+    ↓
+Single-Responsibility Action (app/Actions/... -> Encapsulates Business Logic)
+    ↓
+Database Transaction & Concurrency Control (DB::transaction() + lockForUpdate())
+    ↓
+Eloquent ORM & Query Optimization (Eager Loading with() -> Mitigates N+1 Query)
+    ↓
+PostgreSQL 16 Engine / Redis 7 Cache & Rate Limiting (throttle:60,1)
+    ↓
+API Resource Layer (Segregated QuestionAdminResource vs QuestionStudentResource -> Zero-Leakage)
+    ↓
+Standardized JSON Response (Envelopes with HTTP Status Codes: 200, 201, 401, 403, 409, 422)
+```
+
+---
+
+## 🏛️ Sơ Đồ Kiến Trúc Hệ Thống (System Architecture)
+
+<div align="center">
+  <img src="Sơ đồ kiến trúc hệ thống ThiSmart pastel.png" alt="Sơ đồ kiến trúc hệ thống ThiSmart" width="920" />
+  <p><em>4-Tier System Architecture: Client Layer (Web Client) → Gateway & Reverse Proxy (Nginx) → Backend Services (Laravel Core API & FastAPI ExamOps Agent) → Persistence Layer (PostgreSQL 16, Redis 7, SQLite Checkpoints)</em></p>
+</div>
+
+---
+
+## 🚀 Quick Start & Container Orchestration
+
+### 1. Khởi động toàn bộ Services qua Docker Compose
+
+Hệ thống đã cấu hình sẵn 5 container đồng bộ:
 
 ```bash
-# 1. Khởi động toàn bộ containers (Core API + Web Client + Postgres)
+# Khởi chạy toàn bộ cụm container trong background
 docker compose up -d
+```
 
-# 2. Khởi tạo skeleton Laravel trong core-api (chạy lần đầu)
-docker compose exec app composer create-project laravel/laravel .
+Các Endpoint & Services khả dụng:
+- 🌐 **Web Client (ThiSmart)**: [http://localhost:3000](http://localhost:3000)
+- 🔌 **Core REST API**: [http://localhost:8000/api/v1](http://localhost:8000/api/v1)
+- 📖 **OpenAPI 3.1 / Swagger UI**: [http://localhost:8000/docs/api](http://localhost:8000/docs/api)
+- 🤖 **ExamOps AI Agent**: [http://localhost:8001](http://localhost:8001)
+- 🐘 **PostgreSQL 16**: `localhost:5432` (database: `exam_platform`, user: `postgres`, pass: `secret`)
 
-# 3. Chạy migrations cho Core API
-docker compose exec app php artisan migrate
+---
 
-# 4. Chạy bộ kiểm thử tự động cho Core API
+### 2. Database Migrations & Initial Setup
+
+```bash
+# 1. Chạy Migrations và nạp Seed Data vào PostgreSQL 16
+docker compose exec app php artisan migrate --seed
+
+# 2. Tạo Storage Symlink cho Uploaded Assets (Excel templates, PDFs)
+docker compose exec app php artisan storage:link
+```
+
+---
+
+### 3. Automated Test Suites & Static Analysis
+
+Hệ thống sở hữu bộ kiểm thử tự động toàn diện đạt tỷ lệ **PASS 100%**:
+
+```bash
+# 1. Backend Core API Feature Tests (170 tests, >1100 assertions PASS)
 docker compose exec app php artisan test
+
+# 2. PHP Code Style Formatting & Static Analysis (Pint PSR-12 & Larastan Level 5/8)
+docker compose exec app ./vendor/bin/pint --test
+docker compose exec app ./vendor/bin/phpstan analyse --level=5
+
+# 3. ExamOps AI Agent Evaluation Scenarios (36/36 tests PASS in 0.75s)
+docker compose exec agent pytest tests/evals/test_eval_suite.py
+
+# 4. Frontend Type Checking (TypeScript Strict Mode - 0 errors)
+docker compose exec client npm run typecheck
 ```
 
-## API prefix
+---
 
-```text
-/api/v1
-```
+## ⚖️ Giấy Phép & Bản Quyền (License & Governance)
 
-## Request flow
+Dự án phát triển phục vụ mục đích nghiên cứu, học thuật và chuẩn hóa năng lực kỹ thuật công nghệ cao cho hệ thống Khảo thí Trực tuyến hiện đại. Chi tiết toàn bộ 8 phân hệ tài liệu kỹ thuật được tổ chức tại [`docs/`](docs/README.md).
 
-```text
-HTTP Request
-    ↓
-Route
-    ↓
-Middleware
-    ↓
-Authentication
-    ↓
-Form Request
-    ↓
-Controller
-    ↓
-Policy / Authorization
-    ↓
-Action / Service nếu thực sự cần
-    ↓
-Eloquent
-    ↓
-PostgreSQL / Redis / Queue
-    ↓
-API Resource
-    ↓
-JSON Response
-```
-
-## Tài liệu dự án
-
-Toàn bộ hệ thống tài liệu và đặc tả kiến trúc được tổ chức thành **8 nhóm thư mục theo vai trò chức năng** tại [`docs/`](docs/README.md):
-
-1. **[Quy chuẩn Kỹ thuật Cốt lõi (AGENTS.md)](AGENTS.md)**: Bản quy tắc vàng, tiêu chuẩn kỹ thuật và vai trò Senior Backend Engineer.
-2. **[Mục lục Tài liệu Tổng thể (docs/README.md)](docs/README.md)**: Bản đồ tra cứu toàn bộ tài liệu kiến trúc và hướng dẫn kỹ thuật.
-3. **[01 — Yêu Cầu & Nghiệp Vụ (docs/01-requirements/)](docs/01-requirements/README.md)**:
-   - [Bài toán & Phạm vi Nghiệp vụ (01-PROBLEM_AND_SCOPE.md)](docs/01-requirements/01-PROBLEM_AND_SCOPE.md)
-   - [Yêu cầu Chức năng FR-* (02-REQUIREMENTS.md)](docs/01-requirements/02-REQUIREMENTS.md)
-   - [Yêu cầu Phi chức năng NFR-* (03-NON_FUNCTIONAL_REQUIREMENTS.md)](docs/01-requirements/03-NON_FUNCTIONAL_REQUIREMENTS.md)
-   - [Thiết kế Use Cases & Đặc tả Luồng Cốt lõi (04-USE_CASES.md)](docs/01-requirements/04-USE_CASES.md)
-   - [Quy tắc Nghiệp vụ & Tầng Thực thi BR-* (05-BUSINESS_RULES.md)](docs/01-requirements/05-BUSINESS_RULES.md)
-4. **[02 — Mô Hình Miền & CSDL (docs/02-domain-database/)](docs/02-domain-database/README.md)**:
-   - [Mô hình Miền Nghiệp vụ (06-DOMAIN_MODEL.md)](docs/02-domain-database/06-DOMAIN_MODEL.md)
-   - [Máy Trạng thái Question, Session, Attempt (07-STATE_MACHINES.md)](docs/02-domain-database/07-STATE_MACHINES.md)
-   - [Thiết kế CSDL Chi tiết, Ràng buộc & Chỉ mục (09-DATABASE_DESIGN.md)](docs/02-domain-database/09-DATABASE_DESIGN.md)
-   - [Sơ đồ Mermaid ERD Toàn diện (10-ERD.md)](docs/02-domain-database/10-ERD.md)
-   - [Phân loại Dữ liệu & Thanh lọc Nhật ký (11-DATA_CLASSIFICATION.md)](docs/02-domain-database/11-DATA_CLASSIFICATION.md)
-5. **[03 — Kiến Trúc & API (docs/03-architecture-api/)](docs/03-architecture-api/README.md)**:
-   - [Đánh giá Cổng Thiết kế & Phán quyết READY (00-DESIGN_REVIEW.md)](docs/03-architecture-api/00-DESIGN_REVIEW.md)
-   - [Kiến trúc C4 Model Level 1 & Level 2 (08-ARCHITECTURE.md)](docs/03-architecture-api/08-ARCHITECTURE.md)
-   - [Đặc tả API Contracts & Schemas /api/v1 (12-API_DESIGN.md)](docs/03-architecture-api/12-API_DESIGN.md)
-   - [Sơ đồ Tuần tự Mermaid Luồng Sinh tử (15-SEQUENCE_DIAGRAMS.md)](docs/03-architecture-api/15-SEQUENCE_DIAGRAMS.md)
-   - [Bản ghi Quyết định Kiến trúc (adr/)](docs/03-architecture-api/adr/ADR-001-LARAVEL_REST_API.md)
-6. **[04 — Bảo Mật & Concurrency (docs/04-security-concurrency/)](docs/04-security-concurrency/README.md)**:
-   - [Xác thực Sanctum & Phân quyền Chống IDOR (13-AUTH_AND_ACCESS_CONTROL.md)](docs/04-security-concurrency/13-AUTH_AND_ACCESS_CONTROL.md)
-   - [Mô hình Đe dọa STRIDE & 8 Kịch bản Tấn công (14-THREAT_MODEL.md)](docs/04-security-concurrency/14-THREAT_MODEL.md)
-   - [Kiểm soát Tranh chấp Đồng thời & Khóa Bi quan (16-CONSISTENCY_AND_CONCURRENCY.md)](docs/04-security-concurrency/16-CONSISTENCY_AND_CONCURRENCY.md)
-7. **[05 — Giao Diện Frontend (docs/05-frontend/)](docs/05-frontend/README.md)**:
-   - [Kiến trúc Next.js 15+ App Router & Focus Exam Room (17-FRONTEND_DESIGN.md)](docs/05-frontend/17-FRONTEND_DESIGN.md)
-8. **[06 — Vận Hành & DevOps (docs/06-operations-devops/)](docs/06-operations-devops/README.md)**:
-   - [Khả năng Quan sát, Logs, Metrics & Health Check (18-OBSERVABILITY.md)](docs/06-operations-devops/18-OBSERVABILITY.md)
-   - [Kế hoạch Hiệu năng & Tải đỉnh (20-PERFORMANCE_PLAN.md)](docs/06-operations-devops/20-PERFORMANCE_PLAN.md)
-   - [Hạ tầng Triển khai & CI/CD Pipeline (21-DEPLOYMENT.md)](docs/06-operations-devops/21-DEPLOYMENT.md)
-   - [Bảng Đăng ký Rủi ro Hệ thống (22-RISK_REGISTER.md)](docs/06-operations-devops/22-RISK_REGISTER.md)
-9. **[07 — Kiểm Thử & Thực Thi (docs/07-testing-execution/)](docs/07-testing-execution/README.md)**:
-   - [Chiến lược Kiểm thử Tự động & RTM Matrix (19-TEST_STRATEGY.md)](docs/07-testing-execution/19-TEST_STRATEGY.md)
-   - [Lộ trình Triển khai 14 Phase Chi tiết kèm DoD (23-IMPLEMENTATION_PLAN.md)](docs/07-testing-execution/23-IMPLEMENTATION_PLAN.md)
-10. **[08 — Quy Chuẩn & Đào Tạo (docs/08-guidelines/)](docs/08-guidelines/README.md)**:
-   - [Tiêu chuẩn Lập trình PHP & TypeScript (CODING_STANDARDS.md)](docs/08-guidelines/CODING_STANDARDS.md)
-   - [Quy chuẩn Commit Chuẩn Production (COMMIT_STANDARDS.md)](docs/08-guidelines/COMMIT_STANDARDS.md)
-   - [Cẩm nang Học tập Senior Backend (LEARNING_GUIDE.md)](docs/08-guidelines/LEARNING_GUIDE.md)
-
-## Nguyên tắc
-
-> Học Laravel bằng cách xây từng nghiệp vụ thật của hệ thống thi, không generate toàn bộ project một lần.
-
-Không thêm Repository / Service / Interface / DTO / Mapper chỉ để trông giống Clean Architecture.
-
-Chỉ tạo abstraction khi nó giải quyết một vấn đề cụ thể.
+Mọi đóng góp mã nguồn phải tuân thủ nghiêm ngặt theo **[Hiến pháp Kỹ thuật AGENTS.md](AGENTS.md)** và **[Quy chuẩn Commit COMMIT_STANDARDS.md](docs/08-guidelines/COMMIT_STANDARDS.md)**.

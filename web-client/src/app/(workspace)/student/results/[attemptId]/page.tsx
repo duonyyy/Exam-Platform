@@ -183,85 +183,81 @@ export default function StudentExamResultPage() {
       </div>
 
       {/* Main Score Hero Card */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl overflow-hidden">
-        {/* Background glow & accents */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
-
+      <div className="relative rounded-[8px] bg-slate-900 text-white p-6 sm:p-8 shadow-xs border border-slate-800 overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               <span>ĐÃ CÔNG BỐ KẾT QUẢ CHÍNH THỨC</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               {MOCK_RESULT_DATA.sessionTitle}
             </h1>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-slate-300">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-slate-300 font-medium">
               <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-cyan-400" />
+                <Calendar className="w-4 h-4 text-blue-400" />
                 Nộp lúc: {MOCK_RESULT_DATA.submittedAt}
               </span>
               <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-cyan-400" />
+                <Clock className="w-4 h-4 text-blue-400" />
                 Thời gian làm: {MOCK_RESULT_DATA.durationMinutes} phút
               </span>
-              <span className="flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-cyan-400" />
-                Mã bài thi: {attemptId}
+              <span className="flex items-center gap-1.5 font-mono">
+                <Award className="w-4 h-4 text-blue-400" />
+                Mã: {attemptId}
               </span>
             </div>
           </div>
 
           {/* Big Score Box */}
-          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 min-w-[200px] justify-center md:justify-end">
+          <div className="flex items-center gap-4 bg-slate-800/80 rounded-[6px] p-5 border border-slate-700 min-w-[200px] justify-center md:justify-end shadow-xs">
             <div className="text-center">
-              <div className="text-xs uppercase tracking-wider text-cyan-200 font-semibold mb-1">
+              <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">
                 Điểm tổng kết
               </div>
-              <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-300">
+              <div className="text-4xl sm:text-5xl font-black text-emerald-400 tabular-nums">
                 {MOCK_RESULT_DATA.score.toFixed(2)}
               </div>
               <div className="text-xs text-slate-300 mt-1 font-medium">
-                Thang điểm 10.0 • <span className="text-emerald-300 font-bold">ĐẠT (PASS)</span>
+                Thang điểm 10.0 • <span className="text-emerald-400 font-bold">ĐẠT (PASS)</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-white/10">
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-800">
+          <div className="p-3 rounded-[6px] bg-slate-800/50 border border-slate-700/60">
             <div className="text-xs text-slate-400">Số câu đúng</div>
-            <div className="text-lg font-bold text-emerald-400 mt-0.5">
+            <div className="text-base font-bold text-emerald-400 mt-0.5 tabular-nums">
               {MOCK_RESULT_DATA.correctCount} / {MOCK_RESULT_DATA.totalQuestions}
             </div>
             <div className="text-[11px] text-slate-400 mt-0.5">Tỷ lệ 87.5%</div>
           </div>
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-3 rounded-[6px] bg-slate-800/50 border border-slate-700/60">
             <div className="text-xs text-slate-400">Số câu sai</div>
-            <div className="text-lg font-bold text-rose-400 mt-0.5">
+            <div className="text-base font-bold text-rose-400 mt-0.5 tabular-nums">
               {MOCK_RESULT_DATA.incorrectCount} câu
             </div>
             <div className="text-[11px] text-slate-400 mt-0.5">Bị trừ 0.75 điểm</div>
           </div>
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-3 rounded-[6px] bg-slate-800/50 border border-slate-700/60">
             <div className="text-xs text-slate-400">Chưa làm / Bỏ qua</div>
-            <div className="text-lg font-bold text-amber-300 mt-0.5">
+            <div className="text-base font-bold text-amber-300 mt-0.5 tabular-nums">
               {MOCK_RESULT_DATA.skippedCount} câu
             </div>
             <div className="text-[11px] text-slate-400 mt-0.5">Không tính điểm</div>
           </div>
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-3 rounded-[6px] bg-slate-800/50 border border-slate-700/60">
             <div className="text-xs text-slate-400">Xếp loại học lực</div>
-            <div className="text-lg font-bold text-cyan-300 mt-0.5">Giỏi</div>
+            <div className="text-base font-bold text-cyan-300 mt-0.5">Giỏi</div>
             <div className="text-[11px] text-slate-400 mt-0.5">Top 15% ca thi</div>
           </div>
         </div>
       </div>
 
       {/* Question Details Header & Filter Tabs */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+      <div className="bg-white rounded-[8px] border border-slate-200/90 p-5 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -274,11 +270,11 @@ export default function StudentExamResultPage() {
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-semibold">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-[6px] text-xs font-semibold">
             <button
               type="button"
               onClick={() => setFilter("all")}
-              className={`px-3 py-1.5 rounded-lg transition ${
+              className={`px-3 py-1.5 rounded-[4px] transition ${
                 filter === "all" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -287,7 +283,7 @@ export default function StudentExamResultPage() {
             <button
               type="button"
               onClick={() => setFilter("correct")}
-              className={`px-3 py-1.5 rounded-lg transition ${
+              className={`px-3 py-1.5 rounded-[4px] transition ${
                 filter === "correct" ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -296,7 +292,7 @@ export default function StudentExamResultPage() {
             <button
               type="button"
               onClick={() => setFilter("incorrect")}
-              className={`px-3 py-1.5 rounded-lg transition ${
+              className={`px-3 py-1.5 rounded-[4px] transition ${
                 filter === "incorrect" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -306,13 +302,13 @@ export default function StudentExamResultPage() {
         </div>
 
         {/* Questions List */}
-        <div className="space-y-4 mt-5">
+        <div className="space-y-3.5 mt-5">
           {filteredQuestions.map((q) => {
             const isExpanded = !!expandedExplanations[q.id];
             return (
               <div
                 key={q.id}
-                className={`rounded-xl border transition-all p-5 ${
+                className={`rounded-[8px] border transition-all p-5 ${
                   q.isCorrect
                     ? "border-emerald-200/80 bg-emerald-50/20"
                     : "border-rose-200/80 bg-rose-50/20"
@@ -322,7 +318,7 @@ export default function StudentExamResultPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-2.5">
                     <span
-                      className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold ${
+                      className={`inline-flex items-center justify-center w-7 h-7 rounded-[4px] text-xs font-bold ${
                         q.isCorrect
                           ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                           : "bg-rose-50 text-rose-800 border border-rose-200"
@@ -331,7 +327,7 @@ export default function StudentExamResultPage() {
                       {q.order}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-semibold ${
                         q.isCorrect
                           ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                           : "bg-rose-50 text-rose-800 border border-rose-200"
@@ -400,7 +396,7 @@ export default function StudentExamResultPage() {
                     return (
                       <div
                         key={opt.key}
-                        className={`flex items-center justify-between p-3 rounded-lg border text-xs font-medium ${itemStyle}`}
+                        className={`flex items-center justify-between p-3 rounded-[6px] border text-xs font-medium ${itemStyle}`}
                       >
                         <div className="flex items-center gap-2">
                           <span className="font-bold">{opt.key}.</span>
@@ -408,12 +404,12 @@ export default function StudentExamResultPage() {
                         </div>
                         <div className="flex items-center gap-1 font-semibold text-[11px]">
                           {isUserChoice && (
-                            <span className="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                            <span className="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-[4px]">
                               Bạn chọn
                             </span>
                           )}
                           {isRealCorrect && (
-                            <span className="text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded">
+                            <span className="text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded-[4px]">
                               Đáp án đúng
                             </span>
                           )}
@@ -425,7 +421,7 @@ export default function StudentExamResultPage() {
 
                 {/* Explanation Card */}
                 {isExpanded && (
-                  <div className="mt-4 p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs text-blue-950 flex items-start gap-2.5">
+                  <div className="mt-4 p-3.5 rounded-[6px] bg-blue-50/70 border border-blue-200 text-xs text-blue-950 flex items-start gap-2.5">
                     <HelpCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                     <div className="space-y-1">
                       <div className="font-bold text-blue-900">Giải thích từ giảng viên:</div>

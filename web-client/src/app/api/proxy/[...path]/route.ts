@@ -18,7 +18,7 @@ async function handleProxy(request: NextRequest, context: RouteContext) {
     const token = cookieStore.get("auth_token")?.value;
 
     const headers: Record<string, string> = {
-      Accept: "application/json",
+      Accept: request.headers.get("Accept") || "application/json",
     };
 
     if (token) {
@@ -37,22 +37,31 @@ async function handleProxy(request: NextRequest, context: RouteContext) {
 
     let body: BodyInit | null = null;
     if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
-      body = await request.text();
+      body = await request.arrayBuffer();
     }
 
     const backendResponse = await fetch(targetUrl, {
       method: request.method,
       headers,
-      body: body && body.length > 0 ? body : undefined,
+      body: body && (body as ArrayBuffer).byteLength > 0 ? body : undefined,
     });
 
-    const data = await backendResponse.text();
+    const data = await backendResponse.arrayBuffer();
+
+    const responseHeaders = new Headers();
+    responseHeaders.set(
+      "Content-Type",
+      backendResponse.headers.get("Content-Type") || "application/json"
+    );
+
+    const contentDisposition = backendResponse.headers.get("Content-Disposition");
+    if (contentDisposition) {
+      responseHeaders.set("Content-Disposition", contentDisposition);
+    }
 
     return new NextResponse(data, {
       status: backendResponse.status,
-      headers: {
-        "Content-Type": backendResponse.headers.get("Content-Type") || "application/json",
-      },
+      headers: responseHeaders,
     });
   } catch (error) {
     console.error("[API Proxy Error]:", error);

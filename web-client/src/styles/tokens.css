@@ -51,17 +51,19 @@
   /* Easing */
   --ts-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Border Radii */
-  --ts-radius-sm: 12px;
-  --ts-radius-md: 18px;
-  --ts-radius-lg: 24px;
+  /* Border Radii (Enterprise 2026: Disciplined Geometry 4px - 6px - 8px) */
+  --ts-radius-xs: 4px;
+  --ts-radius-sm: 4px;
+  --ts-radius-md: 6px;
+  --ts-radius-lg: 8px;
   --ts-radius-full: 9999px;
 
-  /* Shadows */
-  --ts-shadow-soft: 0 8px 28px rgb(37 99 235 / 9%);
-  --ts-shadow-hover: 0 14px 34px rgb(37 99 235 / 18%);
-  --ts-shadow-glow: 0 16px 34px rgb(6 182 212 / 20%);
-  --ts-shadow-card: 0 4px 16px rgb(15 23 42 / 4%);
+  /* Shadows (Enterprise 2026: Subtle, grounded elevation) */
+  --ts-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ts-shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --ts-shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --ts-shadow-glow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 2px 8px rgba(37, 99, 235, 0.12);
+  --ts-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
 
   /* Motion Durations */
   --ts-motion-fast: 120ms;
@@ -86,9 +88,10 @@
   --ts-muted: #94a3b8;
   --ts-muted-light: #64748b;
 
-  --ts-shadow-soft: 0 8px 28px rgb(0 0 0 / 25%);
-  --ts-shadow-hover: 0 14px 34px rgb(37 99 235 / 25%);
-  --ts-shadow-glow: 0 16px 34px rgb(6 182 212 / 30%);
+  --ts-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --ts-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --ts-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --ts-shadow-glow: 0 0 0 1px rgba(59, 130, 246, 0.25), 0 2px 8px rgba(59, 130, 246, 0.2);
 
   /* Functional Status Colors (Dark theme) */
   --ts-success: #10b981;

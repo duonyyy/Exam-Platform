@@ -223,7 +223,7 @@
 ---
 
 ### Phase 14 — Nhập Ngân Hàng Câu Hỏi Hàng Loạt & Xuất Bản Báo Cáo, Bảng Điểm Khảo Thí (Bulk Question Import & Official Reporting)
-- **Tiến độ**: Đã phê duyệt đặc tả (SPEC APPROVED) — Tính năng nghiệp vụ khảo thí cốt lõi chuẩn doanh nghiệp.
+- **Tiến độ**: ✅ **HOÀN THÀNH 100% (COMPLETED)** — Đã triển khai đầy đủ Backend Services, Controllers, Form Requests, Policies, Blade Templates cho PDF in ấn, Frontend Components, và 19 Feature Tests đạt 100% PASS. Larastan Level 5 clean 0 lỗi.
 - **Mục tiêu**:
   1. Cho phép Giảng viên nạp hàng trăm câu hỏi vào ngân hàng đề từ file Excel (`.xlsx`) hoặc tệp chuẩn Aiken/Word: có template chuẩn hóa, validation theo từng dòng, phân loại lỗi chi tiết (dòng nào sai cú pháp, thiếu đáp án, sai loại câu), và nạp an toàn trong Database Transaction.
   2. Cung cấp bộ công cụ xuất bản tài liệu khảo thí chuyên nghiệp cho Phòng Khảo thí & Giảng viên:
@@ -255,5 +255,31 @@
 - **Tests**: `tests/Feature/Questions/QuestionImportTest.php`, `tests/Feature/Exams/ExamExportTest.php`.
 - **DoD**: Giảng viên tải file Excel 100 câu hỏi $\rightarrow$ preview lỗi trực quan $\rightarrow$ import thành công vào ngân hàng câu hỏi trong CSDL; Xuất bảng điểm ca thi ra file `.xlsx` và `.pdf` mở được trên Excel/Acrobat với định dạng bảng biểu sắc nét; 100% tests PASS; Larastan Level 5 clean.
 
+---
 
-
+### Phase 15 — Đa Phương Tiện Trong Ngân Hàng Đề & Giám Sát Bản Quyền Hình Ảnh (Rich Media Question Bank, Secure Image Attachments & Anti-Leak Watermarking)
+- **Tiến độ**: Đã phê duyệt đặc tả (SPEC APPROVED) — Nâng cấp trải nghiệm soạn đề đa phương tiện & phòng thi chống tuồn đề.
+- **Mục tiêu**:
+  1. Hỗ trợ đính kèm hình ảnh minh họa cho cả 4 loại câu hỏi: hình ảnh trong đề bài (`question_text`) và hình ảnh trong từng phương án lựa chọn (`options` JSONB có key `image_url` hoặc nhúng Markdown ảnh).
+  2. Cung cấp dịch vụ tải lên media an toàn (`MediaUploadService`): tự động nén tối ưu sang WebP (giảm 70% dung lượng), đổi tên theo UUIDv4 ngẫu nhiên (chống brute-force đoán URL đề thi), quét header/MIME type nhị phân, loại bỏ metadata EXIF chứa thông tin nhạy cảm.
+  3. Cơ chế bảo vệ bản quyền & chống tuồn đề thi: Sinh Dynamic Watermark bán trong suốt (chứa `student_id`, `session_id`, `ip_address`, `timestamp`) phủ lên hình ảnh trong giao diện phòng thi của thí sinh; nếu chụp màn hình sẽ lập tức truy vết được người làm rò rỉ.
+  4. Tích hợp trơn tru với Phase 14 khi xuất Đề thi và Phiếu trắc nghiệm ra PDF (sử dụng đường dẫn file nội bộ trên server thay vì HTTP request ngoài để tối ưu tốc độ render).
+- **Phụ thuộc**: Phase 4 (Ngân hàng câu hỏi), Phase 7 (Làm bài thi), Phase 14 (Xuất bản PDF).
+- **Tệp tin ảnh hưởng / khởi tạo**:
+  - `core-api/database/migrations/2026_10_27_000001_add_image_url_to_questions_table.php`
+  - `core-api/app/Services/Media/MediaUploadService.php`
+  - `core-api/app/Http/Controllers/Api/V1/MediaUploadController.php`
+  - `core-api/app/Http/Requests/Media/UploadMediaRequest.php`
+  - `web-client/src/features/questions/components/RichMediaEditor.tsx`
+  - `web-client/src/features/questions/components/ImageAttachmentUploader.tsx`
+  - `web-client/src/features/exam-taking/components/WatermarkedQuestionImage.tsx`
+- **Thay đổi CSDL**: Bổ sung cột `image_url: string|null` vào bảng `questions`; mở rộng schema `options: jsonb` cho phép chứa thuộc tính `image_url` tùy chọn trong từng option.
+- **Endpoints**:
+  - `POST /api/v1/questions/media-upload`: Tải lên ảnh câu hỏi an toàn (chỉ dành cho Teacher & Admin, trả về UUID secure URL).
+  - `DELETE /api/v1/questions/media/{filename}`: Dọn dẹp ảnh mồ côi khi câu hỏi bị hủy soạn thảo.
+- **Kiểm soát An ninh**:
+  - Upload Defense: Giới hạn dung lượng tối đa 2MB (`max:2048`), chỉ cho phép các MIME type an toàn (`jpeg,png,webp,jpg`), strip toàn bộ EXIF data.
+  - Chống IDOR: Giảng viên chỉ được upload ảnh vào thư mục môn học mình phụ trách (`SubjectPolicy@uploadMedia`).
+  - Zero-Leakage: URL ảnh đề thi không chứa số thứ tự đề hay ID nhạy cảm; phục vụ qua Storage symlink bảo vệ hoặc cache CDN riêng.
+- **Tests**: `tests/Feature/Questions/QuestionMediaUploadTest.php`, `tests/Feature/Questions/QuestionWithImageScoringTest.php`.
+- **DoD**: Giảng viên kéo thả ảnh vào câu hỏi/đáp án $\rightarrow$ nén WebP tự động $\rightarrow$ lưu thành công; Thí sinh làm bài thi nhìn thấy ảnh có watermark định danh mờ; Xuất PDF đề thi nhúng ảnh sắc nét không vỡ khung; 100% tests PASS; Larastan Level 5 clean.

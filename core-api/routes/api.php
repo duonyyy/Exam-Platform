@@ -3,10 +3,12 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ExamAttemptController;
 use App\Http\Controllers\Api\V1\ExamController;
+use App\Http\Controllers\Api\V1\ExamExportController;
 use App\Http\Controllers\Api\V1\ExamSessionController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\ProctoringEventController;
 use App\Http\Controllers\Api\V1\QuestionController;
+use App\Http\Controllers\Api\V1\QuestionImportController;
 use App\Http\Controllers\Api\V1\StudentExamSessionController;
 use App\Http\Controllers\Api\V1\SubjectController;
 use App\Http\Controllers\Api\V1\TopicController;
@@ -58,12 +60,17 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/questions', [QuestionController::class, 'store'])->name('api.v1.questions.store');
         Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('api.v1.questions.update');
         Route::patch('/questions/{question}/status', [QuestionController::class, 'changeStatus'])->name('api.v1.questions.status');
+        // Bulk Question Import (Phase 14)
+        Route::get('/questions/import/template', [QuestionImportController::class, 'template'])->name('api.v1.questions.import.template');
+        Route::post('/questions/import/validate', [QuestionImportController::class, 'validateImport'])->name('api.v1.questions.import.validate');
+        Route::post('/questions/import', [QuestionImportController::class, 'import'])->name('api.v1.questions.import');
         // Exam Templates & Assembly (Phase 5) & AI Copilot Blueprint (Phase 13)
         Route::get('/exams', [ExamController::class, 'index'])->name('api.v1.exams.index');
         Route::post('/exams', [ExamController::class, 'store'])->name('api.v1.exams.store');
         Route::post('/exams/from-blueprint', [ExamController::class, 'storeFromBlueprint'])->name('api.v1.exams.from-blueprint');
         Route::get('/exams/{exam}/readiness-review', [ExamController::class, 'readinessReview'])->name('api.v1.exams.readiness-review');
         Route::post('/exams/{exam}/questions', [ExamController::class, 'attachQuestions'])->name('api.v1.exams.questions.store');
+        Route::get('/exams/{exam}/export/pdf', [ExamExportController::class, 'exportExamPdf'])->name('api.v1.exams.export.pdf');
         // Exam Sessions Lifecycle (Phase 6)
         Route::get('/exam-sessions', [ExamSessionController::class, 'index'])->name('api.v1.exam-sessions.index');
         Route::post('/exam-sessions', [ExamSessionController::class, 'store'])->name('api.v1.exam-sessions.store');
@@ -76,8 +83,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         // Live Proctoring & Violation Summary (Phase 10)
         Route::get('/exam-sessions/{exam_session}/proctoring-summary', [ProctoringEventController::class, 'summary'])->name('api.v1.exam-sessions.proctoring-summary');
         Route::get('/exam-sessions/{exam_session}/proctoring-events', [ProctoringEventController::class, 'index'])->name('api.v1.exam-sessions.proctoring-events.index');
-        // Results & Analytics (Phase 11)
+        // Results & Analytics (Phase 11) & Official Reporting (Phase 14)
         Route::get('/exam-sessions/{exam_session}/results', [ExamSessionController::class, 'results'])->name('api.v1.exam-sessions.results');
+        Route::get('/exam-sessions/{exam_session}/export/excel', [ExamExportController::class, 'exportSessionExcel'])->name('api.v1.exam-sessions.export.excel');
+        Route::get('/exam-sessions/{exam_session}/export/pdf', [ExamExportController::class, 'exportSessionPdf'])->name('api.v1.exam-sessions.export.pdf');
     });
 
     // Student routes & Attempt Lifecycle (Phase 8, 9, 10)

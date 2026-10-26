@@ -35,4 +35,9 @@ class ExamPolicy
         return $this->viewAny($user)
             && ($user->isAdmin() || $exam->subject->owner_teacher_id === $user->id);
     }
+
+    public function exportPdf(User $user, Exam $exam): bool
+    {
+        return $this->view($user, $exam);
+    }
 }

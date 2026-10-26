@@ -24,6 +24,7 @@ import {
   Timer,
   LayoutDashboard,
   Layers,
+  Activity,
 } from "lucide-react";
 
 interface NavItem {
@@ -41,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
     href: "/student/exams",
     icon: Calendar,
     role: "student",
-    badge: "1 Đang mở",
+    badge: "1 Mở",
   },
   {
     label: "Kết quả bài thi",
@@ -142,20 +143,20 @@ export function AppSidebar() {
 
   return (
     <aside
-      className={`h-screen sticky top-0 bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between z-30 select-none ${
+      className={`h-screen sticky top-0 bg-white border-r border-slate-200/90 transition-all duration-200 flex flex-col justify-between z-30 select-none ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
       {/* Top Header & Brand Logo */}
-      <div>
-        <div className="h-16 px-4 border-b border-slate-100 flex items-center justify-between">
+      <div className="flex flex-col flex-1 min-h-0">
+        <div className="h-16 px-4 border-b border-slate-200/90 flex items-center justify-between shrink-0">
           <div className="overflow-hidden">
-            <BrandLogo href="/" compact={collapsed} priority className="h-8 w-auto" />
+            <BrandLogo href="/" compact={collapsed} priority className="h-7 w-auto" />
           </div>
           <button
             type="button"
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            className="p-1.5 rounded-[6px] text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
             aria-label={collapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -164,15 +165,15 @@ export function AppSidebar() {
 
         {/* Role Quick Filter (when expanded) */}
         {!collapsed && (
-          <div className="p-3 border-b border-slate-100 bg-slate-50/50">
+          <div className="p-3 border-b border-slate-200/90 bg-slate-50/60 shrink-0">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 px-1">
-              Phân hệ truy cập
+              Phân hệ làm việc
             </div>
             <div className="grid grid-cols-4 gap-1 text-[11px] font-semibold">
               <button
                 type="button"
                 onClick={() => setActiveRoleFilter("all")}
-                className={`py-1 rounded-md transition text-center ${
+                className={`py-1 rounded-[4px] transition text-center ${
                   activeRoleFilter === "all"
                     ? "bg-blue-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-200/60"
@@ -183,7 +184,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 onClick={() => setActiveRoleFilter("student")}
-                className={`py-1 rounded-md transition text-center ${
+                className={`py-1 rounded-[4px] transition text-center ${
                   activeRoleFilter === "student"
                     ? "bg-blue-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-200/60"
@@ -194,7 +195,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 onClick={() => setActiveRoleFilter("teacher")}
-                className={`py-1 rounded-md transition text-center ${
+                className={`py-1 rounded-[4px] transition text-center ${
                   activeRoleFilter === "teacher"
                     ? "bg-blue-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-200/60"
@@ -205,7 +206,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 onClick={() => setActiveRoleFilter("admin")}
-                className={`py-1 rounded-md transition text-center ${
+                className={`py-1 rounded-[4px] transition text-center ${
                   activeRoleFilter === "admin"
                     ? "bg-blue-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-200/60"
@@ -218,7 +219,7 @@ export function AppSidebar() {
         )}
 
         {/* Navigation Links */}
-        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-250px)]">
+        <nav className="p-2 space-y-0.5 overflow-y-auto flex-1">
           {filteredItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -229,10 +230,10 @@ export function AppSidebar() {
                 key={item.href}
                 href={item.href}
                 title={collapsed ? item.label : undefined}
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-semibold transition ${
                   isActive
-                    ? "bg-blue-50 text-blue-700 border border-blue-200/60 shadow-xs"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                    ? "bg-blue-50 text-blue-700 border border-blue-200/70 shadow-xs"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-blue-700 border border-transparent"
                 } ${collapsed ? "justify-center px-2" : ""}`}
               >
                 <Icon
@@ -245,10 +246,10 @@ export function AppSidebar() {
                 )}
                 {!collapsed && item.badge && (
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                    className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-bold uppercase tracking-wider ${
                       item.badge === "LIVE"
                         ? "bg-rose-50 text-rose-700 animate-pulse border border-rose-200"
-                        : "bg-slate-100 text-slate-600"
+                        : "bg-slate-100 text-slate-600 border border-slate-200"
                     }`}
                   >
                     {item.badge}
@@ -260,40 +261,53 @@ export function AppSidebar() {
         </nav>
       </div>
 
-      {/* Bottom Shortcuts */}
-      <div className="p-3 border-t border-slate-100 space-y-1 bg-slate-50/50">
-        <Link
-          href="/exam/demo"
-          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow-xs ${
-            collapsed ? "justify-center px-2" : ""
-          }`}
-          title="Phòng thi Focus Room"
-        >
-          <Timer className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>Vào thi Focus Mode</span>}
-        </Link>
+      {/* Bottom Status & Shortcuts */}
+      <div className="p-3 border-t border-slate-200/90 space-y-2 bg-slate-50/60 shrink-0">
+        {/* System Status Footnote */}
+        {!collapsed && (
+          <div className="px-2 py-1.5 rounded-[6px] bg-white border border-slate-200/80 flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-semibold text-slate-700">ThiSmart v2.6</span>
+            </div>
+            <span className="text-[10px] text-emerald-700 font-medium">Máy chủ ổn định</span>
+          </div>
+        )}
 
-        <Link
-          href="/patterns"
-          className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700 bg-blue-50/70 border border-blue-200/60 hover:bg-blue-100/70 transition ${
-            collapsed ? "justify-center px-2" : ""
-          }`}
-          title="Triển Lãm 6 Vector Patterns"
-        >
-          <Layers className="w-4 h-4 shrink-0 text-blue-600" />
-          {!collapsed && <span>6 Vector Patterns Lab</span>}
-        </Link>
+        <div className="space-y-1">
+          <Link
+            href="/exam/demo"
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow-xs ${
+              collapsed ? "justify-center px-2" : ""
+            }`}
+            title="Phòng thi Focus Room"
+          >
+            <Timer className="w-4 h-4 shrink-0" />
+            {!collapsed && <span>Phòng thi Focus Mode</span>}
+          </Link>
 
-        <Link
-          href="/design-system"
-          className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-white transition ${
-            collapsed ? "justify-center px-2" : ""
-          }`}
-          title="Design System Preview"
-        >
-          <Palette className="w-4 h-4 shrink-0 text-slate-400" />
-          {!collapsed && <span>Design System</span>}
-        </Link>
+          <Link
+            href="/patterns"
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold text-blue-700 bg-blue-50/70 border border-blue-200/60 hover:bg-blue-100/70 transition ${
+              collapsed ? "justify-center px-2" : ""
+            }`}
+            title="Triển Lãm 6 Vector Patterns"
+          >
+            <Layers className="w-4 h-4 shrink-0 text-blue-600" />
+            {!collapsed && <span>6 Vector Patterns Lab</span>}
+          </Link>
+
+          <Link
+            href="/design-system"
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-medium text-slate-600 hover:text-blue-700 hover:bg-white transition border border-transparent hover:border-slate-200 ${
+              collapsed ? "justify-center px-2" : ""
+            }`}
+            title="Design System Preview"
+          >
+            <Palette className="w-4 h-4 shrink-0 text-slate-400" />
+            {!collapsed && <span>Design System</span>}
+          </Link>
+        </div>
       </div>
     </aside>
   );

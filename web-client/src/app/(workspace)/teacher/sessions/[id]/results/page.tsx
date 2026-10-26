@@ -19,6 +19,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { ThiSmartCtaButton } from "@/components/motion/ThiSmartCtaButton";
+import { ExportReportButtons } from "@/features/results";
 
 interface CandidateScoreItem {
   id: string;
@@ -135,14 +136,7 @@ export default function TeacherSessionResultsPage() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => alert("Chức năng mô phỏng: Đang xuất file Excel kết quả ca thi!")}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition shadow-xs hover:border-slate-300"
-        >
-          <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-          <span>Xuất bảng điểm Excel</span>
-        </button>
+        <ExportReportButtons sessionId={sessionId} sessionTitle="Ca thi khảo thí" />
       </div>
 
       {/* Statistical Summary Cards */}

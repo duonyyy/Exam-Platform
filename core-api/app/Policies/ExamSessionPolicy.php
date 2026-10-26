@@ -63,6 +63,11 @@ class ExamSessionPolicy
         return $this->viewAny($user) && $this->isAuthorizedForSession($user, $session);
     }
 
+    public function exportResults(User $user, ExamSession $session): bool
+    {
+        return $this->viewResults($user, $session);
+    }
+
     private function isAuthorizedForSession(User $user, ExamSession $session): bool
     {
         if ($user->isAdmin()) {

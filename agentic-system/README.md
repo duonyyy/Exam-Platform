@@ -1,21 +1,21 @@
-# ExamOps Agent — Intelligent Orchestration Layer
+# 🤖 ExamOps Agent — Intelligent Orchestration Layer
 
-Dịch vụ AI Agent điều phối thông minh cho Hệ thống Thi Trực Tuyến (**Exam Platform**), xây dựng bằng **Python 3.11+**, **FastAPI**, **LangGraph**, và **Pydantic v2**. 
+> Intelligent AI Orchestration Service for the **Exam Platform / ThiSmart** online assessment system, engineered with **Python 3.11+**, **FastAPI**, **LangGraph**, and **Pydantic v2**.
 
-Dự án áp dụng kiến trúc phân tầng sạch (**Clean Layered Architecture**) kết hợp khung quản trị kỹ thuật chuẩn công nghiệp (**BMAD & Production AI Agent Template**).
+The system adheres to **Clean Layered Architecture** combined with industrial AI governance standards (**BMAD & Production AI Agent Template**).
 
 ---
 
-## 🎯 1. Vai Trò & Ranh Giới Kiến Trúc
+## 🎯 1. Architectural Boundaries & Principles
 
-- **Lớp Điều Phối Thông Minh (Intelligent Orchestration Layer)**: ExamOps Agent không thay thế backend Laravel. Mọi dữ liệu chân lý (**System of Record - SoR**) như đề thi, ngân hàng câu hỏi, ca thi và điểm số thuộc quyền quản lý độc quyền của `core-api/` (Laravel 13 & PostgreSQL 16).
-- **Ranh giới dữ liệu (Strict Boundary)**:
+- **Intelligent Orchestration Layer**: ExamOps Agent does not replace the Laravel backend. All truth data (**System of Record - SoR**) including questions, exams, sessions, and attempts remain under the exclusive ownership of `core-api/` (Laravel 13 & PostgreSQL 16).
+- **Strict Data Boundary**:
   ```text
   User / Teacher / Admin
             ↓
     FastAPI ExamOps (agentic-system)
             ↓
-    StateGraph (6-step deterministic loop)
+    LangGraph StateGraph (6-step deterministic loop)
             ↓
     Skills & Tools Registry (Allowlist)
             ↓
@@ -23,15 +23,15 @@ Dự án áp dụng kiến trúc phân tầng sạch (**Clean Layered Architectu
             ↓ [RESTful API /api/v1]
     Laravel Core API (PostgreSQL 16)
   ```
-- **Nguyên tắc an toàn (Fail-Closed & Zero-Leakage)**:
-  - Agent **tuyệt đối không đọc trực tiếp** database PostgreSQL của Exam Platform.
-  - Checkpoint lưu trữ độc lập tại SQLite riêng (`data/checkpoints.db`).
-  - Mọi thao tác Ghi (`requires_write = True`) bắt buộc phải dừng lại ở cổng duyệt **Human-in-the-Loop** (`WAITING_FOR_APPROVAL`).
-  - Tuyệt đối không log hoặc lưu trữ token, secret hay đáp án đúng (`correct_answer`).
+- **Fail-Closed & Zero-Leakage Policy**:
+  - The Agent **never accesses** the PostgreSQL database directly.
+  - State checkpoints are persisted independently in SQLite (`data/checkpoints.db`).
+  - All write operations (`requires_write = True`) are blocked at the **Human-in-the-Loop Approval Gate** (`WAITING_FOR_APPROVAL`).
+  - Zero-Leakage: Auth tokens, secrets, and `correct_answer` values are never logged, leaked, or cached.
 
 ---
 
-## 🏗️ 2. Chu Trình Điều Phối 6 Bước (Deterministic Agent Loop)
+## 🏗️ 2. 6-Step Deterministic Agent Loop
 
 ```mermaid
 flowchart TD
@@ -47,111 +47,73 @@ flowchart TD
   I --> G
 ```
 
-1. **Intake (`nodes/intake.py`)**: Phân tích cú pháp, trích xuất `AgentGoal`, kiểm tra quyền của `actor`.
-2. **Plan (`nodes/plan.py`)**: Xác định kỹ năng miền (`exam-blueprint` hoặc `exam-readiness-review`) và danh mục công cụ cho phép.
-3. **Execute (`nodes/execute.py`)**: Thực thi tác vụ nguyên tử hoặc truy vấn dữ liệu từ API.
-4. **Verify (`nodes/verify.py`)**: Thẩm định toán học (tổng tỷ lệ % = 100%, số câu nguyên dương, deduplication, status approved).
-5. **Human Review (`nodes/approval.py`)**: Cổng ngắt (`interrupt`) tự động khi có đề xuất ghi dữ liệu hoặc tác động phòng thi.
-6. **Finalize (`nodes/finalize.py`)**: Đóng gói `FinalResult` kèm bằng chứng xác thực (`VerificationResult`) và cập nhật trạng thái terminal.
+1. **Intake (`nodes/intake.py`)**: Parse user input, extract `AgentGoal`, validate `actor` permissions.
+2. **Plan (`nodes/plan.py`)**: Select domain skill (`exam-blueprint` or `exam-readiness-review`) and build permitted tools allowlist.
+3. **Execute (`nodes/execute.py`)**: Execute atomic domain skill or query Core API via read-only tools.
+4. **Verify (`nodes/verify.py`)**: Deterministic verification (sum % = 100, positive integers, deduplication, valid topic distribution).
+5. **Human Review (`nodes/approval.py`)**: StateGraph interrupt gate for write proposals.
+6. **Finalize (`nodes/finalize.py`)**: Package `FinalResult` with `VerificationResult` and transition to terminal status.
 
 ---
 
-## 📂 3. Cấu Trúc Phân Lớp Đã Tái Cấu Trúc (Refactored Directory Layout)
+## 📂 3. Directory Layout (Layered Architecture)
 
 ```text
 agentic-system/
-├── ARCHITECTURE.md             # Tài liệu thiết kế hệ thống chi tiết & sơ đồ Mermaid
-├── JOURNAL.md                  # Nhật ký kỹ thuật và học tập hàng tuần
-├── WORKLOG.md                  # Bảng phân công tác vụ và theo dõi tiến độ
-├── SECURITY.md                 # Chính sách an toàn & quy trình ứng phó lộ khóa
-├── Makefile                    # Phím tắt tự động hóa: run, test, eval, lint, format
-├── pyproject.toml              # Cấu hình dự án Python & dependencies
-├── .env.example                # Biến môi trường mẫu
-├── .gitignore                  # Cấu hình bỏ qua venv, cache, checkpoints
-├── data/                       # Thư mục lưu trữ SQLite checkpoints cục bộ
-├── src/examops/                # Mã nguồn chính phân lớp chuẩn công nghiệp
-│   ├── api/                    # Tầng giao tiếp REST API
-│   │   ├── __init__.py
-│   │   └── routes.py           # Endpoints: /tasks, /tasks/{id}, /resume, /health
-│   ├── nodes/                  # 6 Nodes điều phối của LangGraph StateGraph
-│   │   ├── __init__.py
-│   │   ├── intake.py           # Node 1: Intake & Actor validation
-│   │   ├── plan.py             # Node 2: Planning & tool allowlisting
-│   │   ├── execute.py          # Node 3: Skill & platform execution
-│   │   ├── verify.py           # Node 4: Math & Bloom verification
-│   │   ├── approval.py         # Node 5a & 5b: Human-in-the-Loop Gate
-│   │   └── finalize.py         # Node 6: Finalize terminal state
-│   ├── tools/                  # Tầng công cụ (Least-Privilege Tool Registry)
-│   │   ├── __init__.py
-│   │   ├── contracts.py        # ToolContract & RegisteredTool wrapper
-│   │   └── registry.py         # Registry thực thi chính sách đặc quyền tối thiểu
-│   ├── services/               # Tầng dịch vụ hạ tầng
-│   │   ├── __init__.py
-│   │   ├── llm.py              # LLM Model Provider factory (Mock, Gemini, OpenAI)
-│   │   └── platform.py         # ExamPlatformClient (HTTPX client)
-│   ├── models/                 # Tầng dữ liệu & Pydantic Schemas
-│   │   ├── __init__.py
-│   │   └── schemas.py          # DTOs, Blueprints, ReadinessReview models
-│   ├── config.py               # Cấu hình Pydantic Settings
-│   ├── graph.py                # StateGraph assembler & compiler
-│   ├── main.py                 # FastAPI application root & middleware
-│   ├── model.py                # Model Provider protocol & adapters
-│   ├── permissions.py          # Ma trận quyền hạn Actor RBAC
-│   ├── persistence.py          # Quản lý SQLite Checkpointer
-│   ├── platform_client.py      # HTTPX client kết nối core-api
-│   ├── schemas.py              # Schema gốc
-│   ├── skills.py               # Kỹ năng miền (Blueprint & Readiness Review)
-│   ├── state.py                # AgentState schema
-│   ├── telemetry.py            # OpenTelemetry & Structured Audit Log
-│   └── verification.py         # Engine thẩm định toán học tất định
-├── tests/                      # Bộ kiểm thử tự động
-│   ├── conftest.py             # Fixtures dùng chung
-│   ├── unit/                   # Kiểm thử đơn vị (Schemas, Skills, Verification, Tools)
-│   ├── integration/            # Kiểm thử tích hợp (API, Graph flow, Persistence)
-│   └── evals/                  # Bộ lượng giá 8 kịch bản nghiệp vụ khảo thí
-├── docs/                       # Tài liệu kỹ thuật dự án
-│   ├── 01-ARCHITECTURE.md
-│   ├── 02-AGENT-LOOP.md
-│   ├── 03-TOOL-AND-SKILL-CONTRACTS.md
-│   ├── 04-SECURITY-AND-VERIFICATION.md
-│   └── guide/                  # Bộ Technical Guidebook 10 chương chuyên sâu
-├── eval/                       # Báo cáo đánh giá định lượng chất lượng Agent
-│   └── results/report.md
-├── presentation/               # Slide deck & kịch bản demo trực tiếp
-└── scripts/                    # Scripts tự động thiết lập môi trường
-    ├── setup.sh                # Linux / macOS / WSL
-    └── setup.ps1               # Windows PowerShell
+├── ARCHITECTURE.md             # System Design & Mermaid Sequence Diagrams
+├── JOURNAL.md                  # Engineering Journal & Weekly Logs
+├── WORKLOG.md                  # Task Allocations & Milestone Tracking
+├── SECURITY.md                 # Security Policy & Secret Leak Incident Runbook
+├── Makefile                    # Developer Automation Shortcuts (run, test, eval, lint, format)
+├── pyproject.toml              # Python Dependencies & Packaging Configuration
+├── .env.example                # Sample Environment Variables
+├── .gitignore                  # Git Ignore Rules
+├── data/                       # Local SQLite Checkpoints Directory
+├── src/examops/                # Production Modular Source Code
+│   ├── api/                    # REST API Communication Layer (FastAPI routes)
+│   ├── nodes/                  # 6 Deterministic StateGraph Nodes (intake, plan, execute, verify, approval, finalize)
+│   ├── tools/                  # Least-Privilege Tool Registry & Typed Contracts
+│   ├── services/               # Infrastructure Layer (LLM factory, Platform Client)
+│   ├── models/                 # Domain Schemas & Pydantic DTOs
+│   ├── config.py               # Pydantic BaseSettings Configuration
+│   ├── graph.py                # LangGraph StateGraph Assembler & Compiler
+│   ├── main.py                 # FastAPI Application Root & Middleware
+│   ├── permissions.py          # Actor RBAC Authorization Matrix
+│   ├── persistence.py          # SQLite Checkpointer Engine
+│   ├── platform_client.py      # HTTPX REST Client communicating with Core API
+│   ├── skills.py               # Domain Skills (Blueprint & Readiness Review)
+│   ├── state.py                # AgentState Typed Schema
+│   ├── telemetry.py            # Structured Audit Logging & OpenTelemetry Instrumentation
+│   └── verification.py         # Deterministic Math Verification Engine
+├── tests/                      # Automated Test Suites
+│   ├── conftest.py             # Shared Pytest Fixtures
+│   ├── unit/                   # Unit Tests (Schemas, Skills, Verification, Tools)
+│   ├── integration/            # Integration Tests (API, Graph flow, Persistence)
+│   └── evals/                  # 8 Scenario Evaluation Benchmark Suite
+├── docs/                       # Technical Documentation & 10-Chapter Technical Guidebook
+├── eval/                       # Quantitative Agent Evaluation Reports
+└── scripts/                    # Automated Setup Scripts (PowerShell & Bash)
 ```
 
 ---
 
-## 🚀 4. Hướng Dẫn Vận Hành & Lệnh Makefile
+## 🚀 4. Makefile Automation Commands
 
-### Khởi chạy môi trường ảo:
 ```bash
-# Windows
-.\scripts\setup.ps1
-
-# Linux / macOS
-chmod +x scripts/setup.sh && ./scripts/setup.sh
-```
-
-### Các lệnh tắt với `make`:
-```bash
-make run        # Khởi chạy server FastAPI tại http://localhost:8001
-make test       # Chạy toàn bộ 36 tests tự động với pytest
-make eval       # Chạy bộ lượng giá 8 kịch bản nghiệp vụ khảo thí
-make lint       # Kiểm tra chuẩn mã nguồn với ruff
-make format     # Tự động định dạng mã nguồn với ruff
-make typecheck  # Kiểm tra kiểu nghiêm ngặt với mypy (Level Strict)
-make check      # Chạy chuỗi lint + typecheck + test
-make clean      # Dọn dẹp cache và tệp tạm
+make run        # Start FastAPI server at http://localhost:8001
+make test       # Run all 36 automated tests via pytest
+make eval       # Run 8 pedagogical evaluation benchmark scenarios
+make lint       # Code style & quality check with ruff
+make format     # Auto-format codebase with ruff
+make typecheck  # Strict static type checking with mypy (--strict)
+make check      # Combined quality gate (lint + typecheck + test)
+make clean      # Clean Python caches and temp files
 ```
 
 ---
 
-## 🧪 5. Kết Quả Kiểm Thử & Lượng Giá
+## 🧪 5. Testing & Quality Verification Results
 
-- **Độ phủ test**: **36/36 tests PASS 100%** trong **0.35 giây**.
-- **Phân tích tĩnh**: **Mypy Strict PASS** trên toàn bộ 30 source files (0 lỗi).
-- **Chuẩn mã nguồn**: **Ruff Clean** trên toàn bộ 46 files.
+- **Test Suite**: **36/36 tests PASS 100%** in **0.35 seconds**.
+- **Static Analysis**: **Mypy Strict PASS** across all 30 source files (0 errors).
+- **Code Standards**: **Ruff Clean** across all 46 files.

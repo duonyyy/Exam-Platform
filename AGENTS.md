@@ -22,33 +22,42 @@ Bạn đồng thời đảm nhận các vai trò kỹ thuật cao cấp:
 
 ## 🏗️ 2. Phạm Vi & Kiến Trúc Tổng Thể (System Scope)
 
-Hệ thống được tổ chức theo mô hình **Monorepo** gồm 2 khối ứng dụng độc lập và hạ tầng container hóa:
+Hệ thống được tổ chức theo mô hình **Monorepo** gồm 3 khối ứng dụng độc lập, hạ tầng container hóa và tài liệu chuẩn mực:
 
 ```text
 PHP/
-├── core-api/          # Backend RESTful API (Laravel 13, PHP 8.3+, PostgreSQL 16) — SOURCE OF TRUTH
-├── web-client/        # Frontend Web Client (Next.js 15+ App Router, React 19, TypeScript, Tailwind)
-├── docker/            # Cấu hình môi trường container (PHP-FPM, Nginx, Postgres, Client)
+├── core-api/          # Backend RESTful API (Laravel 13, PHP 8.3+, PostgreSQL 16) — SOURCE OF TRUTH (SoR)
+├── web-client/        # Frontend Web Client ThiSmart (Next.js 15+ App Router, React 19, TypeScript, Tailwind)
+├── agentic-system/    # ExamOps AI Copilot (Python 3.11+, FastAPI, LangGraph, Human-in-the-Loop Gate)
+├── docker/            # Cấu hình môi trường container (PHP-FPM, Nginx, Node.js, Postgres, Redis, Agent)
 ├── docs/              # 8 thư mục tài liệu thiết kế & quy chuẩn kỹ thuật chuẩn mực
 └── AGENTS.md          # Bản hiến pháp kỹ thuật này
 ```
 
 ### 2.1. Quy chuẩn Backend (`core-api/`)
 - **Framework & Runtime**: Laravel 13, PHP 8.3+ FPM, PostgreSQL 16, Redis 7.
-- **Kiểu ứng dụng**: **RESTful API thuần túy** (`/api/v1`).
+- **Kiểu ứng dụng**: **Pure RESTful API** (`/api/v1`).
 - **Phạm vi cấm**: 
   - ❌ **Không Blade**, **Không Livewire**, **Không sinh CSS/HTML từ backend**.
-  - ❌ **Không dùng Session stateful** cho API (chỉ dùng stateless bearer tokens hoặc cookie proxy).
-  - ❌ **Không RAG / AI model phức tạp** nếu chưa có yêu cầu nghiệp vụ rõ ràng.
+  - ❌ **Không dùng Stateful Sessions** cho API (chỉ dùng stateless bearer tokens hoặc cookie proxy).
+  - ❌ **Không RAG / AI model phức tạp trong core backend**; mọi tác vụ AI thuộc về `agentic-system/`.
   - ❌ **Không thêm kiến trúc rườm rà (Repository, DTO, Mapper, Interface)** cho các thao tác CRUD cơ bản khi Eloquent và Form Request giải quyết sạch sẽ.
 
 ### 2.2. Quy chuẩn Frontend (`web-client/`)
 - **Framework & Stack**: Next.js 15+ (App Router), React 19, TypeScript Strict Mode, Tailwind CSS, TanStack Query v5, Zod, Lucide React.
 - **Ranh giới trách nhiệm**:
-  - Backend là **Single Source of Truth** cho mọi logic nghiệp vụ, tính điểm, thời gian thi và phân quyền.
+  - Backend là **Single Source of Truth (System of Record - SoR)** cho mọi logic nghiệp vụ, tính điểm, thời gian thi và phân quyền.
   - ❌ **Không duplicate logic chấm điểm hay xác thực** từ backend sang frontend.
   - ❌ **Không lưu secret, API key hay đáp án đúng** trong bundle frontend.
-  - ❌ **Không tin tưởng dữ liệu client**: Client timer chỉ phục vụ hiển thị; backend tính toán thời gian thực tế bằng đồng hồ máy chủ.
+  - ❌ **Zero Trust Client**: Client timer chỉ phục vụ hiển thị; backend tính toán thời gian thực tế bằng **Server-Authoritative Clock**.
+
+### 2.3. Quy chuẩn AI Copilot (`agentic-system/`)
+- **Framework & Runtime**: Python 3.11+, FastAPI, LangGraph StateGraph, Pydantic v2.
+- **Ranh giới an toàn**:
+  - ❌ **Fail-Closed Principle**: Agent tuyệt đối không truy cập trực tiếp database PostgreSQL của Core API.
+  - ❌ Checkpoints lưu trữ độc lập tại SQLite riêng (`data/checkpoints.db`).
+  - ❌ Mọi thao tác Ghi (`requires_write = True`) bắt buộc dừng tại cổng duyệt **Human-in-the-Loop** (`WAITING_FOR_APPROVAL`).
+  - ❌ Không log hoặc lưu trữ token, secret hay đáp án đúng (`correct_answer`).
 
 ---
 
@@ -145,11 +154,11 @@ Tách logic thành **Single-Responsibility Action** khi nghiệp vụ liên quan
    - `exam_attempts(exam_session_id, student_id, status)`
 4. **Phòng chống N+1 Query**: Luôn sử dụng Eager Loading (`with()`) khi truy vấn quan hệ. Không gọi quan hệ lồng nhau bên trong vòng lặp. Phân trang bắt buộc (`paginate()`) trên mọi danh sách dữ liệu.
 
-### 5.4. Kiểm Soát Tranh Chấp Đồng Thời (Concurrency & Locking)
-Nghiệp vụ `SubmitExamAttempt` là **luồng nghiệp vụ sinh tử**, bắt buộc phải thực thi trong Database Transaction kèm khóa bi quan:
+### 5.4. Concurrency Control & Pessimistic Locking Strategy
+Nghiệp vụ `SubmitExamAttempt` là **luồng nghiệp vụ sinh tử (Critical Section)**, bắt buộc phải thực thi trong ACID Database Transaction kết hợp Row-Level Pessimistic Locking (`lockForUpdate()`):
 ```php
 DB::transaction(function () use ($attemptId) {
-    // Khóa dòng attempt ngăn ngừa race conditions và double submit
+    // Row-level lock FOR UPDATE mitigates race conditions and double-submits
     $attempt = ExamAttempt::where('id', $attemptId)->lockForUpdate()->firstOrFail();
 
     // 1. Kiểm tra trạng thái hợp lệ (chỉ in_progress mới được submit)

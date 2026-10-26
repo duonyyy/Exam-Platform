@@ -93,7 +93,7 @@ class GenerateExamFromBlueprintAction
             }
 
             // 5. Create Exam record
-            $exam = new Exam();
+            $exam = new Exam;
             $exam->subject_id = $subject->id;
             $exam->created_by = $actor->id;
             $exam->title = $data['title'];
@@ -120,7 +120,7 @@ class GenerateExamFromBlueprintAction
             DB::table('exam_questions')->insert($examQuestionsData);
 
             // 7. Record AI generation audit log
-            $log = new AiGenerationLog();
+            $log = new AiGenerationLog;
             $log->thread_id = $data['thread_id'];
             $log->actor_id = $actor->id;
             $log->prompt_hash = $data['prompt_hash'];
