@@ -141,26 +141,26 @@ flowchart TD
 
 ### 📋 Danh sách Công việc Chi tiết (Checklist Nghiệm Thu):
 
-- [ ] **Sprint 1 — Backend Completeness & Rich Seeding (`core-api/`)**:
-  - [ ] Bổ sung `GET /api/v1/exams/{exam}`, `PATCH /api/v1/exams/{exam}`, `DELETE /api/v1/exams/{exam}`.
-  - [ ] Bổ sung `GET /api/v1/questions/{question}`, `DELETE /api/v1/questions/{question}`.
-  - [ ] Bổ sung `PATCH /api/v1/topics/{topic}`, `DELETE /api/v1/topics/{topic}`.
-  - [ ] Bổ sung `GET /api/v1/student/attempts` (lịch sử làm bài của sinh viên).
-  - [ ] Triển khai `AdminController` (`/api/v1/admin/users`, `/api/v1/admin/audit-logs`, `/api/v1/admin/stats`).
-  - [ ] Mở rộng `QuestionSeeder.php` lên 60–120 câu hỏi phủ đều các môn học và chủ đề.
-- [ ] **Sprint 2 — Frontend Live Data Integration (`web-client/`)**:
-  - [ ] Cập nhật `AppSidebar.tsx` và `TopBar.tsx` lọc menu nghiêm ngặt theo `user.role`.
-  - [ ] Kết nối API thật cho trang `teacher/subjects/page.tsx` (Môn học & Chủ đề).
-  - [ ] Kết nối API thật cho trang `teacher/questions/page.tsx` và `new/edit` (Ngân hàng câu hỏi).
-  - [ ] Kết nối API thật cho trang `teacher/exams/page.tsx` và `[id]/edit` (Đề thi mẫu — hiển thị ngay đề thi do AI tạo).
-  - [ ] Kết nối API thật cho trang `teacher/sessions/page.tsx`, `monitor` và `results`.
-  - [ ] Kết nối API thật cho trang `admin/users/page.tsx`, `admin/audit-logs/page.tsx`, `admin/page.tsx`.
-- [ ] **Sprint 3 — AI Question Generation & Live Agent (`agentic-system/` + `web-client/`)**:
-  - [ ] Thêm chế độ **"AI Soạn Câu Hỏi Mới"** vào `agentic-system` (sinh câu hỏi + 4 đáp án + giải thích bằng Gemini LLM).
-  - [ ] Kết nối `teacher/ai-assistant/page.tsx` với danh sách Môn học & Chủ đề thật từ Core API.
-  - [ ] Cho phép lưu bộ câu hỏi do AI sinh ra trực tiếp vào Ngân hàng câu hỏi sau khi Giảng viên bấm Approve.
-- [ ] **Sprint 4 — Student Exam Flow, Anti-Leak Watermark & Dev Automation**:
-  - [ ] Kết nối trang `/student/exams`, `/exam/[attemptId]`, và `/student/results` chạy dữ liệu thật xuyên suốt.
-  - [ ] Thêm lớp phủ Dynamic Watermark (`student_code + IP + timestamp`) trong phòng thi Focus Mode.
-  - [ ] Tạo script `start-dev.ps1` khởi động toàn bộ hệ thống với 1 lệnh.
+- [x] **Sprint 1 — Backend Completeness & Rich Seeding (`core-api/`)**:
+  - [x] Bổ sung `GET /api/v1/exams/{exam}`, `PATCH /api/v1/exams/{exam}`, `DELETE /api/v1/exams/{exam}`.
+  - [x] Bổ sung `GET /api/v1/questions/{question}`, `DELETE /api/v1/questions/{question}`.
+  - [x] Bổ sung `PATCH /api/v1/topics/{topic}`, `DELETE /api/v1/topics/{topic}`.
+  - [x] Bổ sung `GET /api/v1/student/attempts` (lịch sử làm bài của sinh viên).
+  - [x] Triển khai `AdminController` (`/api/v1/admin/users`, `/api/v1/admin/audit-logs`, `/api/v1/admin/stats`).
+  - [x] Mở rộng `QuestionSeeder.php` lên 120 câu hỏi phủ đều các môn học và chủ đề.
+- [x] **Sprint 2 — Frontend Live Data Integration (`web-client/`)**:
+  - [x] Cập nhật `AppSidebar.tsx` và `TopBar.tsx` lọc menu nghiêm ngặt theo `user.role`.
+  - [x] Kết nối API thật cho trang `teacher/subjects/page.tsx` (Môn học & Chủ đề).
+  - [x] Kết nối API thật cho trang `teacher/questions/page.tsx` và `new/edit` (Ngân hàng câu hỏi).
+  - [x] Kết nối API thật cho trang `teacher/exams/page.tsx` và `[id]/edit` (Đề thi mẫu — hiển thị ngay đề thi do AI tạo).
+  - [x] Kết nối API thật cho trang `teacher/sessions/page.tsx`, `monitor` và `results`.
+  - [x] Kết nối API thật cho trang `admin/users/page.tsx`, `admin/audit-logs/page.tsx`, `admin/page.tsx`.
+- [x] **Sprint 3 — AI Question Generation & Live Agent (`agentic-system/` + `web-client/`)**:
+  - [x] Thêm chế độ **"AI Soạn Câu Hỏi Mới"** vào `agentic-system` (sinh câu hỏi + 4 đáp án + giải thích bằng Gemini LLM).
+  - [x] Kết nối `teacher/ai-assistant/page.tsx` với danh sách Môn học & Chủ đề thật từ Core API.
+  - [x] Cho phép lưu bộ câu hỏi do AI sinh ra trực tiếp vào Ngân hàng câu hỏi sau khi Giảng viên bấm Approve.
+- [x] **Sprint 4 — Student Exam Flow, Anti-Leak Watermark & Dev Automation**:
+  - [x] Kết nối trang `/student/exams`, `/exam/[attemptId]`, và `/student/results` chạy dữ liệu thật xuyên suốt.
+  - [x] Thêm lớp phủ Dynamic Watermark (`student_code + IP + timestamp`) trong phòng thi Focus Mode.
+  - [x] Tạo script `start-dev.ps1` khởi động toàn bộ hệ thống với 1 lệnh.
 
