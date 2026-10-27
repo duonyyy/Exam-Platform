@@ -44,7 +44,7 @@ async function handleProxyOrFallback(
   // 1. Attempt to call live Python FastAPI ExamOps Service
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for LLM graph processing
 
     const headers: Record<string, string> = {
       Accept: "application/json",
