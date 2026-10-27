@@ -22,6 +22,10 @@ class ListQuestionsRequest extends FormRequest
         return [
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'page' => ['sometimes', 'integer', 'min:1'],
+            'search' => ['sometimes', 'string', 'max:255'],
+            'topic_id' => ['sometimes', 'integer'],
+            'status' => ['sometimes', 'string'],
+            'difficulty' => ['sometimes', 'string'],
         ];
     }
 }

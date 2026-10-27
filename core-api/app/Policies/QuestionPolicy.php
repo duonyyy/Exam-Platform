@@ -34,4 +34,9 @@ class QuestionPolicy
     {
         return $this->view($user, $question);
     }
+
+    public function delete(User $user, Question $question): bool
+    {
+        return $this->update($user, $question);
+    }
 }

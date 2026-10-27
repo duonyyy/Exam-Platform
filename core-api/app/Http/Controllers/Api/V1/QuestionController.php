@@ -29,12 +29,33 @@ class QuestionController extends Controller
         $actor = $request->user();
         $questions = Question::query();
 
+        if ($request->boolean('with_details')) {
+            $questions->with(['topic.subject']);
+        }
+
         // ASVS V8.2: scope collection in SQL, before pagination and serialization.
         if ($actor->isTeacher()) {
             $questions->whereHas('topic.subject', fn ($query) => $query->where('owner_teacher_id', $actor->id));
         }
 
-        return QuestionAdminResource::collection($questions->orderBy('id')->paginate($filters['per_page'] ?? 20));
+        if ($request->filled('search')) {
+            $search = '%' . $request->input('search') . '%';
+            $questions->where('question_text', 'like', $search);
+        }
+
+        if ($request->filled('topic_id')) {
+            $questions->where('topic_id', $request->input('topic_id'));
+        }
+
+        if ($request->filled('status')) {
+            $questions->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('difficulty')) {
+            $questions->where('difficulty', $request->input('difficulty'));
+        }
+
+        return QuestionAdminResource::collection($questions->orderBy('id', 'desc')->paginate($filters['per_page'] ?? 20));
     }
 
     public function store(StoreQuestionRequest $request): JsonResponse
@@ -107,6 +128,30 @@ class QuestionController extends Controller
         });
 
         return new QuestionAdminResource($updated);
+    }
+
+    public function show(Request $request, Question $question): QuestionAdminResource
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+        Gate::forUser($actor)->authorize('view', $question);
+
+        $question->load('topic.subject');
+
+        return new QuestionAdminResource($question);
+    }
+
+    public function destroy(Request $request, Question $question): JsonResponse
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+        Gate::forUser($actor)->authorize('delete', $question);
+
+        $this->ensureNotUsedInExam($question);
+
+        $question->delete();
+
+        return response()->json(['message' => 'Question deleted successfully.'], Response::HTTP_OK);
     }
 
     private function ensureNotUsedInExam(Question $question): void

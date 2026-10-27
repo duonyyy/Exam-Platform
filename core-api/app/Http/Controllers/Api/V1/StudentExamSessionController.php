@@ -6,8 +6,11 @@ use App\Enums\ExamSessionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Students\ListStudentAssignedSessionsRequest;
 use App\Http\Resources\StudentAssignedSessionResource;
+use App\Http\Resources\StudentAttemptHistoryResource;
+use App\Models\ExamAttempt;
 use App\Models\ExamSession;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StudentExamSessionController extends Controller
@@ -35,5 +38,20 @@ class StudentExamSessionController extends Controller
         return StudentAssignedSessionResource::collection(
             $query->orderBy('start_at')->paginate($filters['per_page'] ?? 20)
         );
+    }
+
+    public function attempts(Request $request): AnonymousResourceCollection
+    {
+        /** @var User $student */
+        $student = $request->user();
+
+        $attempts = ExamAttempt::query()
+            ->where('student_id', $student->id)
+            ->with(['session.exam.subject'])
+            ->withCount('answers')
+            ->orderBy('id', 'desc')
+            ->paginate($request->integer('per_page', 20));
+
+        return StudentAttemptHistoryResource::collection($attempts);
     }
 }

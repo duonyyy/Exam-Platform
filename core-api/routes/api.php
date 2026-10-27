@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
+use App\Http\Controllers\Api\V1\Admin\AdminStatsController;
+use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ExamAttemptController;
 use App\Http\Controllers\Api\V1\ExamController;
@@ -46,43 +49,64 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     // Admin routes
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        // Users & System Settings
+        Route::get('/users', [AdminUserController::class, 'index'])->name('api.v1.admin.users.index');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('api.v1.admin.users.store');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('api.v1.admin.users.show');
+        Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('api.v1.admin.users.update');
+        Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->name('api.v1.admin.audit-logs.index');
+        Route::get('/dashboard-stats', [AdminStatsController::class, 'index'])->name('api.v1.admin.dashboard-stats.index');
     });
 
     // Teacher & Admin routes
     Route::middleware(['role:teacher,admin'])->group(function () {
+        // Subjects & Topics
         Route::post('/subjects', [SubjectController::class, 'store'])->name('api.v1.subjects.store');
         Route::patch('/subjects/{subject}', [SubjectController::class, 'update'])->name('api.v1.subjects.update');
         Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])->name('api.v1.subjects.destroy');
         Route::post('/subjects/{subject}/topics', [TopicController::class, 'store'])->name('api.v1.subjects.topics.store');
+        Route::get('/topics/{topic}', [TopicController::class, 'show'])->name('api.v1.topics.show');
+        Route::patch('/topics/{topic}', [TopicController::class, 'update'])->name('api.v1.topics.update');
+        Route::delete('/topics/{topic}', [TopicController::class, 'destroy'])->name('api.v1.topics.destroy');
+
         // Question Bank (Phase 4)
         Route::get('/questions', [QuestionController::class, 'index'])->name('api.v1.questions.index');
         Route::post('/questions', [QuestionController::class, 'store'])->name('api.v1.questions.store');
+        Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('api.v1.questions.show');
         Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('api.v1.questions.update');
         Route::patch('/questions/{question}/status', [QuestionController::class, 'changeStatus'])->name('api.v1.questions.status');
+        Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('api.v1.questions.destroy');
+
         // Bulk Question Import (Phase 14)
         Route::get('/questions/import/template', [QuestionImportController::class, 'template'])->name('api.v1.questions.import.template');
         Route::post('/questions/import/validate', [QuestionImportController::class, 'validateImport'])->name('api.v1.questions.import.validate');
         Route::post('/questions/import', [QuestionImportController::class, 'import'])->name('api.v1.questions.import');
+
         // Exam Templates & Assembly (Phase 5) & AI Copilot Blueprint (Phase 13)
         Route::get('/exams', [ExamController::class, 'index'])->name('api.v1.exams.index');
         Route::post('/exams', [ExamController::class, 'store'])->name('api.v1.exams.store');
+        Route::get('/exams/{exam}', [ExamController::class, 'show'])->name('api.v1.exams.show');
+        Route::patch('/exams/{exam}', [ExamController::class, 'update'])->name('api.v1.exams.update');
+        Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])->name('api.v1.exams.destroy');
         Route::post('/exams/from-blueprint', [ExamController::class, 'storeFromBlueprint'])->name('api.v1.exams.from-blueprint');
         Route::get('/exams/{exam}/readiness-review', [ExamController::class, 'readinessReview'])->name('api.v1.exams.readiness-review');
         Route::post('/exams/{exam}/questions', [ExamController::class, 'attachQuestions'])->name('api.v1.exams.questions.store');
         Route::get('/exams/{exam}/export/pdf', [ExamExportController::class, 'exportExamPdf'])->name('api.v1.exams.export.pdf');
+
         // Exam Sessions Lifecycle (Phase 6)
         Route::get('/exam-sessions', [ExamSessionController::class, 'index'])->name('api.v1.exam-sessions.index');
         Route::post('/exam-sessions', [ExamSessionController::class, 'store'])->name('api.v1.exam-sessions.store');
         Route::get('/exam-sessions/{exam_session}', [ExamSessionController::class, 'show'])->name('api.v1.exam-sessions.show');
         Route::post('/exam-sessions/{exam_session}/publish', [ExamSessionController::class, 'publish'])->name('api.v1.exam-sessions.publish');
         Route::post('/exam-sessions/{exam_session}/close', [ExamSessionController::class, 'close'])->name('api.v1.exam-sessions.close');
+
         // Student Assignments & Teacher Invigilation (Phase 7)
         Route::post('/exam-sessions/{exam_session}/assign-students', [ExamSessionController::class, 'assignStudents'])->name('api.v1.exam-sessions.assign-students');
         Route::post('/exam-sessions/{exam_session}/assign-teachers', [ExamSessionController::class, 'assignTeachers'])->name('api.v1.exam-sessions.assign-teachers');
+
         // Live Proctoring & Violation Summary (Phase 10)
         Route::get('/exam-sessions/{exam_session}/proctoring-summary', [ProctoringEventController::class, 'summary'])->name('api.v1.exam-sessions.proctoring-summary');
         Route::get('/exam-sessions/{exam_session}/proctoring-events', [ProctoringEventController::class, 'index'])->name('api.v1.exam-sessions.proctoring-events.index');
+
         // Results & Analytics (Phase 11) & Official Reporting (Phase 14)
         Route::get('/exam-sessions/{exam_session}/results', [ExamSessionController::class, 'results'])->name('api.v1.exam-sessions.results');
         Route::get('/exam-sessions/{exam_session}/export/excel', [ExamExportController::class, 'exportSessionExcel'])->name('api.v1.exam-sessions.export.excel');
@@ -91,13 +115,17 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     // Student routes & Attempt Lifecycle (Phase 8, 9, 10)
     Route::middleware(['role:student'])->group(function () {
-        // Assigned sessions list (Phase 7)
+        // Assigned sessions list & history (Phase 7)
         Route::get('/student/assigned-sessions', [StudentExamSessionController::class, 'index'])->name('api.v1.student.assigned-sessions');
+        Route::get('/student/attempts', [StudentExamSessionController::class, 'attempts'])->name('api.v1.student.attempts.index');
+
         // Exam Taking & Autosave (Phase 8)
         Route::post('/exam-sessions/{exam_session}/attempts', [ExamAttemptController::class, 'start'])->name('api.v1.exam-sessions.attempts.start');
         Route::patch('/exam-attempts/{exam_attempt}/answers', [ExamAttemptController::class, 'saveAnswer'])->name('api.v1.exam-attempts.answers.save');
+
         // Submit & Scoring (Phase 9)
         Route::post('/exam-attempts/{exam_attempt}/submit', [ExamAttemptController::class, 'submit'])->name('api.v1.exam-attempts.submit');
+
         // Record Proctoring Events (Phase 10 - Rate limited 30 req/min)
         Route::post('/exam-attempts/{exam_attempt}/proctoring-events', [ProctoringEventController::class, 'record'])
             ->middleware('throttle:30,1')

@@ -10,12 +10,14 @@ use App\Http\Requests\Exams\AttachQuestionsRequest;
 use App\Http\Requests\Exams\ListExamsRequest;
 use App\Http\Requests\Exams\StoreExamFromBlueprintRequest;
 use App\Http\Requests\Exams\StoreExamRequest;
+use App\Http\Requests\Exams\UpdateExamRequest;
 use App\Http\Resources\ExamResource;
 use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -148,5 +150,55 @@ class ExamController extends Controller
                 'warnings' => $warnings,
             ],
         ]);
+    }
+
+    public function show(Request $request, Exam $exam): ExamResource
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+        Gate::forUser($actor)->authorize('view', $exam);
+
+        $exam->load(['subject.topics', 'questions.topic']);
+        $exam->loadCount('questions');
+
+        return new ExamResource($exam);
+    }
+
+    public function update(UpdateExamRequest $request, Exam $exam): ExamResource
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+        Gate::forUser($actor)->authorize('update', $exam);
+
+        if ($exam->examSessions()->count() > 0) {
+            throw new HttpResponseException(response()->json([
+                'message' => 'Cannot modify exam template that is already linked to exam sessions.',
+                'error_code' => 'EXAM_ALREADY_IN_SESSION',
+            ], Response::HTTP_CONFLICT));
+        }
+
+        $exam->update($request->validated());
+        $exam->loadCount('questions');
+
+        return new ExamResource($exam);
+    }
+
+    public function destroy(Request $request, Exam $exam): JsonResponse
+    {
+        /** @var User $actor */
+        $actor = $request->user();
+        Gate::forUser($actor)->authorize('delete', $exam);
+
+        if ($exam->examSessions()->count() > 0) {
+            throw new HttpResponseException(response()->json([
+                'message' => 'Cannot delete exam template that has scheduled exam sessions.',
+                'error_code' => 'EXAM_HAS_SESSIONS',
+            ], Response::HTTP_CONFLICT));
+        }
+
+        $exam->questions()->detach();
+        $exam->delete();
+
+        return response()->json(['message' => 'Exam template deleted successfully.'], Response::HTTP_OK);
     }
 }

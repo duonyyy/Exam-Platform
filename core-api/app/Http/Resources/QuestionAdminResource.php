@@ -23,6 +23,16 @@ class QuestionAdminResource extends JsonResource
             'difficulty' => $this->difficulty,
             'status' => $this->status->value,
             'source' => $this->source,
+            'topic' => $this->relationLoaded('topic') && $this->topic ? [
+                'id' => $this->topic->id,
+                'name' => $this->topic->name,
+                'subject_id' => $this->topic->subject_id,
+                'subject' => $this->topic->relationLoaded('subject') && $this->topic->subject ? [
+                    'id' => $this->topic->subject->id,
+                    'code' => $this->topic->subject->code,
+                    'name' => $this->topic->subject->name,
+                ] : null,
+            ] : null,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at?->toIso8601String(),
