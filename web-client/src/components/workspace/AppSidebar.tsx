@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/branding/BrandLogo";
+import { useCurrentUser } from "@/features/auth/hooks/useAuth";
 import {
   GraduationCap,
   BookOpen,
@@ -14,17 +15,14 @@ import {
   BarChart3,
   Users,
   ShieldCheck,
-  FileCode,
-  Settings,
   ChevronLeft,
   ChevronRight,
   Sparkles,
   Palette,
-  ExternalLink,
   Timer,
   LayoutDashboard,
   Layers,
-  Activity,
+  Shield,
 } from "lucide-react";
 
 interface NavItem {
@@ -32,114 +30,93 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   badge?: string;
-  role: "student" | "teacher" | "admin" | "common";
+  roles: Array<"student" | "teacher" | "admin">;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  // Student
+  // Student items
   {
     label: "Ca thi của tôi",
     href: "/student/exams",
     icon: Calendar,
-    role: "student",
-    badge: "1 Mở",
+    roles: ["student"],
   },
   {
-    label: "Kết quả bài thi",
-    href: "/student/results/demo-attempt",
+    label: "Lịch sử & Kết quả",
+    href: "/student/results",
     icon: BarChart3,
-    role: "student",
+    roles: ["student"],
   },
 
-  // Teacher
+  // Teacher items
   {
     label: "Tổng quan Giảng viên",
     href: "/teacher",
     icon: LayoutDashboard,
-    role: "teacher",
+    roles: ["teacher"],
   },
   {
     label: "Môn học & Chủ đề",
     href: "/teacher/subjects",
     icon: BookOpen,
-    role: "teacher",
+    roles: ["teacher", "admin"],
   },
   {
     label: "Ngân hàng Câu hỏi",
     href: "/teacher/questions",
     icon: HelpCircle,
-    role: "teacher",
-    badge: "420",
+    badge: "120+",
+    roles: ["teacher", "admin"],
   },
   {
     label: "Trợ lý Soạn Đề AI",
     href: "/teacher/ai-assistant",
     icon: Sparkles,
-    role: "teacher",
     badge: "AI 2.0",
+    roles: ["teacher", "admin"],
   },
   {
     label: "Soạn Đề thi mẫu",
     href: "/teacher/exams",
     icon: FileText,
-    role: "teacher",
+    roles: ["teacher", "admin"],
   },
   {
     label: "Lập lịch Ca thi",
     href: "/teacher/sessions",
     icon: Calendar,
-    role: "teacher",
-  },
-  {
-    label: "Giám sát Trực tiếp",
-    href: "/teacher/sessions/session-101/monitor",
-    icon: Radio,
-    role: "teacher",
-    badge: "LIVE",
-  },
-  {
-    label: "Phổ điểm & Báo cáo",
-    href: "/teacher/sessions/session-101/results",
-    icon: BarChart3,
-    role: "teacher",
+    roles: ["teacher", "admin"],
   },
 
-  // Admin
+  // Admin exclusive items
   {
     label: "Tổng quan Quản trị",
     href: "/admin",
     icon: LayoutDashboard,
-    role: "admin",
+    roles: ["admin"],
   },
   {
     label: "Quản trị Người dùng",
     href: "/admin/users",
     icon: Users,
-    role: "admin",
+    roles: ["admin"],
   },
   {
-    label: "Nhật ký Kiểm toán",
+    label: "Nhật ký Kiểm toán & AI",
     href: "/admin/audit-logs",
     icon: ShieldCheck,
-    role: "admin",
-  },
-  {
-    label: "Cấu hình Hệ thống",
-    href: "/admin/settings",
-    icon: Settings,
-    role: "admin",
+    roles: ["admin"],
   },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [activeRoleFilter, setActiveRoleFilter] = useState<"all" | "student" | "teacher" | "admin">("all");
+  const { data: currentUser } = useCurrentUser();
 
-  const filteredItems = NAV_ITEMS.filter((item) => {
-    if (activeRoleFilter === "all") return true;
-    return item.role === activeRoleFilter || item.role === "common";
-  });
+  const userRole = (currentUser?.role || "student") as "student" | "teacher" | "admin";
+
+  const filteredItems = NAV_ITEMS.filter((item) => item.roles.includes(userRole));
 
   return (
     <aside
@@ -163,57 +140,29 @@ export function AppSidebar() {
           </button>
         </div>
 
-        {/* Role Quick Filter (when expanded) */}
+        {/* Authenticated Role Banner */}
         {!collapsed && (
-          <div className="p-3 border-b border-slate-200/90 bg-slate-50/60 shrink-0">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 px-1">
-              Phân hệ làm việc
+          <div className="p-3 border-b border-slate-100 bg-slate-50/80 shrink-0">
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  userRole === "admin"
+                    ? "bg-purple-500"
+                    : userRole === "teacher"
+                    ? "bg-blue-500"
+                    : "bg-emerald-500"
+                }`}
+              />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                {userRole === "admin"
+                  ? "Phân hệ Quản trị"
+                  : userRole === "teacher"
+                  ? "Phân hệ Giảng viên"
+                  : "Phân hệ Sinh viên"}
+              </span>
             </div>
-            <div className="grid grid-cols-4 gap-1 text-[11px] font-semibold">
-              <button
-                type="button"
-                onClick={() => setActiveRoleFilter("all")}
-                className={`py-1 rounded-[4px] transition text-center ${
-                  activeRoleFilter === "all"
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-200/60"
-                }`}
-              >
-                Tất cả
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveRoleFilter("student")}
-                className={`py-1 rounded-[4px] transition text-center ${
-                  activeRoleFilter === "student"
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-200/60"
-                }`}
-              >
-                SV
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveRoleFilter("teacher")}
-                className={`py-1 rounded-[4px] transition text-center ${
-                  activeRoleFilter === "teacher"
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-200/60"
-                }`}
-              >
-                GV
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveRoleFilter("admin")}
-                className={`py-1 rounded-[4px] transition text-center ${
-                  activeRoleFilter === "admin"
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-200/60"
-                }`}
-              >
-                Admin
-              </button>
+            <div className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
+              {currentUser?.name || "Người dùng đang đăng nhập"}
             </div>
           </div>
         )}
@@ -241,9 +190,7 @@ export function AppSidebar() {
                     isActive ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"
                   }`}
                 />
-                {!collapsed && (
-                  <span className="flex-1 truncate">{item.label}</span>
-                )}
+                {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
                 {!collapsed && item.badge && (
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-bold uppercase tracking-wider ${
@@ -263,29 +210,17 @@ export function AppSidebar() {
 
       {/* Bottom Status & Shortcuts */}
       <div className="p-3 border-t border-slate-200/90 space-y-2 bg-slate-50/60 shrink-0">
-        {/* System Status Footnote */}
         {!collapsed && (
           <div className="px-2 py-1.5 rounded-[6px] bg-white border border-slate-200/80 flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-semibold text-slate-700">ThiSmart v2.6</span>
             </div>
-            <span className="text-[10px] text-emerald-700 font-medium">Máy chủ ổn định</span>
+            <span className="text-[10px] text-emerald-700 font-medium">Bảo mật RBAC</span>
           </div>
         )}
 
         <div className="space-y-1">
-          <Link
-            href="/exam/demo"
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow-xs ${
-              collapsed ? "justify-center px-2" : ""
-            }`}
-            title="Phòng thi Focus Room"
-          >
-            <Timer className="w-4 h-4 shrink-0" />
-            {!collapsed && <span>Phòng thi Focus Mode</span>}
-          </Link>
-
           <Link
             href="/patterns"
             className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold text-blue-700 bg-blue-50/70 border border-blue-200/60 hover:bg-blue-100/70 transition ${

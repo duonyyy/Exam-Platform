@@ -14,6 +14,7 @@ import {
   Sparkles,
   HelpCircle,
 } from "lucide-react";
+import { ExamWatermark } from "@/features/exam-taking/components/ExamWatermark";
 
 interface Question {
   id: number;
@@ -148,7 +149,12 @@ export default function FocusExamDemoPage() {
   }, [currentQ, submitModalOpen, isSubmitted]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 select-none">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 select-none relative">
+      <ExamWatermark
+        studentName="Thí sinh Trải nghiệm Demo"
+        studentCode="DEMO-CANDIDATE"
+        sessionCode="SANDBOX-SES"
+      />
       {/* Sandbox Demo Info Bar */}
       <div className="bg-blue-50 border-b border-blue-200/80 text-blue-900 px-4 py-1.5 text-xs flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
