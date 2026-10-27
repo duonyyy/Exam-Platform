@@ -11,13 +11,17 @@ from langgraph.types import Command
 from examops import __version__
 from examops.config import Settings, get_settings
 from examops.graph import create_examops_graph
+from examops.model import get_model_provider
 from examops.schemas import (
     ApprovalProposal,
+    GenerateQuestionsRequest,
+    GeneratedQuestionsProposal,
     HealthResponse,
     TaskCreateRequest,
     TaskResponse,
     TaskResumeRequest,
 )
+from examops.skills import QuestionGeneratorSkill
 
 router = APIRouter()
 
@@ -51,6 +55,18 @@ def health_check(cfg: Settings = Depends(get_settings)) -> HealthResponse:
         environment=cfg.app_env,
         model_provider=cfg.model_provider,
     )
+
+
+@router.post("/api/v1/agent/generate-questions", response_model=GeneratedQuestionsProposal)
+def generate_questions(
+    payload: GenerateQuestionsRequest,
+    _auth: str = Depends(verify_api_key),
+    cfg: Settings = Depends(get_settings),
+) -> GeneratedQuestionsProposal:
+    """Generate assessment questions using LLM skill adhering to syllabus topics and bloom levels."""
+    model = get_model_provider(cfg)
+    skill = QuestionGeneratorSkill()
+    return skill.execute(payload, model)
 
 
 @router.post("/api/v1/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)

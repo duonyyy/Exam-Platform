@@ -16,6 +16,9 @@ from examops.schemas import (
     AgentPlan,
     ExamBlueprint,
     ExamDifficultyDistribution,
+    GeneratedQuestionItem,
+    GeneratedQuestionOption,
+    GeneratedQuestionsProposal,
     ReadinessCheckItem,
     ReadinessReview,
     TopicDistributionItem,
@@ -154,6 +157,113 @@ class MockModelProvider:
                 recommendations=["Ready for session publishing."],
             )
             return review  # type: ignore[return-value]
+
+        if schema is GeneratedQuestionsProposal:
+            import re
+            count_match = re.search(r"Generate (\d+) academic", prompt)
+            requested_count = int(count_match.group(1)) if count_match else 5
+            requested_count = max(1, min(requested_count, 10))
+
+            topic_match = re.search(r"topic '([^']+)'", prompt)
+            requested_topic = topic_match.group(1) if topic_match else "Kiến trúc RESTful API & HTTP Methods"
+
+            subject_match = re.search(r"subject '([^']*)'", prompt)
+            requested_subject = subject_match.group(1) if subject_match else "IT4409"
+
+            pool = [
+                GeneratedQuestionItem(
+                    question_text=f"Trong kiến trúc RESTful API ({requested_topic}), phương thức HTTP nào có tính chất Idempotent và dùng để xóa tài nguyên?",
+                    question_type="single_choice",
+                    difficulty="easy",
+                    options=[
+                        GeneratedQuestionOption(id="opt_a", content="GET"),
+                        GeneratedQuestionOption(id="opt_b", content="POST"),
+                        GeneratedQuestionOption(id="opt_c", content="DELETE"),
+                        GeneratedQuestionOption(id="opt_d", content="PATCH"),
+                    ],
+                    correct_answer="opt_c",
+                    explanation="DELETE theo chuẩn RFC 7231 là một phương thức idempotent: gọi nhiều lần cho cùng một resource đều đem lại kết quả xóa tương đương trên server.",
+                ),
+                GeneratedQuestionItem(
+                    question_text=f"Mã trạng thái HTTP 201 Created được trả về phù hợp nhất trong trường hợp nào khi thao tác với {requested_topic}?",
+                    question_type="single_choice",
+                    difficulty="easy",
+                    options=[
+                        GeneratedQuestionOption(id="opt_a", content="Tài nguyên mới được tạo thành công trên máy chủ"),
+                        GeneratedQuestionOption(id="opt_b", content="Yêu cầu bị từ chối do thiếu token"),
+                        GeneratedQuestionOption(id="opt_c", content="Máy chủ đang quá tải"),
+                        GeneratedQuestionOption(id="opt_d", content="Dữ liệu không có thay đổi"),
+                    ],
+                    correct_answer="opt_a",
+                    explanation="201 Created biểu thị tài nguyên mới đã được khởi tạo thành công trên máy chủ.",
+                ),
+                GeneratedQuestionItem(
+                    question_text=f"Những phương thức HTTP nào sau đây là Idempotent theo đặc tả chuẩn RFC 7231 áp dụng trong {requested_topic}? (Chọn nhiều đáp án)",
+                    question_type="multiple_choice",
+                    difficulty="medium",
+                    options=[
+                        GeneratedQuestionOption(id="opt_a", content="GET"),
+                        GeneratedQuestionOption(id="opt_b", content="PUT"),
+                        GeneratedQuestionOption(id="opt_c", content="DELETE"),
+                        GeneratedQuestionOption(id="opt_d", content="POST"),
+                    ],
+                    correct_answer=["opt_a", "opt_b", "opt_c"],
+                    explanation="GET, PUT, DELETE là các phương thức idempotent. POST không phải idempotent vì mỗi lần gọi thường tạo ra một tài nguyên mới.",
+                ),
+                GeneratedQuestionItem(
+                    question_text=f"Trong thiết kế {requested_topic}, việc sử dụng Pessimistic Locking (Khóa bi quan FOR UPDATE) giúp triệt tiêu hoàn toàn race condition trong lúc nộp bài.",
+                    question_type="true_false",
+                    difficulty="medium",
+                    options=[
+                        GeneratedQuestionOption(id="opt_a", content="Đúng"),
+                        GeneratedQuestionOption(id="opt_b", content="Sai"),
+                    ],
+                    correct_answer="opt_a",
+                    explanation="Pessimistic locking khóa trực tiếp dòng dữ liệu trong database transaction, ngăn các giao dịch đồng thời can thiệp vào tài nguyên.",
+                ),
+                GeneratedQuestionItem(
+                    question_text=f"Lỗ hổng bảo mật phổ biến nhất trong OWASP API Security khi thiếu sót kiểm tra quyền truy cập tài nguyên của người dùng theo ID là gì?",
+                    question_type="short_answer",
+                    difficulty="hard",
+                    options=[],
+                    correct_answer="BOLA / IDOR",
+                    explanation="BOLA (Broken Object Level Authorization) hay IDOR (Insecure Direct Object Reference) là lỗ hổng đứng đầu OWASP API Security.",
+                ),
+                GeneratedQuestionItem(
+                    question_text=f"Chuẩn JWT (JSON Web Token) bao gồm 3 phần được phân tách bằng dấu chấm. Đó là những phần nào?",
+                    question_type="single_choice",
+                    difficulty="easy",
+                    options=[
+                        GeneratedQuestionOption(id="opt_a", content="Header, Payload, Signature"),
+                        GeneratedQuestionOption(id="opt_b", content="Header, Body, Hash"),
+                        GeneratedQuestionOption(id="opt_c", content="Secret, Data, Checksum"),
+                        GeneratedQuestionOption(id="opt_d", content="Prefix, Content, Key"),
+                    ],
+                    correct_answer="opt_a",
+                    explanation="Cấu trúc của JSON Web Token gồm Header (loại token và thuật toán ký), Payload (claims/dữ liệu), và Signature (chữ ký xác thực).",
+                ),
+                GeneratedQuestionItem(
+                    question_text=f"Mã HTTP Status Code nào là phù hợp nhất để phản hồi lỗi cú pháp JSON payload từ client gửi lên?",
+                    question_type="single_choice",
+                    difficulty="medium",
+                    options=[
+                        GeneratedQuestionOption(id="opt_a", content="400 Bad Request"),
+                        GeneratedQuestionOption(id="opt_b", content="401 Unauthorized"),
+                        GeneratedQuestionOption(id="opt_c", content="403 Forbidden"),
+                        GeneratedQuestionOption(id="opt_d", content="422 Unprocessable Content"),
+                    ],
+                    correct_answer="opt_a",
+                    explanation="400 Bad Request được dùng khi máy chủ không thể hiểu yêu cầu do cú pháp bị hỏng (malformed request syntax/invalid JSON).",
+                ),
+            ]
+
+            selected_questions = pool[:requested_count]
+            proposal = GeneratedQuestionsProposal(
+                topic_name=requested_topic,
+                subject_name=requested_subject,
+                questions=selected_questions,
+            )
+            return proposal  # type: ignore[return-value]
 
         # Generic fallback
         return schema.model_validate({})
