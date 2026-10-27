@@ -6,165 +6,53 @@ import {
   HelpCircle,
   Plus,
   Search,
-  Filter,
   Eye,
-  Edit2,
-  Power,
-  Lock,
   CheckCircle2,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
   X,
-  FileText,
   FileSpreadsheet,
+  Loader2,
 } from "lucide-react";
-import { ThiSmartCtaButton } from "@/components/motion/ThiSmartCtaButton";
-import { QuestionImportModal, QuestionItem } from "@/features/questions";
-
-
-const MOCK_QUESTIONS: QuestionItem[] = [
-  {
-    id: "q-1042",
-    orderNumber: 1042,
-    subjectCode: "IT4409",
-    subjectName: "Lập trình Web Nâng Cao",
-    topicName: "Giao thức HTTP & REST Architecture",
-    content: "Trong kiến trúc RESTful API, phương thức HTTP nào có tính chất Idempotent và thường được sử dụng để cập nhật toàn bộ tài nguyên?",
-    type: "single_choice",
-    difficulty: "easy",
-    status: "ready",
-    isUsedInExam: true,
-    usedInExamCount: 2,
-    options: [
-      { key: "A", text: "POST" },
-      { key: "B", text: "PUT" },
-      { key: "C", text: "PATCH" },
-      { key: "D", text: "DELETE" },
-    ],
-    correctAnswer: ["B"],
-    explanation: "Phương thức PUT có tính chất idempotent và được định nghĩa bởi RFC 7231 để cập nhật toàn diện.",
-  },
-  {
-    id: "q-1043",
-    orderNumber: 1043,
-    subjectCode: "IT4409",
-    subjectName: "Lập trình Web Nâng Cao",
-    topicName: "Xác thực Sanctum & Phân quyền RBAC",
-    content: "Kể tên các lỗ hổng thuộc top 3 OWASP API Security Top 10 (2023)?",
-    type: "multiple_choice",
-    difficulty: "hard",
-    status: "ready",
-    isUsedInExam: false,
-    usedInExamCount: 0,
-    options: [
-      { key: "A", text: "BOLA (Broken Object Level Authorization)" },
-      { key: "B", text: "Broken Authentication" },
-      { key: "C", text: "Broken Object Property Level Authorization" },
-      { key: "D", text: "Buffer Overflow" },
-    ],
-    correctAnswer: ["A", "B", "C"],
-    explanation: "Top 3 gồm BOLA, Broken Authentication và BOPLA.",
-  },
-  {
-    id: "q-1044",
-    orderNumber: 1044,
-    subjectCode: "IT4409",
-    subjectName: "Lập trình Web Nâng Cao",
-    topicName: "Giao thức HTTP & REST Architecture",
-    content: "Trong HTTP, mã trạng thái 204 No Content phản hồi hành động thành công nhưng không có dữ liệu trả về?",
-    type: "true_false",
-    difficulty: "easy",
-    status: "ready",
-    isUsedInExam: true,
-    usedInExamCount: 1,
-    options: [
-      { key: "A", text: "Đúng" },
-      { key: "B", text: "Sai" },
-    ],
-    correctAnswer: ["A"],
-    explanation: "Chuẩn RFC quy định 204 không chứa message-body.",
-  },
-  {
-    id: "q-1045",
-    orderNumber: 1045,
-    subjectCode: "CS201",
-    subjectName: "Cấu trúc Dữ liệu & Giải thuật",
-    topicName: "Độ phức tạp Big-O & Giải thuật sắp xếp",
-    content: "Độ phức tạp thời gian trung bình của thuật toán QuickSort là O(n log n)?",
-    type: "true_false",
-    difficulty: "medium",
-    status: "ready",
-    isUsedInExam: true,
-    usedInExamCount: 3,
-    options: [
-      { key: "A", text: "Đúng" },
-      { key: "B", text: "Sai" },
-    ],
-    correctAnswer: ["A"],
-    explanation: "Thời gian trung bình là O(n log n), xấu nhất là O(n^2) khi pivot không cân bằng.",
-  },
-  {
-    id: "q-1046",
-    orderNumber: 1046,
-    subjectCode: "IT4409",
-    subjectName: "Lập trình Web Nâng Cao",
-    topicName: "Cơ sở dữ liệu quan hệ & Eloquent ORM",
-    content: "Mô tả ngắn gọn cơ chế Eager Loading trong Eloquent ORM nhằm khắc phục vấn đề N+1 query.",
-    type: "short_answer",
-    difficulty: "medium",
-    status: "disabled",
-    isUsedInExam: false,
-    usedInExamCount: 0,
-    correctAnswer: ["with()", "Eager Loading"],
-    explanation: "Sử dụng with() để truy vấn gom các khóa ngoại trong 1 câu lệnh IN(...).",
-  },
-];
+import { QuestionImportModal } from "@/features/questions";
+import { useQuestions } from "@/features/exams/hooks";
+import { useSubjects } from "@/features/academic/hooks";
 
 export default function QuestionsBankPage() {
-  const [questions, setQuestions] = useState<QuestionItem[]>(MOCK_QUESTIONS);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [page, setPage] = useState(1);
 
-  const [previewQuestion, setPreviewQuestion] = useState<QuestionItem | null>(null);
+  const [previewQuestion, setPreviewQuestion] = useState<any | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  const toggleQuestionStatus = (id: string) => {
-    setQuestions((prev) =>
-      prev.map((q) => {
-        if (q.id === id) {
-          if (q.isUsedInExam) {
-            alert("BR-011: Câu hỏi này đang được sử dụng trong Đề thi, không thể vô hiệu hóa!");
-            return q;
-          }
-          return {
-            ...q,
-            status: q.status === "ready" ? "disabled" : "ready",
-          };
-        }
-        return q;
-      })
-    );
-  };
+  // Live queries
+  const { data: subjectsData } = useSubjects();
+  const subjects = subjectsData?.data || [];
 
-  const filteredQuestions = questions.filter((q) => {
-    const matchesSearch =
-      q.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.orderNumber.toString().includes(searchTerm);
-    const matchesSubject = selectedSubject === "all" || q.subjectCode === selectedSubject;
-    const matchesType = selectedType === "all" || q.type === selectedType;
-    const matchesDifficulty = selectedDifficulty === "all" || q.difficulty === selectedDifficulty;
-    const matchesStatus = selectedStatus === "all" || q.status === selectedStatus;
+  const { data: questionsData, isLoading } = useQuestions({
+    search: searchTerm || undefined,
+    difficulty: selectedDifficulty !== "all" ? selectedDifficulty : undefined,
+    status: selectedStatus !== "all" ? selectedStatus : undefined,
+    per_page: 50,
+  });
 
-    return matchesSearch && matchesSubject && matchesType && matchesDifficulty && matchesStatus;
+  const rawQuestions = questionsData?.data || [];
+
+  // Filter client side by subject and question_type if needed
+  const filteredQuestions = rawQuestions.filter((q: any) => {
+    const matchesSubject =
+      selectedSubject === "all" ||
+      String(q.topic?.subject?.id) === selectedSubject ||
+      q.topic?.subject?.code === selectedSubject;
+    const matchesType = selectedType === "all" || q.question_type === selectedType;
+    return matchesSubject && matchesType;
   });
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-16">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -172,7 +60,7 @@ export default function QuestionsBankPage() {
             Ngân Hàng Câu Hỏi Khảo Thí
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Quản trị ngân hàng câu hỏi, phân cấp độ khó và kiểm duyệt trạng thái sẵn sàng (Ready).
+            Quản trị kho câu hỏi trắc nghiệm, tự luận, kiểm soát trạng thái sẵn sàng và lịch sử gắn đề thi.
           </p>
         </div>
 
@@ -180,258 +68,232 @@ export default function QuestionsBankPage() {
           <button
             type="button"
             onClick={() => setIsImportModalOpen(true)}
-            className="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-[8px] text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition shadow-xs"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            Nhập Excel Hàng Loạt
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Nhập Excel</span>
           </button>
-          <Link href="/teacher/questions/new">
-            <ThiSmartCtaButton variant="primary" size="md">
-              <Plus className="w-4 h-4 mr-1.5" />
-              Soạn câu hỏi mới
-            </ThiSmartCtaButton>
-          </Link>
         </div>
       </div>
 
-      {/* Multi-facet Filter Toolbar */}
-      <div className="p-4 bg-white rounded-[8px] border border-slate-200/90 shadow-xs space-y-3">
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="relative flex-1">
+      {/* Filter Toolbar */}
+      <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          {/* Search bar */}
+          <div className="relative md:col-span-2">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm theo nội dung, mã câu hỏi (#1042)..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-[6px] border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+              placeholder="Tìm kiếm nội dung câu hỏi..."
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          {/* Subject Filter */}
+          <div>
             <select
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
             >
-              <option value="all">Tất cả Môn học</option>
-              <option value="IT4409">IT4409 - Lập trình Web</option>
-              <option value="CS201">CS201 - CTDL & GT</option>
+              <option value="all">Tất cả môn học</option>
+              {subjects.map((sub) => (
+                <option key={sub.id} value={String(sub.id)}>
+                  {sub.code} - {sub.name}
+                </option>
+              ))}
             </select>
+          </div>
 
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="all">Tất cả Loại câu</option>
-              <option value="single_choice">Trắc nghiệm 1 đáp án</option>
-              <option value="multiple_choice">Nhiều đáp án</option>
-              <option value="true_false">Đúng / Sai</option>
-              <option value="short_answer">Điền khuyết / Tự luận ngắn</option>
-            </select>
-
+          {/* Difficulty Filter */}
+          <div>
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
             >
-              <option value="all">Mọi độ khó</option>
+              <option value="all">Tất cả độ khó</option>
               <option value="easy">Dễ (Easy)</option>
               <option value="medium">Trung bình (Medium)</option>
               <option value="hard">Khó (Hard)</option>
             </select>
-
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-2.5 py-2 rounded-[6px] border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="all">Tất cả Trạng thái</option>
-              <option value="ready">Sẵn sàng (Ready)</option>
-              <option value="disabled">Vô hiệu hóa (Disabled)</option>
-            </select>
           </div>
         </div>
       </div>
 
-      {/* Questions List */}
-      <div className="space-y-3">
-        <div className="text-xs font-semibold text-slate-500 px-1">
-          Hiển thị {filteredQuestions.length} câu hỏi phù hợp
-        </div>
-
-        {filteredQuestions.map((q) => (
-          <div
-            key={q.id}
-            className={`p-5 rounded-[8px] bg-white border border-slate-200/90 transition shadow-xs hover:border-slate-300 ${
-              q.status === "disabled" ? "opacity-75 bg-slate-50/50" : ""
-            }`}
-          >
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div className="space-y-2 flex-1">
-                {/* Badges Bar */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-black bg-slate-900 text-white">
-                    #{q.orderNumber}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                    {q.subjectCode}
-                  </span>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {q.topicName}
-                  </span>
-
-                  {/* Question Type Badge */}
-                  <span className="px-2 py-0.5 rounded-[4px] text-[11px] font-semibold bg-slate-100 text-slate-700">
-                    {q.type === "single_choice"
-                      ? "1 Đáp án"
-                      : q.type === "multiple_choice"
-                      ? "Nhiều đáp án"
-                      : q.type === "true_false"
-                      ? "Đúng/Sai"
-                      : "Tự luận ngắn"}
-                  </span>
-
-                  {/* Difficulty Badge */}
-                  <span
-                    className={`px-2 py-0.5 rounded-[4px] text-[11px] font-semibold ${
-                      q.difficulty === "easy"
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                        : q.difficulty === "medium"
-                        ? "bg-amber-50 text-amber-800 border border-amber-200"
-                        : "bg-rose-50 text-rose-800 border border-rose-200"
-                    }`}
-                  >
-                    {q.difficulty === "easy" ? "Dễ" : q.difficulty === "medium" ? "Trung bình" : "Khó"}
-                  </span>
-
-                  {/* Status Badge */}
-                  <span
-                    className={`px-2 py-0.5 rounded-[4px] text-[11px] font-bold ${
-                      q.status === "ready"
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                        : "bg-slate-100 text-slate-500 border border-slate-200"
-                    }`}
-                  >
-                    {q.status === "ready" ? "READY" : "DISABLED"}
-                  </span>
-
-                  {/* In exam notice */}
-                  {q.isUsedInExam && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-[4px] border border-indigo-200">
-                      <Lock className="w-3 h-3" />
-                      Nằm trong {q.usedInExamCount} đề thi
-                    </span>
-                  )}
-                </div>
-
-                {/* Question Content */}
-                <h3 className="text-sm sm:text-base font-semibold text-slate-900 leading-snug">
-                  {q.content}
-                </h3>
-
-                {/* Quick answer reference */}
-                <div className="text-xs text-slate-500 font-medium flex items-center gap-2">
-                  <span className="font-semibold text-emerald-700">Đáp án chuẩn:</span>
-                  <span>{q.correctAnswer.join(", ")}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-1.5 shrink-0 self-end md:self-start">
-                <button
-                  type="button"
-                  onClick={() => setPreviewQuestion(q)}
-                  className="p-1.5 rounded-[6px] text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition border border-slate-200"
-                  title="Xem trước câu hỏi"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-
-                <Link
-                  href={`/teacher/questions/${q.id}/edit`}
-                  className={`p-1.5 rounded-[6px] transition border ${
-                    q.isUsedInExam
-                      ? "text-slate-300 border-slate-100 pointer-events-none"
-                      : "text-slate-500 border-slate-200 hover:text-blue-600 hover:bg-blue-50"
-                  }`}
-                  title={q.isUsedInExam ? "BR-011: Không thể sửa khi đã nằm trong đề" : "Sửa câu hỏi"}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => toggleQuestionStatus(q.id)}
-                  disabled={q.isUsedInExam}
-                  className={`p-1.5 rounded-[6px] transition border ${
-                    q.isUsedInExam
-                      ? "text-slate-300 border-slate-100 cursor-not-allowed"
-                      : q.status === "ready"
-                      ? "text-slate-500 border-slate-200 hover:text-rose-600 hover:bg-rose-50"
-                      : "text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-                  }`}
-                  title={
-                    q.isUsedInExam
-                      ? "BR-011: Không thể tắt khi câu hỏi đã gắn vào đề"
-                      : q.status === "ready"
-                      ? "Vô hiệu hóa câu hỏi"
-                      : "Kích hoạt câu hỏi"
-                  }
-                >
-                  <Power className="w-4 h-4" />
-                </button>
-              </div>
+      {/* Questions Data Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        {isLoading ? (
+          <div className="p-16 text-center text-slate-400 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <span className="text-xs font-semibold">Đang truy vấn ngân hàng câu hỏi...</span>
+          </div>
+        ) : filteredQuestions.length === 0 ? (
+          <div className="p-16 text-center text-slate-400">
+            <HelpCircle className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+            <div className="text-sm font-bold text-slate-700">Không tìm thấy câu hỏi phù hợp</div>
+            <div className="text-xs text-slate-400 mt-1">
+              Thử thay đổi từ khóa tìm kiếm hoặc điều chỉnh bộ lọc môn học / độ khó.
             </div>
           </div>
-        ))}
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3 px-4">Mã #</th>
+                  <th className="py-3 px-4">Môn &amp; Chủ đề</th>
+                  <th className="py-3 px-4">Nội dung câu hỏi</th>
+                  <th className="py-3 px-4 text-center">Loại</th>
+                  <th className="py-3 px-4 text-center">Độ khó</th>
+                  <th className="py-3 px-4 text-center">Trạng thái</th>
+                  <th className="py-3 px-4 text-right">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredQuestions.map((q: any) => {
+                  const subjectCode = q.topic?.subject?.code || "GEN";
+                  const topicName = q.topic?.name || "Chung";
+
+                  return (
+                    <tr key={q.id} className="hover:bg-slate-50/60 transition group">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-600">
+                        #{q.id}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800">
+                            {subjectCode}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 truncate max-w-[180px] mt-0.5">
+                          {topicName}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 max-w-md">
+                        <div className="font-medium text-slate-900 line-clamp-2 leading-relaxed">
+                          {q.question_text}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-600">
+                          {q.question_type}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            q.difficulty === "easy"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : q.difficulty === "medium"
+                              ? "bg-amber-50 text-amber-700"
+                              : "bg-rose-50 text-rose-700"
+                          }`}
+                        >
+                          {q.difficulty}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            q.status === "ready"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-slate-100 text-slate-500"
+                          }`}
+                        >
+                          <CheckCircle2 className="w-3 h-3" />
+                          {q.status === "ready" ? "Sẵn sàng" : "Đã khóa"}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewQuestion(q)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                          title="Xem chi tiết đáp án"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Question Preview Modal */}
+      {/* Modal Chi Tiết / Đáp Án Câu Hỏi */}
       {previewQuestion && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-[8px] max-w-xl w-full p-6 shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-[4px] text-xs font-black bg-blue-700 text-white">
-                  #{previewQuestion.orderNumber}
+                <span className="font-mono text-xs font-bold text-slate-500">
+                  Câu hỏi #{previewQuestion.id}
                 </span>
-                <span className="text-xs font-bold text-slate-600">Xem trước hiển thị</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800">
+                  {previewQuestion.topic?.subject?.code || "GEN"}
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setPreviewQuestion(null)}
-                className="p-1 rounded-[4px] text-slate-400 hover:text-slate-600"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-4 mt-4">
-              <div className="text-sm font-bold text-slate-900 leading-relaxed">
-                {previewQuestion.content}
+            <div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                Nội dung câu hỏi:
               </div>
+              <div className="text-sm font-semibold text-slate-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                {previewQuestion.question_text}
+              </div>
+            </div>
 
-              {previewQuestion.options && (
-                <div className="space-y-2">
-                  {previewQuestion.options.map((opt) => {
-                    const isCorrect = previewQuestion.correctAnswer.includes(opt.key);
+            {previewQuestion.options && previewQuestion.options.length > 0 && (
+              <div>
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  Các phương án lựa chọn:
+                </div>
+                <div className="space-y-1.5">
+                  {previewQuestion.options.map((opt: any) => {
+                    const isCorrect =
+                      previewQuestion.correct_answer === opt.id ||
+                      (Array.isArray(previewQuestion.correct_answer) &&
+                        previewQuestion.correct_answer.includes(opt.id));
+
                     return (
                       <div
-                        key={opt.key}
-                        className={`p-3 rounded-[6px] border text-xs font-medium flex items-center justify-between ${
+                        key={opt.id}
+                        className={`p-2.5 rounded-xl border text-xs flex items-start gap-2.5 ${
                           isCorrect
-                            ? "border-emerald-500 bg-emerald-50/60 text-emerald-950 ring-1 ring-emerald-500/30"
-                            : "border-slate-200 bg-white text-slate-700"
+                            ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 font-semibold"
+                            : "bg-white border-slate-200 text-slate-700"
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">{opt.key}.</span>
-                          <span>{opt.text}</span>
-                        </div>
+                        <span
+                          className={`w-5 h-5 rounded-md text-[10px] font-bold flex items-center justify-center shrink-0 ${
+                            isCorrect ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {opt.id.slice(-1).toUpperCase()}
+                        </span>
+                        <div className="flex-1 mt-0.5">{opt.content}</div>
                         {isCorrect && (
-                          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-[4px]">
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
                             Đáp án đúng
                           </span>
                         )}
@@ -439,34 +301,34 @@ export default function QuestionsBankPage() {
                     );
                   })}
                 </div>
-              )}
-
-              <div className="p-3.5 rounded-[6px] bg-blue-50 border border-blue-200 text-xs text-blue-900">
-                <span className="font-bold">Giải thích đáp án: </span>
-                {previewQuestion.explanation}
               </div>
-            </div>
+            )}
 
-            <div className="mt-5 pt-3 border-t border-slate-100 flex justify-end">
+            {previewQuestion.explanation && (
+              <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200/60 text-xs">
+                <span className="font-bold text-blue-900">Giải thích: </span>
+                <span className="text-blue-800">{previewQuestion.explanation}</span>
+              </div>
+            )}
+
+            <div className="pt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => setPreviewQuestion(null)}
-                className="px-4 py-2 rounded-[6px] text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200"
+                className="px-4 py-2 text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl transition"
               >
-                Đóng xem trước
+                Đóng
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Question Import Modal */}
+      {/* Excel Import Modal */}
       <QuestionImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onSuccess={(count) => {
-          // Can refresh or alert
-        }}
+        onSuccess={() => {}}
       />
     </div>
   );

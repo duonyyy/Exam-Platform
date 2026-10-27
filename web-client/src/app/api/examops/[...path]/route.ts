@@ -93,6 +93,83 @@ function handleSimulatedResponse(subPath: string, method: string, body: any) {
     });
   }
 
+  // 1.5 Generate Questions: POST /api/v1/agent/generate-questions
+  if (subPath === "api/v1/agent/generate-questions" && method === "POST") {
+    const topicName = body?.topic_name || "Kiến trúc RESTful API & HTTP Methods";
+    const subjectName = body?.subject_name || "IT4409";
+    const count = Math.max(1, Math.min(Number(body?.count) || 5, 10));
+
+    const pool = [
+      {
+        question_text: `Trong kiến trúc RESTful API (${topicName}), phương thức HTTP nào có tính chất Idempotent và dùng để xóa tài nguyên?`,
+        question_type: "single_choice",
+        difficulty: "easy",
+        options: [
+          { id: "opt_a", content: "GET" },
+          { id: "opt_b", content: "POST" },
+          { id: "opt_c", content: "DELETE" },
+          { id: "opt_d", content: "PATCH" },
+        ],
+        correct_answer: "opt_c",
+        explanation: "DELETE theo chuẩn RFC 7231 là phương thức idempotent: gọi nhiều lần đều đem lại kết quả tài nguyên bị xóa trên server.",
+      },
+      {
+        question_text: `Mã trạng thái HTTP 201 Created được trả về phù hợp nhất trong trường hợp nào khi thao tác với ${topicName}?`,
+        question_type: "single_choice",
+        difficulty: "easy",
+        options: [
+          { id: "opt_a", content: "Tài nguyên mới được tạo thành công trên máy chủ" },
+          { id: "opt_b", content: "Yêu cầu bị từ chối do thiếu token" },
+          { id: "opt_c", content: "Máy chủ đang quá tải" },
+          { id: "opt_d", content: "Dữ liệu không có thay đổi" },
+        ],
+        correct_answer: "opt_a",
+        explanation: "201 Created biểu thị tài nguyên mới đã được khởi tạo thành công trên máy chủ.",
+      },
+      {
+        question_text: `Những phương thức HTTP nào sau đây là Idempotent theo đặc tả chuẩn RFC 7231 áp dụng trong ${topicName}? (Chọn nhiều đáp án)`,
+        question_type: "multiple_choice",
+        difficulty: "medium",
+        options: [
+          { id: "opt_a", content: "GET" },
+          { id: "opt_b", content: "PUT" },
+          { id: "opt_c", content: "DELETE" },
+          { id: "opt_d", content: "POST" },
+        ],
+        correct_answer: ["opt_a", "opt_b", "opt_c"],
+        explanation: "GET, PUT, DELETE là các phương thức idempotent. POST không idempotent vì mỗi lần gọi tạo tài nguyên mới.",
+      },
+      {
+        question_text: `Trong thiết kế ${topicName}, việc sử dụng Pessimistic Locking (Khóa bi quan FOR UPDATE) giúp triệt tiêu hoàn toàn race condition trong lúc nộp bài.`,
+        question_type: "true_false",
+        difficulty: "medium",
+        options: [
+          { id: "opt_a", content: "Đúng" },
+          { id: "opt_b", content: "Sai" },
+        ],
+        correct_answer: "opt_a",
+        explanation: "Pessimistic locking khóa trực tiếp dòng dữ liệu trong database transaction, ngăn các giao dịch đồng thời can thiệp.",
+      },
+      {
+        question_text: `Lỗ hổng bảo mật phổ biến nhất trong OWASP API Security khi thiếu sót kiểm tra quyền truy cập tài nguyên của người dùng theo ID là gì?`,
+        question_type: "short_answer",
+        difficulty: "hard",
+        options: [],
+        correct_answer: "BOLA / IDOR",
+        explanation: "BOLA (Broken Object Level Authorization) hay IDOR (Insecure Direct Object Reference) là lỗ hổng đứng đầu OWASP API Security Top 10.",
+      },
+    ];
+
+    return NextResponse.json({
+      topic_name: topicName,
+      subject_name: subjectName,
+      questions: pool.slice(0, count),
+    }, {
+      status: 200,
+      headers: { "X-ExamOps-Mode": "simulated" },
+    });
+  }
+
   // 2. Create Task: POST /api/v1/tasks
   if (subPath === "api/v1/tasks" && method === "POST") {
     const goal = body?.goal || "Thiết kế ma trận đề thi";

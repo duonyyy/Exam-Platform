@@ -14,3 +14,9 @@ export async function startAttemptApi(sessionId: number | string): Promise<{ dat
     method: "POST",
   });
 }
+
+export async function getStudentAttemptsApi(): Promise<{ data: any[] }> {
+  return apiClient<{ data: any[] }>("/api/proxy/student/attempts", {
+    method: "GET",
+  });
+}

@@ -14,96 +14,39 @@ import {
   FileCode,
   X,
   CheckCircle2,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
-
-interface AuditLogEntry {
-  id: string;
-  timestamp: string;
-  actor: string;
-  actorRole: "student" | "teacher" | "admin" | "system";
-  action: string;
-  details: string;
-  ipAddress: string;
-  status: string;
-  severity: "info" | "warning" | "critical";
-  payload?: Record<string, any>;
-}
-
-const MOCK_AUDIT_LOGS: AuditLogEntry[] = [
-  {
-    id: "log-1",
-    timestamp: "08:52:14 - 17/10/2026",
-    actor: "Nguyễn Văn A (SV101)",
-    actorRole: "student",
-    action: "Nộp bài thi",
-    details: "Chốt 38/40 câu hỏi • Điểm sơ bộ: 8.75 • Khóa bi quan hoàn tất",
-    ipAddress: "192.168.1.45",
-    status: "200 OK",
-    severity: "info",
-    payload: { endpoint: "POST /api/v1/exam-attempts/842/submit", attempt_id: 842, score: 8.75, idempotency_key: "idem-9831-af" },
-  },
-  {
-    id: "log-2",
-    timestamp: "08:41:02 - 17/10/2026",
-    actor: "Lê Hoàng C (SV103)",
-    actorRole: "student",
-    action: "Rời màn hình / Chuyển tab",
-    details: "Cảm biến ghi nhận sự kiện tab_hidden (Rời tab 12 giây)",
-    ipAddress: "192.168.1.88",
-    status: "201 Created",
-    severity: "warning",
-    payload: { endpoint: "POST /api/v1/exam-attempts/842/proctoring-events", event_type: "tab_hidden", duration_sec: 12, window_blurred: true },
-  },
-  {
-    id: "log-3",
-    timestamp: "08:15:30 - 17/10/2026",
-    actor: "TS. Trần Minh Khoa",
-    actorRole: "teacher",
-    action: "Công bố ca thi",
-    details: "Mở ca thi SES-IT4409 cho 45 sinh viên làm bài",
-    ipAddress: "10.0.4.12",
-    status: "200 OK",
-    severity: "info",
-    payload: { endpoint: "POST /api/v1/exam-sessions/101/publish", session_id: "session-101", questions_count: 40, students_count: 45 },
-  },
-  {
-    id: "log-4",
-    timestamp: "08:00:10 - 17/10/2026",
-    actor: "Lê Hoàng Long",
-    actorRole: "admin",
-    action: "Đổi vai trò người dùng",
-    details: "Phân vai trò tài khoản ID #45 từ Student thành Teacher",
-    ipAddress: "10.0.1.2",
-    status: "200 OK",
-    severity: "critical",
-    payload: { endpoint: "PUT /api/v1/admin/users/45/role", target_user_id: 45, old_role: "student", new_role: "teacher" },
-  },
-  {
-    id: "log-5",
-    timestamp: "07:55:00 - 17/10/2026",
-    actor: "Hệ thống bảo vệ",
-    actorRole: "system",
-    action: "Đăng nhập thất bại liên tiếp",
-    details: "Nhập sai mật khẩu 5 lần từ địa chỉ IP khả nghi • Kích hoạt giới hạn tốc độ",
-    ipAddress: "203.113.152.1",
-    status: "429 Rate Limit",
-    severity: "critical",
-    payload: { target_email: "admin@university.edu.vn", attempts_count: 5, blocked_minutes: 15 },
-  },
-];
+import { useAdminAuditLogs } from "@/features/admin/hooks";
 
 export default function AdminAuditLogsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState("all");
-  const [selectedLog, setSelectedLog] = useState<AuditLogEntry | null>(null);
+  const [selectedLog, setSelectedLog] = useState<any | null>(null);
 
-  const filteredLogs = MOCK_AUDIT_LOGS.filter((l) => {
+  const { data, isLoading } = useAdminAuditLogs({ per_page: 50 });
+  const logs = data?.data || [];
+
+  const filteredLogs = logs.filter((l: any) => {
+    const actorName = l.actor?.name?.toLowerCase() || "";
+    const actorEmail = l.actor?.email?.toLowerCase() || "";
+    const action = l.action?.toLowerCase() || "";
+    const description = l.description?.toLowerCase() || "";
+    const term = searchTerm.toLowerCase();
+
     const matchesSearch =
-      l.actor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.ipAddress.includes(searchTerm);
-    const matchesSeverity = severityFilter === "all" || l.severity === severityFilter;
+      !searchTerm ||
+      actorName.includes(term) ||
+      actorEmail.includes(term) ||
+      action.includes(term) ||
+      description.includes(term);
+
+    const matchesSeverity =
+      severityFilter === "all" ||
+      (severityFilter === "critical" && l.severity === "high") ||
+      (severityFilter === "warning" && (l.severity === "medium" || l.severity === "low")) ||
+      (severityFilter === "info" && l.severity === "info");
+
     return matchesSearch && matchesSeverity;
   });
 
@@ -120,18 +63,9 @@ export default function AdminAuditLogsPage() {
             Nhật Ký Kiểm Toán Toàn Hệ Thống
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Lưu vết truy cập API, tín hiệu cảm biến bất thường và mọi thao tác thay đổi phân quyền nhạy cảm.
+            Lưu vết sự kiện an ninh phòng thi, nhật ký AI Copilot và các thao tác phân quyền nhạy cảm.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={() => alert("Chức năng mô phỏng: Đang xuất dữ liệu nhật ký kiểm toán!")}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[6px] text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition shadow-xs"
-        >
-          <Download className="w-4 h-4 text-slate-500" />
-          <span>Xuất nhật ký (CSV / JSON)</span>
-        </button>
       </div>
 
       {/* Filter toolbar */}
@@ -142,129 +76,189 @@ export default function AdminAuditLogsPage() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Tìm theo tác nhân, hành động, IP..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-[6px] border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Tìm theo người thực hiện, hành động, mô tả sự kiện..."
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
         </div>
 
         <select
           value={severityFilter}
           onChange={(e) => setSeverityFilter(e.target.value)}
-          className="px-3 py-1.5 rounded-[6px] border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         >
-          <option value="all">Mọi mức độ bảo mật</option>
-          <option value="info">Thông tin (Info)</option>
-          <option value="warning">Cảnh báo (Warning)</option>
-          <option value="critical">Nghiêm trọng (Critical)</option>
+          <option value="all">Tất cả mức độ</option>
+          <option value="critical">🔴 Mức cao (High / Critical)</option>
+          <option value="warning">🟡 Cảnh báo (Medium / Warning)</option>
+          <option value="info">🔵 Thông tin (Info)</option>
         </select>
       </div>
 
-      {/* Audit Logs Table */}
-      <div className="bg-white rounded-[8px] border border-slate-200/90 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-              <tr>
-                <th className="px-4 py-3">Thời gian</th>
-                <th className="px-4 py-3">Tác nhân</th>
-                <th className="px-4 py-3">Hành động</th>
-                <th className="px-4 py-3">Chi tiết nghiệp vụ</th>
-                <th className="px-4 py-3">Địa chỉ IP</th>
-                <th className="px-4 py-3">Mã HTTP</th>
-                <th className="px-4 py-3 text-right">Chi tiết</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50/70 transition">
-                  <td className="px-4 py-3 font-mono text-slate-500 whitespace-nowrap">
-                    {log.timestamp}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-slate-900">{log.actor}</div>
-                    <span className="text-[10px] text-slate-400 font-mono capitalize">
-                      {log.actorRole}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[11px] font-bold ${
-                        log.severity === "critical"
-                          ? "bg-rose-50 text-rose-800 border border-rose-200"
-                          : log.severity === "warning"
-                          ? "bg-amber-50 text-amber-800 border border-amber-200"
-                          : "bg-slate-100 text-slate-700 border border-slate-200"
-                      }`}
-                    >
-                      {log.severity === "critical" && <ShieldAlert className="w-3 h-3 text-rose-600" />}
-                      {log.severity === "warning" && <AlertTriangle className="w-3 h-3 text-amber-600" />}
-                      {log.severity === "info" && <CheckCircle2 className="w-3 h-3 text-slate-500" />}
-                      <span>{log.action}</span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-700 max-w-sm">
-                    {log.details}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-slate-500">
-                    {log.ipAddress}
-                  </td>
-                  <td className="px-4 py-3 font-mono font-bold text-slate-700">
-                    {log.status}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLog(log)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-[4px] text-slate-500 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition text-[11px] font-medium"
-                      title="Xem dữ liệu kỹ thuật"
-                    >
-                      <FileCode className="w-3.5 h-3.5" />
-                      <span>Xem</span>
-                    </button>
-                  </td>
+      {/* Audit Log Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        {isLoading ? (
+          <div className="p-16 text-center text-slate-400 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <span className="text-xs font-semibold">Đang cập nhật luồng nhật ký an ninh...</span>
+          </div>
+        ) : filteredLogs.length === 0 ? (
+          <div className="p-16 text-center text-slate-400">
+            <ShieldCheck className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+            <div className="text-sm font-bold text-slate-700">Không có bản ghi nhật ký phù hợp</div>
+            <div className="text-xs text-slate-400 mt-1">
+              Hệ thống chưa ghi nhận vi phạm an ninh nào trong khoảng thời gian này.
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3 px-4">Thời gian</th>
+                  <th className="py-3 px-4">Nguồn / Phân loại</th>
+                  <th className="py-3 px-4">Người thực hiện</th>
+                  <th className="py-3 px-4">Hành động</th>
+                  <th className="py-3 px-4">Chi tiết sự kiện</th>
+                  <th className="py-3 px-4 text-center">Mức độ</th>
+                  <th className="py-3 px-4 text-right">Chi tiết</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredLogs.map((log: any) => {
+                  const timeFormatted = log.timestamp
+                    ? new Date(log.timestamp).toLocaleTimeString("vi-VN") +
+                      " " +
+                      new Date(log.timestamp).toLocaleDateString("vi-VN")
+                    : "--";
+
+                  return (
+                    <tr key={log.id} className="hover:bg-slate-50/60 transition group">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600 whitespace-nowrap">
+                        {timeFormatted}
+                      </td>
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {log.category === "ai_copilot" ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                            <Sparkles className="w-3 h-3 text-purple-600" />
+                            AI Copilot
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            <ShieldCheck className="w-3 h-3 text-blue-600" />
+                            Giám sát
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">
+                          {log.actor?.name || "Hệ thống"}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {log.actor?.email || log.actor?.role || "System"}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono font-semibold text-slate-800">
+                        {log.action}
+                      </td>
+
+                      <td className="py-3.5 px-4 max-w-sm">
+                        <div className="text-slate-700 line-clamp-2 leading-relaxed">
+                          {log.description}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            log.severity === "high" || log.severity === "critical"
+                              ? "bg-rose-50 text-rose-700 border border-rose-200"
+                              : log.severity === "medium" || log.severity === "warning"
+                              ? "bg-amber-50 text-amber-700 border border-amber-200"
+                              : "bg-blue-50 text-blue-700 border border-blue-200"
+                          }`}
+                        >
+                          {log.severity}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLog(log)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                          title="Xem chi tiết"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Payload Modal */}
+      {/* Modal Chi Tiết Nhật Ký */}
       {selectedLog && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-[8px] max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Chi Tiết Payload Nhật Ký</h3>
-                <p className="text-xs text-slate-500 mt-0.5">{selectedLog.action} • {selectedLog.timestamp}</p>
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-slate-500">
+                  Nhật ký #{selectedLog.id}
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 text-slate-800">
+                  {selectedLog.action}
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedLog(null)}
-                className="p-1 rounded-[4px] text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-[6px] border border-slate-200">
-              <div><strong className="text-slate-900">Tác nhân:</strong> {selectedLog.actor} ({selectedLog.actorRole})</div>
-              <div><strong className="text-slate-900">Địa chỉ IP:</strong> {selectedLog.ipAddress}</div>
-              <div><strong className="text-slate-900">Mô tả sự kiện:</strong> {selectedLog.details}</div>
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="font-bold text-slate-500">Người thực hiện: </span>
+                <span className="font-semibold text-slate-900">
+                  {selectedLog.actor?.name || "Hệ thống"} ({selectedLog.actor?.email})
+                </span>
+              </div>
+
+              <div>
+                <span className="font-bold text-slate-500">Thời gian: </span>
+                <span className="font-mono text-slate-700">{selectedLog.timestamp}</span>
+              </div>
+
+              <div>
+                <span className="font-bold text-slate-500">Mô tả sự kiện: </span>
+                <p className="mt-1 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-800">
+                  {selectedLog.description}
+                </p>
+              </div>
+
+              {selectedLog.proposal_hash && (
+                <div>
+                  <span className="font-bold text-slate-500">Proposal Hash (AI Verification): </span>
+                  <div className="font-mono text-[11px] bg-slate-100 p-2 rounded-lg break-all text-slate-800 mt-1">
+                    {selectedLog.proposal_hash}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div>
-              <div className="text-xs font-bold text-slate-700 mb-1.5">Dữ liệu thô (Raw JSON):</div>
-              <pre className="p-3 rounded-[6px] bg-slate-900 text-cyan-300 font-mono text-xs overflow-x-auto max-h-60 border border-slate-800">
-                {JSON.stringify(selectedLog.payload, null, 2)}
-              </pre>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex justify-end">
+            <div className="pt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => setSelectedLog(null)}
-                className="px-3.5 py-1.5 rounded-[6px] text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+                className="px-4 py-2 text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl transition"
               >
                 Đóng
               </button>

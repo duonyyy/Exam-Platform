@@ -53,6 +53,7 @@ import {
   ReadinessReview,
   GeneratedExamData,
 } from "@/features/examops/types";
+import { QuestionGeneratorStudio } from "./QuestionGeneratorStudio";
 
 interface SubjectOption {
   code: string;
@@ -146,6 +147,7 @@ export default function TeacherAiAssistantPage() {
   const [materializeError, setMaterializeError] = useState<string | null>(null);
   const [previewTab, setPreviewTab] = useState<"matrix" | "audit" | "json">("matrix");
   const [copiedHash, setCopiedHash] = useState(false);
+  const [mainFeatureTab, setMainFeatureTab] = useState<"blueprint" | "question_generator">("blueprint");
 
   // Sync default topics when subject changes
   useEffect(() => {
@@ -462,6 +464,41 @@ export default function TeacherAiAssistantPage() {
         </div>
       </div>
 
+      {/* ── TOP-LEVEL FEATURE NAVIGATION TABS ───────────────────────── */}
+      <div className="flex items-center gap-2 border-b border-slate-200/90 pb-2">
+        <button
+          type="button"
+          onClick={() => setMainFeatureTab("blueprint")}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+            mainFeatureTab === "blueprint"
+              ? "bg-blue-600 text-white shadow-sm ring-2 ring-blue-500/20"
+              : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          <BrainCircuit className="w-4 h-4" />
+          <span>Thiết Kế Đề Thi Mẫu (Blueprint &amp; Review)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMainFeatureTab("question_generator")}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+            mainFeatureTab === "question_generator"
+              ? "bg-blue-600 text-white shadow-sm ring-2 ring-blue-500/20"
+              : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span>Soạn Câu Hỏi Tự Động (AI Generator)</span>
+          <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-800 ml-1">
+            Mới
+          </span>
+        </button>
+      </div>
+
+      {mainFeatureTab === "question_generator" ? (
+        <QuestionGeneratorStudio />
+      ) : (
+        <>
       {/* ── 2. STREAMLINED 6-STEP AGENT PIPELINE ────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
         <div className="flex items-center justify-between mb-4">
@@ -1452,6 +1489,8 @@ export default function TeacherAiAssistantPage() {
           )}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
