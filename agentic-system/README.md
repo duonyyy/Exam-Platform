@@ -73,14 +73,14 @@ agentic-system/
 │   ├── api/                    # REST API Communication Layer (FastAPI routes)
 │   ├── nodes/                  # 6 Deterministic StateGraph Nodes (intake, plan, execute, verify, approval, finalize)
 │   ├── tools/                  # Least-Privilege Tool Registry & Typed Contracts
-│   ├── services/               # Infrastructure Layer (LLM factory, Platform Client)
-│   ├── models/                 # Domain Schemas & Pydantic DTOs
 │   ├── config.py               # Pydantic BaseSettings Configuration
 │   ├── graph.py                # LangGraph StateGraph Assembler & Compiler
 │   ├── main.py                 # FastAPI Application Root & Middleware
+│   ├── model.py                # ModelProvider Factory (Mock, Gemini, OpenAI)
 │   ├── permissions.py          # Actor RBAC Authorization Matrix
 │   ├── persistence.py          # SQLite Checkpointer Engine
 │   ├── platform_client.py      # HTTPX REST Client communicating with Core API
+│   ├── schemas.py              # Domain Schemas & Pydantic DTOs
 │   ├── skills.py               # Domain Skills (Blueprint & Readiness Review)
 │   ├── state.py                # AgentState Typed Schema
 │   ├── telemetry.py            # Structured Audit Logging & OpenTelemetry Instrumentation

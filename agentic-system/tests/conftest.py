@@ -1,13 +1,21 @@
 """Shared pytest fixtures for ExamOps Agent tests."""
 
+import os
+
 import pytest
 from starlette.testclient import TestClient
 
-from examops.config import Settings
+from examops.config import Settings, get_settings
 from examops.main import app
 from examops.model import MockModelProvider
 from examops.platform_client import ExamPlatformClient
-from examops.schemas import ActorContext
+
+
+def pytest_configure() -> None:
+    """Set hermetic test environment before loading modules."""
+    os.environ["APP_ENV"] = "testing"
+    os.environ["MODEL_PROVIDER"] = "mock"
+    get_settings.cache_clear()
 
 
 @pytest.fixture
@@ -46,29 +54,3 @@ def mock_model(test_settings: Settings) -> MockModelProvider:
 def mock_platform_client(test_settings: Settings) -> ExamPlatformClient:
     return ExamPlatformClient(test_settings)
 
-
-@pytest.fixture
-def teacher_actor() -> ActorContext:
-    return ActorContext(
-        actor_id="teacher_01",
-        actor_role="teacher",
-        permissions=["design_blueprint", "review_readiness"],
-    )
-
-
-@pytest.fixture
-def student_actor() -> ActorContext:
-    return ActorContext(
-        actor_id="student_01",
-        actor_role="student",
-        permissions=["view_assigned_sessions"],
-    )
-
-
-@pytest.fixture
-def admin_actor() -> ActorContext:
-    return ActorContext(
-        actor_id="admin_01",
-        actor_role="admin",
-        permissions=["design_blueprint", "review_readiness", "publish_session"],
-    )

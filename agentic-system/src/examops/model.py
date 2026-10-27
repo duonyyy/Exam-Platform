@@ -56,7 +56,7 @@ class MockModelProvider:
         prompt_lower = prompt.lower()
 
         if schema is AgentGoal:
-            requires_write = any(w in prompt_lower for w in ["publish", "delete", "create", "gán"])
+            requires_write = any(w in prompt_lower for w in ["publish", "delete", "create", "gán", "lưu", "ghi", "tạo", "thêm"])
             requires_approval = requires_write
             intent = "design_blueprint"
             if (
@@ -283,6 +283,9 @@ class GeminiProvider:
 def get_model_provider(settings: Settings | None = None) -> ModelProvider:
     """Factory creating configured ModelProvider instance."""
     cfg = settings or get_settings()
+    if cfg.app_env == "testing":
+        return MockModelProvider(cfg)
+
     provider_type = cfg.model_provider.lower().strip()
 
     if provider_type == "openai_compatible":

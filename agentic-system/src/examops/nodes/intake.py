@@ -42,6 +42,9 @@ def node_intake(
         goal_obj.subject = state["subject"]
     if state.get("constraints"):
         goal_obj.constraints.update(state["constraints"])
+        if "requires_write" in state["constraints"]:
+            goal_obj.requires_write = bool(state["constraints"]["requires_write"])
+            goal_obj.requires_approval = goal_obj.requires_write
 
     # Verify actor permissions for intent
     auth_verif = verify_actor_and_intent(actor, goal_obj.intent)

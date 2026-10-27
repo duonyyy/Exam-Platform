@@ -76,25 +76,22 @@ agentic-system/
 │   │   ├── verify.py        # Node 4: Thẩm định toán học Bloom & phân bổ độ khó
 │   │   ├── approval.py      # Node 5a & 5b: Tạo Proposal & Cổng duyệt Human Review
 │   │   └── finalize.py      # Node 6: Chốt trạng thái và sinh FinalResult
-│   ├── tools/               # Quản lý công cụ tương tác
+│   ├── tools/               # Quản lý công cụ tương tác (Least-Privilege)
 │   │   ├── __init__.py
 │   │   ├── contracts.py     # ToolContract, RegisteredTool, ToolExecutionError
 │   │   └── registry.py      # ToolRegistry với chính sách Least-Privilege
-│   ├── services/            # Tầng dịch vụ hạ tầng
-│   │   ├── __init__.py
-│   │   ├── llm.py           # Factory ModelProvider (Mock, Gemini, OpenAI)
-│   │   └── platform.py      # ExamPlatformClient (HTTPX kết nối Laravel)
-│   ├── models/              # Lớp thực thể dữ liệu Pydantic
-│   │   ├── __init__.py
-│   │   └── schemas.py       # ActorContext, ExamBlueprint, ReadinessReview...
 │   ├── config.py            # Cấu hình Pydantic-Settings
 │   ├── graph.py             # Lắp ráp StateGraph & Compiler
 │   ├── main.py              # Khởi tạo FastAPI App, CORS & Telemetry
-│   ├── persistence.py       # SQLite Checkpointer
+│   ├── model.py             # Factory ModelProvider (Mock, Gemini, OpenAI)
 │   ├── permissions.py       # Ma trận quyền hạn Actor RBAC
+│   ├── persistence.py       # SQLite Checkpointer
+│   ├── platform_client.py   # ExamPlatformClient (HTTPX kết nối Laravel)
+│   ├── schemas.py           # Domain Schemas & Pydantic DTOs
 │   ├── skills.py            # Logic nghiệp vụ miền khảo thí
 │   ├── state.py             # AgentState TypedDict
-│   └── telemetry.py         # OpenTelemetry Audit Log
+│   ├── telemetry.py         # OpenTelemetry Audit Log
+│   └── verification.py      # Động cơ thẩm định toán học tất định
 ├── tests/                   # Bộ kiểm thử tự động
 │   ├── unit/                # Unit tests cho skills, verification, tools, config
 │   ├── integration/         # Integration tests cho API, graph flow, persistence

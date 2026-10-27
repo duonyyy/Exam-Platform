@@ -103,7 +103,7 @@ def test_eval_scenario_4_duplicate_questions() -> None:
 def test_eval_scenario_5_write_intent_pauses_for_approval() -> None:
     conn = sqlite3.connect(":memory:", check_same_thread=False)
     saver = SqliteSaver(conn)
-    graph = create_examops_graph(checkpointer=saver)
+    graph = create_examops_graph(checkpointer=saver, model=MockModelProvider())
 
     thread_id = "eval_write_thread_01"
     config = {"configurable": {"thread_id": thread_id}}
