@@ -25,10 +25,10 @@ import { ThiSmartPattern } from "@/components/patterns/ThiSmartPattern";
 import { useLogin } from "@/features/auth/hooks/useAuth";
 
 export default function LoginPage() {
-  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin">("student");
+  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin">("teacher");
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("student@university.edu.vn");
-  const [password, setPassword] = useState("Student@123");
+  const [email, setEmail] = useState("teacher@examplatform.local");
+  const [password, setPassword] = useState("Teacher@123456");
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loginMessage, setLoginMessage] = useState<string | null>(null);
@@ -38,14 +38,14 @@ export default function LoginPage() {
     setSelectedRole(role);
     setErrorMessage(null);
     if (role === "student") {
-      setEmail("student@university.edu.vn");
-      setPassword("Student@123");
+      setEmail("student@examplatform.local");
+      setPassword("Student@123456");
     } else if (role === "teacher") {
-      setEmail("teacher.nguyen@university.edu.vn");
-      setPassword("Teacher@123");
+      setEmail("teacher@examplatform.local");
+      setPassword("Teacher@123456");
     } else {
-      setEmail("admin@thismart.internal");
-      setPassword("Admin@123");
+      setEmail("admin@examplatform.local");
+      setPassword("Admin@123456");
     }
   };
 

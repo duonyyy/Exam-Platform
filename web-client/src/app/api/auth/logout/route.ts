@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     cookieStore.delete("auth_token");
+    cookieStore.delete("user_role");
 
     return NextResponse.json({
       success: true,

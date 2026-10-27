@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     if (!backendResponse.ok) {
       if (backendResponse.status === 401) {
         cookieStore.delete("auth_token");
+        cookieStore.delete("user_role");
       }
       return NextResponse.json(
         data || { message: "Không thể xác thực thông tin." },

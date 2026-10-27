@@ -14,17 +14,38 @@ import {
   Users,
   ExternalLink,
 } from "lucide-react";
+import { useCurrentUser, useLogout } from "@/features/auth/hooks/useAuth";
 
 export function TopBar() {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
+  const { data: currentUser } = useCurrentUser();
+  const logoutMutation = useLogout();
 
-  // Identify current section from pathname
+  // Identify current section from pathname and authenticated user
   const currentSection = pathname.startsWith("/teacher")
-    ? { role: "Giảng viên", name: "TS. Trần Minh Khoa", code: "GV102", icon: Users, color: "text-blue-600 bg-blue-50" }
+    ? {
+        role: "Giảng viên",
+        name: currentUser?.name || "TS. Lê Hoàng Nam",
+        code: currentUser?.code || "GV0001",
+        icon: Users,
+        color: "text-blue-600 bg-blue-50",
+      }
     : pathname.startsWith("/admin")
-    ? { role: "Quản trị viên", name: "Lê Hoàng Long", code: "ADM01", icon: Shield, color: "text-purple-600 bg-purple-50" }
-    : { role: "Sinh viên", name: "Nguyễn Văn A", code: "SV101", icon: GraduationCap, color: "text-cyan-700 bg-cyan-50 border border-cyan-200/60" };
+    ? {
+        role: "Quản trị viên",
+        name: currentUser?.name || "System Administrator",
+        code: currentUser?.code || "AD0001",
+        icon: Shield,
+        color: "text-purple-600 bg-purple-50",
+      }
+    : {
+        role: "Sinh viên",
+        name: currentUser?.name || "Nguyễn Văn An",
+        code: currentUser?.code || "SV20260001",
+        icon: GraduationCap,
+        color: "text-cyan-700 bg-cyan-50 border border-cyan-200/60",
+      };
 
   const Icon = currentSection.icon;
 
@@ -138,13 +159,15 @@ export function TopBar() {
                 </Link>
               </div>
               <div className="pt-1 border-t border-slate-100">
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition"
+                <button
+                  type="button"
+                  onClick={() => logoutMutation.mutate()}
+                  disabled={logoutMutation.isPending}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition disabled:opacity-50 text-left"
                 >
                   <LogOut className="w-3.5 h-3.5 text-rose-500" />
-                  <span>Đăng xuất</span>
-                </Link>
+                  <span>{logoutMutation.isPending ? "Đang đăng xuất..." : "Đăng xuất"}</span>
+                </button>
               </div>
             </div>
           )}
