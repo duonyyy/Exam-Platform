@@ -46,3 +46,23 @@ def test_create_task_success(api_client: TestClient, auth_headers: dict[str, str
 def test_get_task_not_found(api_client: TestClient, auth_headers: dict[str, str]) -> None:
     response = api_client.get("/api/v1/tasks/non-existent-thread-id", headers=auth_headers)
     assert response.status_code == 404
+
+
+def test_generate_questions_endpoint(api_client: TestClient, auth_headers: dict[str, str]) -> None:
+    payload = {
+        "topic_name": "Kiến trúc RESTful API",
+        "subject_name": "IT4409",
+        "count": 3,
+        "difficulty": "medium",
+    }
+    response = api_client.post(
+        "/api/v1/agent/generate-questions", json=payload, headers=auth_headers
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["topic_name"] == "Kiến trúc RESTful API"
+    assert len(data["questions"]) >= 1
+    first_q = data["questions"][0]
+    assert "question_text" in first_q
+    assert "correct_answer" in first_q
+

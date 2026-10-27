@@ -176,3 +176,37 @@ class HealthResponse(BaseModel):
     version: str
     environment: str
     model_provider: str
+
+
+class GeneratedQuestionOption(BaseModel):
+    id: str
+    content: str
+
+
+class GeneratedQuestionItem(BaseModel):
+    question_text: str = Field(..., description="Nội dung câu hỏi")
+    question_type: Literal["single_choice", "multiple_choice", "true_false", "short_answer"] = Field(
+        default="single_choice"
+    )
+    difficulty: Literal["easy", "medium", "hard"] = Field(default="medium")
+    options: list[GeneratedQuestionOption] = Field(
+        default_factory=list, description="Danh sách các phương án lựa chọn"
+    )
+    correct_answer: str | list[str] = Field(..., description="ID phương án đúng hoặc chuỗi đáp án")
+    explanation: str = Field(default="", description="Giải thích lý do đáp án đúng")
+
+
+class GeneratedQuestionsProposal(BaseModel):
+    topic_name: str
+    subject_name: str = ""
+    questions: list[GeneratedQuestionItem] = Field(default_factory=list)
+
+
+class GenerateQuestionsRequest(BaseModel):
+    topic_name: str
+    subject_name: str = ""
+    count: int = Field(default=5, ge=1, le=20)
+    difficulty: Literal["easy", "medium", "hard", "mixed"] = Field(default="mixed")
+    question_types: list[Literal["single_choice", "multiple_choice", "true_false", "short_answer"]] = Field(
+        default_factory=lambda: ["single_choice", "multiple_choice", "true_false", "short_answer"]
+    )

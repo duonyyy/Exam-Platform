@@ -8,6 +8,8 @@ from examops.model import ModelProvider
 from examops.schemas import (
     ExamBlueprint,
     ExamDifficultyDistribution,
+    GenerateQuestionsRequest,
+    GeneratedQuestionsProposal,
     QuestionRecord,
     ReadinessCheckItem,
     ReadinessReview,
@@ -231,3 +233,36 @@ class ExamReadinessReviewSkill:
             violations=violations,
             recommendations=recommendations,
         )
+
+
+class QuestionGeneratorSkill:
+    """Generate high-quality assessment questions adhering to topic, difficulty, and type constraints."""
+
+    def execute(
+        self,
+        request: GenerateQuestionsRequest,
+        model: ModelProvider,
+    ) -> GeneratedQuestionsProposal:
+        prompt = (
+            f"Generate {request.count} academic exam questions for subject '{request.subject_name}', "
+            f"topic '{request.topic_name}'. "
+            f"Difficulty target: {request.difficulty}. "
+            f"Question types to include: {request.question_types}. "
+            f"For each question, provide clear question_text, appropriate question_type, difficulty, "
+            f"options (for choice questions with id opt_a, opt_b, opt_c, opt_d), exact correct_answer, and concise explanation."
+        )
+        proposal: GeneratedQuestionsProposal = model.generate_structured(
+            prompt,
+            GeneratedQuestionsProposal,
+            system_prompt=(
+                "You are an expert university professor and exam author. "
+                "Output strictly valid JSON conforming to GeneratedQuestionsProposal schema."
+            ),
+        )
+
+        if not proposal.topic_name:
+            proposal.topic_name = request.topic_name
+        if not proposal.subject_name and request.subject_name:
+            proposal.subject_name = request.subject_name
+
+        return proposal
