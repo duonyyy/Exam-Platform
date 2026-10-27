@@ -1,8 +1,0 @@
----
-description: ThiSmart EdTech brand, patterns and motion implementation rules
-alwaysApply: true
----
-
-When modifying the ThiSmart frontend, read `design-system/AGENTS.md`, `design-system/docs/*.md`, and directly inspect `design-system/references/*.png`. Use canonical CSS tokens, implement 6 vector patterns and 4 motion behaviors. Do not redraw/crop the official logo from design posters. Respect reduced-motion and responsive design.
-
-Setup: save this file as `.cursor/rules/thismart-design.mdc` in the project. If the project already has design rules, merge rather than overriding.

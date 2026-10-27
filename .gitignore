@@ -84,3 +84,11 @@ scratch/
 tmp/
 temp/
 .playwright-mcp/
+
+# Database & Checkpoint storage (Local runtimes)
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+/agentic-system/data/
+
