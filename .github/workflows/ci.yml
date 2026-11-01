@@ -273,7 +273,7 @@ jobs:
           echo "Production Docker Compose configuration is valid."
 
       - name: Build Core API Production Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/php/Dockerfile.prod
@@ -282,7 +282,7 @@ jobs:
           tags: exam-platform-api:test
 
       - name: Build Web Client Production Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/client/Dockerfile.prod
